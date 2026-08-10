@@ -115,18 +115,76 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
         })}
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-sm text-gray-500">
-        {DOW.map((d, i) => (
-          <div key={d} className={i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}>
-            {d}
-          </div>
-        ))}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-7 gap-1 text-center text-sm text-gray-500">
+          {DOW.map((d, i) => (
+            <div key={d} className={i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}>
+              {d}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-1 grid grid-cols-7 gap-1">
+          {cells.map((day, i) => {
+            if (day === null) return <div key={`empty-${i}`} className="rounded-lg bg-white/[0.01]" />;
+
+            const dateStr = `${ym}-${String(day).padStart(2, "0")}`;
+            const isToday = dateStr === today;
+            const weekday = (firstW + day - 1) % 7;
+            const holidayNames = holidays[dateStr] ?? [];
+            const isHoliday = holidayNames.length > 0;
+            const items = itemsByDate[dateStr] ?? [];
+
+            const dayColor = isHoliday || weekday === 0 ? "text-red-400" : weekday === 6 ? "text-blue-400" : "text-gray-200";
+
+            return (
+              <div
+                key={dateStr}
+                className={[
+                  "flex min-h-[108px] flex-col gap-1 rounded-lg border p-1.5",
+                  isToday ? "border-purple-400/50 bg-purple-500/[0.06]" : "border-white/5",
+                ].join(" ")}
+              >
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={`/schedule/new?date=${dateStr}`}
+                    title={`${dateStr} 일정 입력`}
+                    className={`text-sm font-semibold ${dayColor} hover:underline`}
+                  >
+                    {day}
+                  </Link>
+                  {items.length > 0 && (
+                    <span className="rounded-full bg-white/10 px-1.5 text-xs leading-4 text-gray-300">
+                      {items.length}
+                    </span>
+                  )}
+                </div>
+
+                {isHoliday && <div className="truncate text-xs text-red-400">{holidayNames.join(" · ")}</div>}
+
+                <div className="flex max-h-[100px] flex-col gap-1 overflow-y-auto">
+                  {items.map((item) => {
+                    const colors = DEPT_COLORS[getDeptClass(item.department)];
+                    return (
+                      <Link
+                        key={item.id}
+                        href={`/schedule/${item.id}?ym=${ym}`}
+                        className={`truncate rounded border px-1.5 py-0.5 text-xs ${colors.bg} ${colors.text} ${colors.border}`}
+                        title={item.content}
+                      >
+                        {item.content}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="mt-1 grid grid-cols-7 gap-1">
-        {cells.map((day, i) => {
-          if (day === null) return <div key={`empty-${i}`} className="rounded-lg bg-white/[0.01]" />;
-
+      <div className="divide-y divide-white/5 md:hidden">
+        {Array.from({ length: total }, (_, i) => i + 1).map((day) => {
           const dateStr = `${ym}-${String(day).padStart(2, "0")}`;
           const isToday = dateStr === today;
           const weekday = (firstW + day - 1) % 7;
@@ -139,42 +197,35 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
           return (
             <div
               key={dateStr}
-              className={[
-                "flex min-h-[108px] flex-col gap-1 rounded-lg border p-1.5",
-                isToday ? "border-purple-400/50 bg-purple-500/[0.06]" : "border-white/5",
-              ].join(" ")}
+              className={["flex gap-3 py-2.5", isToday ? "bg-purple-500/[0.06]" : ""].join(" ")}
             >
-              <div className="flex items-center justify-between">
-                <Link
-                  href={`/schedule/new?date=${dateStr}`}
-                  title={`${dateStr} 일정 입력`}
-                  className={`text-sm font-semibold ${dayColor} hover:underline`}
-                >
-                  {day}
-                </Link>
-                {items.length > 0 && (
-                  <span className="rounded-full bg-white/10 px-1.5 text-xs leading-4 text-gray-300">
-                    {items.length}
-                  </span>
+              <Link
+                href={`/schedule/new?date=${dateStr}`}
+                title={`${dateStr} 일정 입력`}
+                className={`flex w-10 shrink-0 flex-col items-center text-sm font-semibold ${dayColor}`}
+              >
+                <span>{day}</span>
+                <span className="text-[10px] font-normal text-gray-500">{DOW[weekday]}</span>
+              </Link>
+
+              <div className="flex min-w-0 flex-1 flex-col gap-1 pt-0.5">
+                {isHoliday && <div className="text-xs text-red-400">{holidayNames.join(" · ")}</div>}
+                {items.length === 0 ? (
+                  !isHoliday && <div className="text-xs text-gray-600">—</div>
+                ) : (
+                  items.map((item) => {
+                    const colors = DEPT_COLORS[getDeptClass(item.department)];
+                    return (
+                      <Link
+                        key={item.id}
+                        href={`/schedule/${item.id}?ym=${ym}`}
+                        className={`whitespace-normal break-words rounded border px-2 py-1 text-sm leading-snug ${colors.bg} ${colors.text} ${colors.border}`}
+                      >
+                        {item.content}
+                      </Link>
+                    );
+                  })
                 )}
-              </div>
-
-              {isHoliday && <div className="truncate text-xs text-red-400">{holidayNames.join(" · ")}</div>}
-
-              <div className="flex max-h-[100px] flex-col gap-1 overflow-y-auto">
-                {items.map((item) => {
-                  const colors = DEPT_COLORS[getDeptClass(item.department)];
-                  return (
-                    <Link
-                      key={item.id}
-                      href={`/schedule/${item.id}?ym=${ym}`}
-                      className={`truncate rounded border px-1.5 py-0.5 text-xs ${colors.bg} ${colors.text} ${colors.border}`}
-                      title={item.content}
-                    >
-                      {item.content}
-                    </Link>
-                  );
-                })}
               </div>
             </div>
           );

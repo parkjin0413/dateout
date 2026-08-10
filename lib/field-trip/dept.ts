@@ -27,13 +27,13 @@ export function getDeptClass(dept: string): DeptClass {
 }
 
 export const DEPT_COLORS: Record<DeptClass, { bg: string; text: string; border: string }> = {
-  "dept-sales": { bg: "bg-blue-500/10", text: "text-blue-300", border: "border-blue-400/30" },
-  "dept-support": { bg: "bg-orange-500/10", text: "text-orange-300", border: "border-orange-400/30" },
-  "dept-pr": { bg: "bg-purple-500/10", text: "text-purple-300", border: "border-purple-400/30" },
-  "dept-admin": { bg: "bg-slate-500/10", text: "text-slate-300", border: "border-slate-400/30" },
-  "dept-prod": { bg: "bg-green-500/10", text: "text-green-300", border: "border-green-400/30" },
-  "dept-tech": { bg: "bg-cyan-500/10", text: "text-cyan-300", border: "border-cyan-400/30" },
-  "dept-etc": { bg: "bg-gray-500/10", text: "text-gray-300", border: "border-gray-400/30" },
+  "dept-sales": { bg: "bg-blue-100", text: "text-blue-900", border: "border-blue-300" },
+  "dept-support": { bg: "bg-orange-100", text: "text-orange-900", border: "border-orange-300" },
+  "dept-pr": { bg: "bg-purple-100", text: "text-purple-900", border: "border-purple-300" },
+  "dept-admin": { bg: "bg-slate-100", text: "text-slate-900", border: "border-slate-300" },
+  "dept-prod": { bg: "bg-green-100", text: "text-green-900", border: "border-green-300" },
+  "dept-tech": { bg: "bg-cyan-100", text: "text-cyan-900", border: "border-cyan-300" },
+  "dept-etc": { bg: "bg-gray-100", text: "text-gray-900", border: "border-gray-300" },
 };
 
 export function compareFieldTrips(
