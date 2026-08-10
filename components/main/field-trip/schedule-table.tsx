@@ -20,7 +20,7 @@ const remarkLines = (row: FieldTrip) =>
 
 const ScheduleTable = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
   return (
-    <div className="hidden overflow-x-auto rounded-2xl border border-gray-200 bg-white md:block">
+    <div className="hidden overflow-x-auto rounded-2xl border border-gray-200 bg-white/90 shadow-lg shadow-black/40 backdrop-blur-sm md:block">
       <table className="w-full min-w-[960px] text-base">
         <thead>
           <tr className="border-b border-gray-200 text-left text-sm text-gray-500">

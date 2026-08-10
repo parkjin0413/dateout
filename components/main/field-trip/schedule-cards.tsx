@@ -32,7 +32,7 @@ const ScheduleCards = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
       {rows.map((row) => {
         const canManage = isAdmin || row.user_id === viewerId;
         return (
-          <div key={row.id} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg shadow-black/20">
+          <div key={row.id} className="rounded-2xl border border-gray-200 bg-white/90 p-6 shadow-lg shadow-black/40 backdrop-blur-sm">
             <div className="flex flex-wrap items-center gap-2">
               <DeptBadge department={row.department} />
               <span className="font-semibold text-gray-900">{row.author_name}</span>

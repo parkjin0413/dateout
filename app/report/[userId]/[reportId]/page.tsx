@@ -42,7 +42,7 @@ export default async function WorkReportDetailPage({ params }: Props) {
           <p className="mt-1 text-base text-gray-400">{report.report_date}</p>
         </div>
 
-        <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6">
+        <div className="space-y-5 rounded-2xl border border-gray-200 bg-white/90 p-6 shadow-lg shadow-black/40 backdrop-blur-sm">
           <Section label="금일 업무" value={report.today_work} />
           <Section label="명일 업무" value={report.tomorrow_work} />
         </div>

@@ -26,9 +26,9 @@ const ReportList = ({ userId, reports, viewerId, isAdmin }: Props) => {
         return (
           <div
             key={report.id}
-            className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg shadow-black/20"
+            className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white/90 shadow-lg shadow-black/40 backdrop-blur-sm"
           >
-            <div className="flex items-center justify-between gap-2 border-b border-gray-200 bg-gray-50 px-5 py-4">
+            <div className="flex items-center justify-between gap-2 border-b border-gray-200 bg-black/[0.02] px-5 py-4">
               <div className="truncate text-base font-semibold text-gray-900">{report.title}</div>
               {canManage && (
                 <div className="flex shrink-0 items-center gap-3">

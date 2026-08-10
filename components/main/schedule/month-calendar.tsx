@@ -32,21 +32,21 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+    <div className="rounded-2xl border border-gray-200 bg-white/90 p-5 shadow-lg shadow-black/40 backdrop-blur-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Link
             href={`/schedule?ym=${prevYm}&date=${selectedDate}`}
-            className="rounded-lg px-2 py-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-lg px-2 py-1 text-gray-500 transition-colors hover:bg-black/5 hover:text-gray-900"
           >
             ◀
           </Link>
-          <div className="min-w-[130px] text-center text-lg font-semibold text-white">
+          <div className="min-w-[130px] text-center text-lg font-semibold text-gray-900">
             {year}년 {month}월
           </div>
           <Link
             href={`/schedule?ym=${nextYm}&date=${selectedDate}`}
-            className="rounded-lg px-2 py-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+            className="rounded-lg px-2 py-1 text-gray-500 transition-colors hover:bg-black/5 hover:text-gray-900"
           >
             ▶
           </Link>
@@ -58,7 +58,7 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
             <select
               name="year"
               defaultValue={year}
-              className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-white outline-none"
+              className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 outline-none"
             >
               {Array.from({ length: 9 }, (_, i) => currentYear + 1 - i).map((y) => (
                 <option key={y} value={y}>
@@ -69,7 +69,7 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
             <select
               name="month"
               defaultValue={month}
-              className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-white outline-none"
+              className="rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 outline-none"
             >
               {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                 <option key={m} value={m}>
@@ -79,7 +79,7 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
             </select>
             <button
               type="submit"
-              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10"
+              className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
             >
               이동
             </button>
@@ -87,13 +87,13 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
 
           <Link
             href={`/schedule?ym=${today.slice(0, 7)}&date=${today}`}
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10"
+            className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
           >
             오늘
           </Link>
           <Link
             href={`/schedule/new?date=${selectedDate}`}
-            className="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
+            className="rounded-lg bg-purple-600 px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-purple-500"
           >
             일정 입력
           </Link>
@@ -118,7 +118,7 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
       <div className="hidden md:block">
         <div className="grid grid-cols-7 gap-1 text-center text-sm text-gray-500">
           {DOW.map((d, i) => (
-            <div key={d} className={i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}>
+            <div key={d} className={i === 0 ? "text-red-600" : i === 6 ? "text-blue-600" : ""}>
               {d}
             </div>
           ))}
@@ -126,7 +126,7 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
 
         <div className="mt-1 grid grid-cols-7 gap-1">
           {cells.map((day, i) => {
-            if (day === null) return <div key={`empty-${i}`} className="rounded-lg bg-white/[0.01]" />;
+            if (day === null) return <div key={`empty-${i}`} className="rounded-lg bg-gray-50/60" />;
 
             const dateStr = `${ym}-${String(day).padStart(2, "0")}`;
             const isToday = dateStr === today;
@@ -135,14 +135,14 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
             const isHoliday = holidayNames.length > 0;
             const items = itemsByDate[dateStr] ?? [];
 
-            const dayColor = isHoliday || weekday === 0 ? "text-red-400" : weekday === 6 ? "text-blue-400" : "text-gray-200";
+            const dayColor = isHoliday || weekday === 0 ? "text-red-600" : weekday === 6 ? "text-blue-600" : "text-gray-700";
 
             return (
               <div
                 key={dateStr}
                 className={[
                   "flex min-h-[108px] flex-col gap-1 rounded-lg border p-1.5",
-                  isToday ? "border-purple-400/50 bg-purple-500/[0.06]" : "border-white/5",
+                  isToday ? "border-purple-300 bg-purple-50" : "border-gray-100",
                 ].join(" ")}
               >
                 <div className="flex items-center justify-between">
@@ -154,13 +154,13 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
                     {day}
                   </Link>
                   {items.length > 0 && (
-                    <span className="rounded-full bg-white/10 px-1.5 text-xs leading-4 text-gray-300">
+                    <span className="rounded-full bg-gray-100 px-1.5 text-xs leading-4 text-gray-600">
                       {items.length}
                     </span>
                   )}
                 </div>
 
-                {isHoliday && <div className="truncate text-xs text-red-400">{holidayNames.join(" · ")}</div>}
+                {isHoliday && <div className="truncate text-xs text-red-600">{holidayNames.join(" · ")}</div>}
 
                 <div className="flex max-h-[100px] flex-col gap-1 overflow-y-auto">
                   {items.map((item) => {
@@ -183,7 +183,7 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
         </div>
       </div>
 
-      <div className="divide-y divide-white/5 md:hidden">
+      <div className="divide-y divide-gray-100 md:hidden">
         {Array.from({ length: total }, (_, i) => i + 1).map((day) => {
           const dateStr = `${ym}-${String(day).padStart(2, "0")}`;
           const isToday = dateStr === today;
@@ -192,12 +192,12 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
           const isHoliday = holidayNames.length > 0;
           const items = itemsByDate[dateStr] ?? [];
 
-          const dayColor = isHoliday || weekday === 0 ? "text-red-400" : weekday === 6 ? "text-blue-400" : "text-gray-200";
+          const dayColor = isHoliday || weekday === 0 ? "text-red-600" : weekday === 6 ? "text-blue-600" : "text-gray-700";
 
           return (
             <div
               key={dateStr}
-              className={["flex gap-3 py-2.5", isToday ? "bg-purple-500/[0.06]" : ""].join(" ")}
+              className={["flex gap-3 py-2.5", isToday ? "bg-purple-50" : ""].join(" ")}
             >
               <Link
                 href={`/schedule/new?date=${dateStr}`}
@@ -209,9 +209,9 @@ const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props
               </Link>
 
               <div className="flex min-w-0 flex-1 flex-col gap-1 pt-0.5">
-                {isHoliday && <div className="text-xs text-red-400">{holidayNames.join(" · ")}</div>}
+                {isHoliday && <div className="text-xs text-red-600">{holidayNames.join(" · ")}</div>}
                 {items.length === 0 ? (
-                  !isHoliday && <div className="text-xs text-gray-600">—</div>
+                  !isHoliday && <div className="text-xs text-gray-400">—</div>
                 ) : (
                   items.map((item) => {
                     const colors = DEPT_COLORS[getDeptClass(item.department)];
