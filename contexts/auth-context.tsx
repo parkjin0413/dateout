@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import type { Session, User } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +23,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,9 +51,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isLoading,
       signOut: async () => {
         await supabase.auth.signOut();
+        router.push("/");
       },
     }),
-    [session, isLoading, supabase]
+    [session, isLoading, supabase, router]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

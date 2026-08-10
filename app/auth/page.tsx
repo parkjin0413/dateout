@@ -1,5 +1,15 @@
-import Auth from "@/components/main/auth";
+import { redirect } from "next/navigation";
 
-export default function AuthPage() {
+import Auth from "@/components/main/auth";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function AuthPage() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+
+  if (data?.claims) {
+    redirect("/dashboard");
+  }
+
   return <Auth />;
 }

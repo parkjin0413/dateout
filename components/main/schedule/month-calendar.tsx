@@ -1,0 +1,187 @@
+import Link from "next/link";
+
+import { addMonths, daysInMonth, firstWeekday } from "@/lib/schedule/date";
+import { DEPARTMENT_OPTIONS, DEPT_COLORS, getDeptClass } from "@/lib/schedule/dept";
+import type { Schedule } from "@/lib/schedule/types";
+
+type ScheduleItem = Pick<Schedule, "id" | "department" | "content">;
+
+type Props = {
+  ym: string;
+  today: string;
+  selectedDate: string;
+  holidays: Record<string, string[]>;
+  itemsByDate: Record<string, ScheduleItem[]>;
+};
+
+const DOW = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const LEGEND = DEPARTMENT_OPTIONS.map((label) => ({ label, cls: getDeptClass(label) }));
+
+const MonthCalendar = ({ ym, today, selectedDate, holidays, itemsByDate }: Props) => {
+  const [year, month] = ym.split("-").map(Number);
+  const total = daysInMonth(year, month);
+  const firstW = firstWeekday(year, month);
+  const prevYm = addMonths(ym, -1);
+  const nextYm = addMonths(ym, 1);
+  const currentYear = new Date().getUTCFullYear();
+
+  const cells: (number | null)[] = [
+    ...Array.from({ length: firstW }, () => null),
+    ...Array.from({ length: total }, (_, i) => i + 1),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/schedule?ym=${prevYm}&date=${selectedDate}`}
+            className="rounded-lg px-2 py-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            ◀
+          </Link>
+          <div className="min-w-[130px] text-center text-lg font-semibold text-white">
+            {year}년 {month}월
+          </div>
+          <Link
+            href={`/schedule?ym=${nextYm}&date=${selectedDate}`}
+            className="rounded-lg px-2 py-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            ▶
+          </Link>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <form method="get" action="/schedule" className="flex items-center gap-1.5">
+            <input type="hidden" name="date" value={selectedDate} />
+            <select
+              name="year"
+              defaultValue={year}
+              className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-white outline-none"
+            >
+              {Array.from({ length: 9 }, (_, i) => currentYear + 1 - i).map((y) => (
+                <option key={y} value={y}>
+                  {y}년
+                </option>
+              ))}
+            </select>
+            <select
+              name="month"
+              defaultValue={month}
+              className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-white outline-none"
+            >
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>
+                  {m}월
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10"
+            >
+              이동
+            </button>
+          </form>
+
+          <Link
+            href={`/schedule?ym=${today.slice(0, 7)}&date=${today}`}
+            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10"
+          >
+            오늘
+          </Link>
+          <Link
+            href={`/schedule/new?date=${selectedDate}`}
+            className="rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-gray-200"
+          >
+            일정 입력
+          </Link>
+        </div>
+      </div>
+
+      <div className="mb-3 flex flex-wrap gap-2">
+        {LEGEND.map(({ label, cls }) => {
+          const colors = DEPT_COLORS[cls];
+          return (
+            <span
+              key={label}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium ${colors.bg} ${colors.text} ${colors.border}`}
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              {label}
+            </span>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1 text-center text-sm text-gray-500">
+        {DOW.map((d, i) => (
+          <div key={d} className={i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}>
+            {d}
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-1 grid grid-cols-7 gap-1">
+        {cells.map((day, i) => {
+          if (day === null) return <div key={`empty-${i}`} className="rounded-lg bg-white/[0.01]" />;
+
+          const dateStr = `${ym}-${String(day).padStart(2, "0")}`;
+          const isToday = dateStr === today;
+          const weekday = (firstW + day - 1) % 7;
+          const holidayNames = holidays[dateStr] ?? [];
+          const isHoliday = holidayNames.length > 0;
+          const items = itemsByDate[dateStr] ?? [];
+
+          const dayColor = isHoliday || weekday === 0 ? "text-red-400" : weekday === 6 ? "text-blue-400" : "text-gray-200";
+
+          return (
+            <div
+              key={dateStr}
+              className={[
+                "flex min-h-[108px] flex-col gap-1 rounded-lg border p-1.5",
+                isToday ? "border-purple-400/50 bg-purple-500/[0.06]" : "border-white/5",
+              ].join(" ")}
+            >
+              <div className="flex items-center justify-between">
+                <Link
+                  href={`/schedule/new?date=${dateStr}`}
+                  title={`${dateStr} 일정 입력`}
+                  className={`text-sm font-semibold ${dayColor} hover:underline`}
+                >
+                  {day}
+                </Link>
+                {items.length > 0 && (
+                  <span className="rounded-full bg-white/10 px-1.5 text-xs leading-4 text-gray-300">
+                    {items.length}
+                  </span>
+                )}
+              </div>
+
+              {isHoliday && <div className="truncate text-xs text-red-400">{holidayNames.join(" · ")}</div>}
+
+              <div className="flex max-h-[100px] flex-col gap-1 overflow-y-auto">
+                {items.map((item) => {
+                  const colors = DEPT_COLORS[getDeptClass(item.department)];
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/schedule/${item.id}?ym=${ym}`}
+                      className={`truncate rounded border px-1.5 py-0.5 text-xs ${colors.bg} ${colors.text} ${colors.border}`}
+                      title={item.content}
+                    >
+                      {item.content}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default MonthCalendar;

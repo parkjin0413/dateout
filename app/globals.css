@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -23,4 +24,23 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+ * The app's UI is always dark regardless of OS theme, but native form
+ * controls (select popups, date/time pickers) still default to a light
+ * palette unless told otherwise. `color-scheme` fixes the control chrome;
+ * <option> needs its own background/color because some browsers render the
+ * popup list independently of the inherited color-scheme.
+ */
+select,
+option,
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}
+
+option {
+  background-color: #1f1f1f;
+  color: #ffffff;
 }

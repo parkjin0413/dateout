@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 
 import ParticleBackground from "@/components/common/particle-background";
+import { ArrowRightIcon } from "@/components/common/icons";
 
 const BoltIcon = ({ className }: { className?: string }) => (
   <svg
@@ -16,22 +18,6 @@ const BoltIcon = ({ className }: { className?: string }) => (
     aria-hidden="true"
   >
     <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
-  </svg>
-);
-
-const ArrowRightIcon = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    aria-hidden="true"
-  >
-    <path d="M5 12h14" />
-    <path d="m12 5 7 7-7 7" />
   </svg>
 );
 
@@ -89,10 +75,13 @@ const Hero = () => {
         </motion.p>
 
         <motion.div custom={3} variants={fadeUpVariants} initial="hidden" animate="visible">
-          <button className="px-8 py-4 bg-white text-black font-semibold rounded-lg shadow-lg hover:bg-gray-200 transition-colors duration-300 flex items-center gap-2 mx-auto">
+          <Link
+            href="/auth"
+            className="px-8 py-4 bg-white text-black font-semibold rounded-lg shadow-lg hover:bg-gray-200 transition-colors duration-300 inline-flex items-center gap-2 mx-auto"
+          >
             업무 도구 살펴보기
             <ArrowRightIcon className="h-5 w-5" />
-          </button>
+          </Link>
         </motion.div>
       </div>
     </div>
