@@ -59,7 +59,7 @@ const Navbar = () => {
             />
             <span className="flex flex-col leading-none">
               <span className="text-lg font-bold text-white sm:text-xl">강산 업무지원</span>
-              <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-gray-500">
+              <span className="mt-1 whitespace-nowrap text-[8px] font-medium uppercase tracking-[0.06em] text-gray-500 sm:text-[9px] sm:tracking-[0.1em]">
                 Improvement of work
               </span>
             </span>

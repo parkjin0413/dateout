@@ -90,7 +90,6 @@ const Auth = () => {
                 autoComplete="username"
                 autoCapitalize="off"
                 autoCorrect="off"
-                placeholder="9413"
                 className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-white outline-none placeholder:text-gray-600"
               />
               <span className="shrink-0 pr-3 text-base text-gray-500">@{EMAIL_DOMAIN}</span>
