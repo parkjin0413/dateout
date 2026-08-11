@@ -76,16 +76,22 @@ const Navbar = () => {
           <div className="flex items-center justify-self-end gap-3">
             {isLoading ? null : user ? (
               <>
-                {avatarUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={avatarUrl}
-                    alt={name ?? "profile"}
-                    className="h-8 w-8 rounded-full"
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-                <span className="hidden text-sm text-gray-200 sm:inline">{name}</span>
+                <Link
+                  href="/dashboard"
+                  prefetch={false}
+                  className="flex items-center gap-2 rounded-full transition-opacity hover:opacity-80"
+                >
+                  {avatarUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={avatarUrl}
+                      alt={name ?? "profile"}
+                      className="h-8 w-8 rounded-full"
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
+                  <span className="hidden text-sm text-gray-200 sm:inline">{name}</span>
+                </Link>
                 <button
                   type="button"
                   onClick={() => signOut()}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 
@@ -8,26 +9,7 @@ import ParticleBackground from "@/components/common/particle-background";
 import { createClient } from "@/lib/supabase/client";
 import logo from "@/public/logo2.png";
 
-const GoogleIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-    <path
-      fill="#4285F4"
-      d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29A11.96 11.96 0 0 0 0 12c0 1.94.46 3.77 1.29 5.38l3.98-3.09z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z"
-    />
-  </svg>
-);
+const EMAIL_DOMAIN = "ks.com";
 
 const fadeUpVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -43,25 +25,38 @@ const fadeUpVariants: Variants = {
 };
 
 const Auth = () => {
+  const router = useRouter();
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleGoogleSignIn = async () => {
+  const handleSignIn = async (e: FormEvent) => {
+    e.preventDefault();
+
+    const trimmedId = id.trim().toLowerCase();
+    if (!trimmedId || !password) {
+      setError("아이디와 비밀번호를 입력해주세요.");
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: `${trimmedId}@${EMAIL_DOMAIN}`,
+      password,
     });
 
     if (signInError) {
-      setError("Google 로그인을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.");
+      setError("아이디 또는 비밀번호가 올바르지 않습니다.");
       setIsSubmitting(false);
+      return;
     }
+
+    router.push("/dashboard");
+    router.refresh();
   };
 
   return (
@@ -84,17 +79,45 @@ const Auth = () => {
           강산이엔지 업무지원 시스템에 오신 것을 환영합니다
         </p>
 
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={isSubmitting}
-          className="flex w-full items-center justify-center gap-3 rounded-lg bg-white px-6 py-3 font-semibold text-black shadow-lg transition-colors duration-300 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          <GoogleIcon className="h-5 w-5" />
-          {isSubmitting ? "이동 중..." : "Google로 계속하기"}
-        </button>
+        <form onSubmit={handleSignIn} className="space-y-4 text-left">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">아이디</label>
+            <div className="flex items-center overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-colors focus-within:border-purple-400/50">
+              <input
+                type="text"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                autoComplete="username"
+                autoCapitalize="off"
+                autoCorrect="off"
+                placeholder="9413"
+                className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-base text-white outline-none placeholder:text-gray-600"
+              />
+              <span className="shrink-0 pr-3 text-base text-gray-500">@{EMAIL_DOMAIN}</span>
+            </div>
+          </div>
 
-        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">비밀번호</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-base text-white outline-none transition-colors focus:border-purple-400/50"
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-400">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full rounded-lg bg-white px-6 py-3 font-semibold text-black shadow-lg transition-colors duration-300 hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isSubmitting ? "로그인 중..." : "로그인"}
+          </button>
+        </form>
       </motion.div>
     </div>
   );
