@@ -16,6 +16,7 @@ import { createClient } from "@/lib/supabase/client";
 type AuthContextValue = {
   user: User | null;
   session: Session | null;
+  profileName: string | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
 };
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [session, setSession] = useState<Session | null>(null);
+  const [profileName, setProfileName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -44,17 +46,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, [supabase]);
 
+  useEffect(() => {
+    const userId = session?.user?.id;
+    let cancelled = false;
+
+    (async () => {
+      const name = userId ? (await supabase.from("users").select("name").eq("id", userId).single()).data?.name ?? null : null;
+      if (!cancelled) setProfileName(name);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.user?.id, supabase]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user: session?.user ?? null,
       session,
+      profileName,
       isLoading,
       signOut: async () => {
         await supabase.auth.signOut();
         router.push("/");
       },
     }),
-    [session, isLoading, supabase, router]
+    [session, profileName, isLoading, supabase, router]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

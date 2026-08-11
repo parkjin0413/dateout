@@ -32,8 +32,8 @@ const MenuIcon = ({ open }: { open: boolean }) => (
 );
 
 const Navbar = () => {
-  const { user, isLoading, signOut } = useAuth();
-  const name = user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? user?.email;
+  const { user, profileName, isLoading, signOut } = useAuth();
+  const name = profileName ?? user?.user_metadata?.full_name ?? user?.user_metadata?.name ?? null;
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -90,7 +90,10 @@ const Navbar = () => {
                       referrerPolicy="no-referrer"
                     />
                   )}
-                  <span className="hidden text-sm text-gray-200 sm:inline">{name}</span>
+                  <span className="hidden flex-col items-start leading-tight sm:flex">
+                    {name && <span className="text-sm font-medium text-gray-200">{name}</span>}
+                    <span className="text-xs text-gray-500">{user.email}</span>
+                  </span>
                 </Link>
                 <button
                   type="button"
