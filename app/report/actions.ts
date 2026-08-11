@@ -34,6 +34,16 @@ export async function createReportBoard(formData: FormData): Promise<void> {
   redirect("/report");
 }
 
+export async function updateBoardDepartment(targetUserId: string, formData: FormData): Promise<void> {
+  const { supabase, isAdmin } = await getViewer();
+  if (!isAdmin) redirect("/report");
+
+  const department = String(formData.get("department") ?? "").trim();
+  await supabase.from("report_boards").update({ department }).eq("user_id", targetUserId);
+  revalidatePath("/report");
+  redirect("/report");
+}
+
 export async function createWorkReport(
   targetUserId: string,
   _prevState: ReportFormState,

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useAuth } from "@/contexts/auth-context";
-import logo from "@/public/logo.png";
+import logo from "@/public/logo2.png";
 
 const NAV_LINKS = [
   { label: "외근계획표", href: "/field-trip" },
@@ -50,13 +50,14 @@ const Navbar = () => {
     <>
       <header className="fixed top-0 inset-x-0 z-50 border-b border-white/10 bg-black/30 backdrop-blur-md">
         <div className="mx-auto grid h-20 max-w-7xl grid-cols-2 items-center px-6 sm:px-8 md:grid-cols-3">
-          <Link href="/" className="justify-self-start" onClick={closeMobileMenu}>
+          <Link href="/" className="flex items-center gap-2.5 justify-self-start" onClick={closeMobileMenu}>
             <Image
               src={logo}
-              alt="KANGSAN WORK"
+              alt="강산 업무지원"
               priority
               className="h-8 w-auto object-contain sm:h-10"
             />
+            <span className="text-lg font-bold text-white sm:text-xl">강산 업무지원</span>
           </Link>
 
           <nav className="hidden items-center justify-center gap-8 md:flex">

@@ -36,16 +36,22 @@ const DirectoryForm = ({ mode, action, employee }: Props) => {
 
         <form action={formAction} className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <Field label="부서">
-            <select name="department" defaultValue={employee?.department ?? ""} required className={inputCls}>
-              <option value="" disabled>
-                선택하세요
-              </option>
+            <input
+              name="department"
+              list="department-options"
+              defaultValue={employee?.department ?? ""}
+              placeholder="예) 영업부, 경영진"
+              required
+              className={inputCls}
+            />
+            <datalist id="department-options">
               {DEPARTMENT_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
+                <option key={opt} value={opt} />
               ))}
-            </select>
+            </datalist>
+            <p className="mt-1 text-sm text-gray-500">
+              목록에 없는 부서(예: 대표이사 등)는 직접 입력하세요.
+            </p>
           </Field>
 
           <Field label="직급">
@@ -68,6 +74,15 @@ const DirectoryForm = ({ mode, action, employee }: Props) => {
               defaultValue={employee?.phone ?? ""}
               placeholder="예) 010-1234-5678"
               required
+              className={inputCls}
+            />
+          </Field>
+
+          <Field label="직통번호">
+            <input
+              name="direct_line"
+              defaultValue={employee?.direct_line ?? ""}
+              placeholder="예) 02-1234-5678 (선택)"
               className={inputCls}
             />
           </Field>

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           department: string
+          direct_line: string
           id: string
           job_title: string
           name: string
@@ -27,6 +28,7 @@ export type Database = {
         Insert: {
           created_at?: string
           department: string
+          direct_line?: string
           id?: string
           job_title?: string
           name: string
@@ -36,6 +38,7 @@ export type Database = {
         Update: {
           created_at?: string
           department?: string
+          direct_line?: string
           id?: string
           job_title?: string
           name?: string
@@ -105,18 +108,21 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          department: string
           id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           created_by?: string | null
+          department?: string
           id?: string
           user_id: string
         }
         Update: {
           created_at?: string
           created_by?: string | null
+          department?: string
           id?: string
           user_id?: string
         }

@@ -16,10 +16,11 @@ export default async function ReportPage() {
 
   const { data: boards } = await supabase
     .from("report_boards")
-    .select("user_id, created_at")
+    .select("user_id, created_at, department")
     .order("created_at", { ascending: true });
 
   const boardUserIds = (boards ?? []).map((b) => b.user_id);
+  const departmentByUser = new Map((boards ?? []).map((b) => [b.user_id, b.department]));
 
   const { data: people } =
     boardUserIds.length > 0
@@ -27,7 +28,10 @@ export default async function ReportPage() {
       : { data: [] };
 
   const peopleMap = new Map((people ?? []).map((p) => [p.id, p]));
-  const orderedPeople = boardUserIds.map((id) => peopleMap.get(id)).filter((p): p is NonNullable<typeof p> => !!p);
+  const orderedPeople = boardUserIds
+    .map((id) => peopleMap.get(id))
+    .filter((p): p is NonNullable<typeof p> => !!p)
+    .map((p) => ({ ...p, department: departmentByUser.get(p.id) ?? "" }));
 
   let candidates: { id: string; name: string | null; email: string }[] = [];
   if (isAdmin) {
@@ -55,7 +59,7 @@ export default async function ReportPage() {
 
         {isAdmin && <AddBoardForm candidates={candidates} />}
 
-        <BoardList people={orderedPeople} />
+        <BoardList people={orderedPeople} isAdmin={isAdmin} />
       </div>
     </div>
   );

@@ -20,10 +20,10 @@ const remarkLines = (row: FieldTrip) =>
 
 const ScheduleTable = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
   return (
-    <div className="hidden overflow-x-auto rounded-2xl border border-gray-200 bg-white/90 shadow-lg shadow-black/40 backdrop-blur-sm md:block">
+    <div className="hidden overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02] md:block">
       <table className="w-full min-w-[960px] text-base">
         <thead>
-          <tr className="border-b border-gray-200 text-left text-sm text-gray-500">
+          <tr className="border-b border-white/10 text-left text-sm text-gray-400">
             <th className="px-4 py-4 font-medium">부서</th>
             <th className="px-4 py-4 font-medium">성명</th>
             <th className="px-4 py-4 font-medium">행선지</th>
@@ -45,26 +45,26 @@ const ScheduleTable = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
             rows.map((row) => {
               const canManage = isAdmin || row.user_id === viewerId;
               return (
-                <tr key={row.id} className="border-b border-gray-100 text-gray-700">
+                <tr key={row.id} className="border-b border-white/5 text-gray-200">
                   <td className="px-4 py-4">
                     <DeptBadge department={row.department} />
                   </td>
-                  <td className="px-4 py-4 font-medium text-gray-900">{row.author_name}</td>
+                  <td className="px-4 py-4 font-medium text-white">{row.author_name}</td>
                   <td className="px-4 py-4">{row.destination || "-"}</td>
                   <td className="px-4 py-4 text-center">{row.depart_time || "-"}</td>
                   <td className="px-4 py-4 text-center">{row.return_time || "-"}</td>
-                  <td className="px-4 py-4 text-gray-500">
+                  <td className="px-4 py-4 text-gray-400">
                     {remarkLines(row).length > 0
                       ? remarkLines(row).map((line, i) => <div key={i}>{line}</div>)
                       : "-"}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-gray-500">{periodText(row)}</td>
+                  <td className="px-4 py-4 whitespace-nowrap text-gray-400">{periodText(row)}</td>
                   <td className="px-4 py-4">
                     {canManage && (
                       <div className="flex items-center gap-3">
                         <Link
                           href={`/field-trip/${row.id}`}
-                          className="text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+                          className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
                         >
                           수정
                         </Link>

@@ -42,7 +42,7 @@ export default async function WorkReportDetailPage({ params }: Props) {
           <p className="mt-1 text-base text-gray-400">{report.report_date}</p>
         </div>
 
-        <div className="space-y-5 rounded-2xl border border-gray-200 bg-white/90 p-6 shadow-lg shadow-black/40 backdrop-blur-sm">
+        <div className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
           <Section label="금일 업무" value={report.today_work} />
           <Section label="명일 업무" value={report.tomorrow_work} />
         </div>
@@ -69,7 +69,7 @@ export default async function WorkReportDetailPage({ params }: Props) {
 
 const Section = ({ label, value }: { label: string; value: string }) => (
   <div>
-    <div className="mb-1.5 text-base font-medium text-gray-500">{label}</div>
-    <div className="whitespace-pre-wrap text-base text-gray-900">{value || "-"}</div>
+    <div className="mb-1.5 text-base font-medium text-gray-400">{label}</div>
+    <div className="whitespace-pre-wrap text-base text-white">{value || "-"}</div>
   </div>
 );

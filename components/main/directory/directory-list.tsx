@@ -19,7 +19,7 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
   const colors = DEPT_COLORS[getDeptClass(employee.department)];
 
   return (
-    <div className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white/90 p-5 shadow-lg shadow-black/40 backdrop-blur-sm">
+    <div className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-lg shadow-black/20">
       <div
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${colors.bg} ${colors.text}`}
       >
@@ -28,8 +28,8 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="truncate text-base font-semibold text-gray-900">{employee.name}</span>
-          <span className="text-sm text-gray-500">{employee.job_title}</span>
+          <span className="truncate text-base font-semibold text-white">{employee.name}</span>
+          <span className="text-sm text-gray-400">{employee.job_title}</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <span
@@ -39,11 +39,19 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
           </span>
           <a
             href={`tel:${employee.phone}`}
-            className="inline-flex items-center gap-1 text-sm text-gray-600 transition-colors hover:text-gray-900"
+            className="inline-flex items-center gap-1 text-sm text-gray-300 transition-colors hover:text-white"
           >
             <PhoneIcon />
             {employee.phone}
           </a>
+          {employee.direct_line && (
+            <a
+              href={`tel:${employee.direct_line}`}
+              className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-white"
+            >
+              직통 {employee.direct_line}
+            </a>
+          )}
         </div>
       </div>
 
@@ -51,7 +59,7 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
         <div className="flex shrink-0 items-center gap-3 opacity-0 transition-opacity group-hover:opacity-100">
           <Link
             href={`/directory/${employee.id}/edit`}
-            className="text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
           >
             수정
           </Link>

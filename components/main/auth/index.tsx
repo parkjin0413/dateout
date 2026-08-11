@@ -6,7 +6,7 @@ import { motion, type Variants } from "framer-motion";
 
 import ParticleBackground from "@/components/common/particle-background";
 import { createClient } from "@/lib/supabase/client";
-import logo from "@/public/logo.png";
+import logo from "@/public/logo2.png";
 
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
@@ -75,7 +75,7 @@ const Auth = () => {
         animate="visible"
         className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-10 text-center shadow-2xl backdrop-blur-md"
       >
-        <Image src={logo} alt="KANGSAN WORK" priority className="mx-auto mb-8 h-8 w-auto" />
+        <Image src={logo} alt="강산 업무지원" priority className="mx-auto mb-8 h-8 w-auto" />
 
         <h1 className="mb-2 bg-gradient-to-b from-white to-gray-400 bg-clip-text text-3xl font-bold tracking-tight text-transparent">
           로그인

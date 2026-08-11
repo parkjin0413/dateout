@@ -27,6 +27,7 @@ function readFields(formData: FormData) {
     jobTitle: String(formData.get("job_title") ?? "").trim(),
     name: String(formData.get("name") ?? "").trim(),
     phone: String(formData.get("phone") ?? "").trim(),
+    directLine: String(formData.get("direct_line") ?? "").trim(),
   };
 }
 
@@ -36,8 +37,8 @@ export async function createEmployee(
 ): Promise<DirectoryFormState> {
   const supabase = await requireAdmin();
 
-  const { department, jobTitle, name, phone } = readFields(formData);
-  if (!department) return { error: "부서를 선택해주세요." };
+  const { department, jobTitle, name, phone, directLine } = readFields(formData);
+  if (!department) return { error: "부서를 입력해주세요." };
   if (!jobTitle) return { error: "직급을 입력해주세요." };
   if (!name) return { error: "이름을 입력해주세요." };
   if (!phone) return { error: "연락처를 입력해주세요." };
@@ -47,6 +48,7 @@ export async function createEmployee(
     job_title: jobTitle,
     name,
     phone,
+    direct_line: directLine,
   });
 
   if (error) return { error: "등록 중 오류가 발생했습니다." };
@@ -62,15 +64,15 @@ export async function updateEmployee(
 ): Promise<DirectoryFormState> {
   const supabase = await requireAdmin();
 
-  const { department, jobTitle, name, phone } = readFields(formData);
-  if (!department) return { error: "부서를 선택해주세요." };
+  const { department, jobTitle, name, phone, directLine } = readFields(formData);
+  if (!department) return { error: "부서를 입력해주세요." };
   if (!jobTitle) return { error: "직급을 입력해주세요." };
   if (!name) return { error: "이름을 입력해주세요." };
   if (!phone) return { error: "연락처를 입력해주세요." };
 
   const { error } = await supabase
     .from("employees")
-    .update({ department, job_title: jobTitle, name, phone })
+    .update({ department, job_title: jobTitle, name, phone, direct_line: directLine })
     .eq("id", id);
 
   if (error) return { error: "수정 중 오류가 발생했습니다." };

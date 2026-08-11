@@ -32,14 +32,14 @@ const ScheduleCards = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
       {rows.map((row) => {
         const canManage = isAdmin || row.user_id === viewerId;
         return (
-          <div key={row.id} className="rounded-2xl border border-gray-200 bg-white/90 p-6 shadow-lg shadow-black/40 backdrop-blur-sm">
+          <div key={row.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-lg shadow-black/20">
             <div className="flex flex-wrap items-center gap-2">
               <DeptBadge department={row.department} />
-              <span className="font-semibold text-gray-900">{row.author_name}</span>
-              {row.destination && <span className="text-base text-gray-600">{row.destination}</span>}
+              <span className="font-semibold text-white">{row.author_name}</span>
+              {row.destination && <span className="text-base text-gray-400">{row.destination}</span>}
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-gray-600">
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-gray-400">
               <span>
                 {row.depart_time || "-"} ~ {row.return_time || "-"}
               </span>
@@ -47,7 +47,7 @@ const ScheduleCards = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
             </div>
 
             {remarkLines(row).length > 0 && (
-              <div className="mt-3 space-y-1 text-base text-gray-600">
+              <div className="mt-3 space-y-1 text-base text-gray-400">
                 {remarkLines(row).map((line, i) => (
                   <div key={i}>{line}</div>
                 ))}
@@ -55,10 +55,10 @@ const ScheduleCards = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
             )}
 
             {canManage && (
-              <div className="mt-4 flex items-center gap-4 border-t border-gray-200 pt-4">
+              <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-4">
                 <Link
                   href={`/field-trip/${row.id}`}
-                  className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
+                  className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
                 >
                   수정
                 </Link>

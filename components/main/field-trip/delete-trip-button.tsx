@@ -23,7 +23,7 @@ const DeleteTripButton = ({ id, date, ym }: Props) => {
           deleteFieldTrip(id, date, ym);
         });
       }}
-      className="text-sm font-medium text-red-600 transition-colors hover:text-red-500 disabled:opacity-50"
+      className="text-sm font-medium text-red-400 transition-colors hover:text-red-300 disabled:opacity-50"
     >
       삭제
     </button>
