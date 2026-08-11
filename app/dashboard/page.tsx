@@ -13,9 +13,15 @@ export default async function DashboardPage() {
     redirect("/auth");
   }
 
-  const userMetadata = (claims.user_metadata ?? {}) as Record<string, string | undefined>;
-  const name = userMetadata.full_name ?? userMetadata.name ?? claims.email ?? "사용자";
-  const avatarUrl = userMetadata.avatar_url;
+  const { data: profile } = await supabase
+    .from("users")
+    .select("name, email, avatar_url")
+    .eq("id", claims.sub)
+    .single();
+
+  const name = profile?.name ?? null;
+  const email = profile?.email ?? claims.email ?? "";
+  const avatarUrl = profile?.avatar_url ?? undefined;
 
   const today = todayKst();
 
@@ -40,6 +46,7 @@ export default async function DashboardPage() {
   return (
     <Dashboard
       name={name}
+      email={email}
       avatarUrl={avatarUrl}
       fieldTripCount={fieldTripCount ?? 0}
       scheduleCount={scheduleCount ?? 0}

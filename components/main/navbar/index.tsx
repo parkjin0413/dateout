@@ -57,7 +57,12 @@ const Navbar = () => {
               priority
               className="h-8 w-auto object-contain sm:h-10"
             />
-            <span className="text-lg font-bold text-white sm:text-xl">강산 업무지원</span>
+            <span className="flex flex-col leading-none">
+              <span className="text-lg font-bold text-white sm:text-xl">강산 업무지원</span>
+              <span className="mt-1 text-[10px] font-medium uppercase tracking-[0.2em] text-gray-500">
+                Improvement of work
+              </span>
+            </span>
           </Link>
 
           <nav className="hidden items-center justify-center gap-8 md:flex">

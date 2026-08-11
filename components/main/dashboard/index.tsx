@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ArrowRightIcon } from "@/components/common/icons";
 
 type DashboardProps = {
-  name: string;
+  name: string | null;
+  email: string;
   avatarUrl?: string;
   fieldTripCount: number;
   scheduleCount: number;
@@ -88,7 +89,9 @@ const Badge = ({ label, tone }: { label: string; tone: keyof typeof BADGE_TONE }
   </span>
 );
 
-const Dashboard = ({ name, avatarUrl, fieldTripCount, scheduleCount, hasReportToday }: DashboardProps) => {
+const Dashboard = ({ name, email, avatarUrl, fieldTripCount, scheduleCount, hasReportToday }: DashboardProps) => {
+  const greetingLabel = name ? `${name}(${email})` : email;
+
   const tools = [
     {
       label: "외근계획표",
@@ -146,19 +149,22 @@ const Dashboard = ({ name, avatarUrl, fieldTripCount, scheduleCount, hasReportTo
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={avatarUrl}
-              alt={name}
-              className="h-14 w-14 rounded-full border border-white/10"
+              alt={greetingLabel}
+              className="h-14 w-14 shrink-0 rounded-full border border-white/10"
               referrerPolicy="no-referrer"
             />
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg font-semibold text-gray-300">
-              {name.slice(0, 1)}
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg font-semibold text-gray-300">
+              {(name ?? email).slice(0, 1)}
             </div>
           )}
-          <div>
+          <div className="min-w-0">
             <p className="text-sm text-gray-400">환영합니다</p>
-            <h1 className="bg-gradient-to-b from-white to-gray-400 bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
-              {name}님
+            <h1
+              className="break-words bg-gradient-to-b from-white to-gray-400 bg-clip-text font-bold tracking-tight text-transparent"
+              style={{ fontSize: "clamp(1.125rem, 5.5vw, 1.875rem)" }}
+            >
+              {greetingLabel}님
             </h1>
           </div>
         </div>
