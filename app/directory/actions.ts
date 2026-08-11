@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { formatPhoneNumber } from "@/lib/phone";
 
 export type DirectoryFormState = { error: string } | null;
 
@@ -47,8 +48,8 @@ export async function createEmployee(
     department,
     job_title: jobTitle,
     name,
-    phone,
-    direct_line: directLine,
+    phone: formatPhoneNumber(phone),
+    direct_line: directLine ? formatPhoneNumber(directLine) : "",
   });
 
   if (error) return { error: "등록 중 오류가 발생했습니다." };
@@ -72,7 +73,13 @@ export async function updateEmployee(
 
   const { error } = await supabase
     .from("employees")
-    .update({ department, job_title: jobTitle, name, phone, direct_line: directLine })
+    .update({
+      department,
+      job_title: jobTitle,
+      name,
+      phone: formatPhoneNumber(phone),
+      direct_line: directLine ? formatPhoneNumber(directLine) : "",
+    })
     .eq("id", id);
 
   if (error) return { error: "수정 중 오류가 발생했습니다." };

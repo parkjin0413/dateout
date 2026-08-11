@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { BASE_DEPARTMENTS, DEPT_COLORS, getDeptClass } from "@/lib/dept";
 import { updateBoardDepartment } from "@/app/report/actions";
+import DeleteBoardButton from "./delete-board-button";
 
 type Person = {
   id: string;
@@ -67,21 +68,24 @@ const PersonCard = ({ person, isAdmin }: { person: Person; isAdmin: boolean }) =
       </Link>
 
       {isAdmin && (
-        <form action={boundUpdate} className="flex items-center gap-2 border-t border-white/10 pt-3">
-          <input
-            name="department"
-            list="report-department-options"
-            defaultValue={person.department}
-            placeholder="부서 지정"
-            className={inputCls}
-          />
-          <button
-            type="submit"
-            className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10"
-          >
-            저장
-          </button>
-        </form>
+        <div className="flex items-center gap-2 border-t border-white/10 pt-3">
+          <form action={boundUpdate} className="flex flex-1 items-center gap-2">
+            <input
+              name="department"
+              list="report-department-options"
+              defaultValue={person.department}
+              placeholder="부서 지정"
+              className={inputCls}
+            />
+            <button
+              type="submit"
+              className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-sm font-medium text-gray-200 transition-colors hover:bg-white/10"
+            >
+              저장
+            </button>
+          </form>
+          <DeleteBoardButton userId={person.id} displayName={displayName} />
+        </div>
       )}
     </div>
   );

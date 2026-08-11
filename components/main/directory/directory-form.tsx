@@ -72,17 +72,18 @@ const DirectoryForm = ({ mode, action, employee }: Props) => {
             <input
               name="phone"
               defaultValue={employee?.phone ?? ""}
-              placeholder="예) 010-1234-5678"
+              placeholder="예) 01012345678"
               required
               className={inputCls}
             />
+            <p className="mt-1 text-sm text-gray-500">숫자만 입력해도 저장 시 자동으로 하이픈(-)이 붙습니다.</p>
           </Field>
 
           <Field label="직통번호">
             <input
               name="direct_line"
               defaultValue={employee?.direct_line ?? ""}
-              placeholder="예) 02-1234-5678 (선택)"
+              placeholder="예) 0212345678 (선택)"
               className={inputCls}
             />
           </Field>

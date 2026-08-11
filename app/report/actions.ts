@@ -44,6 +44,19 @@ export async function updateBoardDepartment(targetUserId: string, formData: Form
   redirect("/report");
 }
 
+export async function deleteReportBoard(targetUserId: string): Promise<void> {
+  const { supabase, isAdmin } = await getViewer();
+  if (!isAdmin) redirect("/report");
+
+  // No FK/cascade is configured between these tables, so the person's
+  // reports have to be removed explicitly or they'd become orphaned rows
+  // still reachable by anyone who has the direct URL.
+  await supabase.from("work_reports").delete().eq("user_id", targetUserId);
+  await supabase.from("report_boards").delete().eq("user_id", targetUserId);
+  revalidatePath("/report");
+  redirect("/report");
+}
+
 export async function createWorkReport(
   targetUserId: string,
   _prevState: ReportFormState,
