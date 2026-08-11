@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      employees: {
+        Row: {
+          created_at: string
+          department: string
+          id: string
+          job_title: string
+          name: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department: string
+          id?: string
+          job_title?: string
+          name: string
+          phone?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department?: string
+          id?: string
+          job_title?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       field_trips: {
         Row: {
           author_name: string
@@ -71,6 +101,27 @@ export type Database = {
         }
         Relationships: []
       }
+      report_boards: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       schedules: {
         Row: {
           base_date: string
@@ -107,24 +158,30 @@ export type Database = {
         }
         Relationships: []
       }
-      report_boards: {
+      users: {
         Row: {
+          avatar_url: string | null
           created_at: string
-          created_by: string | null
+          email: string
           id: string
-          user_id: string
+          is_admin: boolean
+          name: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
-          created_by?: string | null
-          id?: string
-          user_id: string
+          email: string
+          id: string
+          is_admin?: boolean
+          name?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
-          created_by?: string | null
+          email?: string
           id?: string
-          user_id?: string
+          is_admin?: boolean
+          name?: string | null
         }
         Relationships: []
       }
@@ -161,42 +218,12 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          email: string
-          id: string
-          is_admin: boolean
-          name: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          email: string
-          id: string
-          is_admin?: boolean
-          name?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          is_admin?: boolean
-          name?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

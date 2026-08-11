@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: "외근계획표", href: "/field-trip" },
   { label: "연간 일정", href: "/schedule" },
   { label: "업무 보고", href: "/report" },
+  { label: "인명록", href: "/directory" },
 ];
 
 const MenuIcon = ({ open }: { open: boolean }) => (
@@ -63,6 +64,7 @@ const Navbar = () => {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={false}
                 className="text-base font-medium text-gray-300 transition-colors hover:text-white"
               >
                 {link.label}
@@ -129,6 +131,7 @@ const Navbar = () => {
             <Link
               key={link.href}
               href={link.href}
+              prefetch={false}
               onClick={closeMobileMenu}
               className="text-2xl font-semibold text-gray-200 transition-colors hover:text-white"
             >
