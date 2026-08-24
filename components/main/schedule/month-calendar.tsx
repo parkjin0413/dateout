@@ -134,13 +134,23 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
                   {day}
                 </Link>
                 {items.length > 0 && (
-                  <span className="rounded-full bg-[#F5F3EA] px-1.5 text-xs leading-4 text-[#8A8270]">{items.length}</span>
+                  <span className="hidden rounded-full bg-[#F5F3EA] px-1.5 text-xs leading-4 text-[#8A8270] md:inline-flex">
+                    {items.length}건
+                  </span>
                 )}
               </div>
 
               {isHoliday && <div className="truncate text-xs text-red-500">{holidayNames.join(" · ")}</div>}
 
-              <div className="flex max-h-[100px] flex-col gap-1 overflow-y-auto">
+              {items.length > 0 && (
+                <div className="md:hidden">
+                  <span className="inline-flex rounded-full bg-[#E3EFEC] px-1.5 py-0.5 text-[10px] font-semibold leading-4 text-[#0F5C56]">
+                    {items.length}건
+                  </span>
+                </div>
+              )}
+
+              <div className="hidden max-h-[100px] flex-col gap-1 overflow-y-auto md:flex">
                 {items.map((item) => {
                   const colors = DEPT_COLORS_LIGHT[getDeptClass(item.department)];
                   return (

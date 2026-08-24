@@ -104,6 +104,36 @@ export type Database = {
         }
         Relationships: []
       }
+      logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string
+          created_at: string
+          id: string
+          level: string
+          message: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string
+          created_at?: string
+          id?: string
+          level: string
+          message: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string
+        }
+        Relationships: []
+      }
       report_boards: {
         Row: {
           created_at: string
@@ -168,26 +198,35 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          department: string
           email: string
           id: string
           is_admin: boolean
+          job_title: string
           name: string | null
+          phone: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          department?: string
           email: string
           id: string
           is_admin?: boolean
+          job_title?: string
           name?: string | null
+          phone?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          department?: string
           email?: string
           id?: string
           is_admin?: boolean
+          job_title?: string
           name?: string | null
+          phone?: string
         }
         Relationships: []
       }

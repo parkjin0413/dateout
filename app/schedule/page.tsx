@@ -38,8 +38,8 @@ const StatIcon = ({ kind }: { kind: "calendar" | "building" | "notice" }) => {
 
 const StatCard = ({ label, value, icon }: { label: string; value: number; icon: "calendar" | "building" | "notice" }) => (
   <div className="rounded-2xl border border-[#E7E2D2] bg-white p-4">
-    <div className="flex items-center justify-between text-[#8A8270]">
-      <span className="text-sm font-medium">{label}</span>
+    <div className="flex items-start justify-between gap-2 text-[#8A8270]">
+      <span className="break-keep text-sm font-medium">{label}</span>
       <StatIcon kind={icon} />
     </div>
     <div className="mt-1.5 font-mono text-3xl font-bold text-[#211D14]">{value}</div>

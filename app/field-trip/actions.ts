@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { isValidDate } from "@/lib/field-trip/date";
+import { writeLog } from "@/lib/logs";
 
 export type FieldTripFormState = { error: string } | null;
 
@@ -109,6 +110,14 @@ export async function createFieldTrip(
 
   if (error) return { error: "등록 중 오류가 발생했습니다." };
 
+  await writeLog({
+    level: "info",
+    action: "CREATE_FIELD_TRIP",
+    message: `${name}님이 외근/출장을 등록했습니다: ${authorName} (${destination || "행선지 미입력"})`,
+    actorId: userId,
+    actorName: name,
+  });
+
   revalidatePath("/field-trip");
   redirect(`/field-trip?date=${baseDate}&ym=${baseDate.slice(0, 7)}`);
 }
@@ -118,7 +127,7 @@ export async function updateFieldTrip(
   _prevState: FieldTripFormState,
   formData: FormData
 ): Promise<FieldTripFormState> {
-  const { supabase, userId, isAdmin } = await getViewer();
+  const { supabase, userId, isAdmin, name } = await getViewer();
 
   const { data: existing } = await supabase
     .from("field_trips")
@@ -177,21 +186,36 @@ export async function updateFieldTrip(
 
   if (error) return { error: "수정 중 오류가 발생했습니다." };
 
+  await writeLog({
+    level: "info",
+    action: "UPDATE_FIELD_TRIP",
+    message: `${name}님이 외근/출장을 수정했습니다: ${destination || "행선지 미입력"}`,
+    actorId: userId,
+    actorName: name,
+  });
+
   revalidatePath("/field-trip");
   redirect(`/field-trip?date=${baseDate}&ym=${baseDate.slice(0, 7)}`);
 }
 
 export async function deleteFieldTrip(id: string, date: string, ym: string): Promise<void> {
-  const { supabase, userId, isAdmin } = await getViewer();
+  const { supabase, userId, isAdmin, name } = await getViewer();
 
   const { data: existing } = await supabase
     .from("field_trips")
-    .select("user_id")
+    .select("user_id, author_name, destination")
     .eq("id", id)
     .single();
 
   if (existing && (existing.user_id === userId || isAdmin)) {
     await supabase.from("field_trips").delete().eq("id", id);
+    await writeLog({
+      level: "info",
+      action: "DELETE_FIELD_TRIP",
+      message: `${name}님이 외근/출장을 삭제했습니다: ${existing.author_name} (${existing.destination || "행선지 미입력"})`,
+      actorId: userId,
+      actorName: name,
+    });
     revalidatePath("/field-trip");
   }
 

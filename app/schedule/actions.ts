@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { isValidDate } from "@/lib/schedule/date";
+import { writeLog } from "@/lib/logs";
 
 export type ScheduleFormState = { error: string } | null;
 
@@ -16,9 +17,10 @@ async function getViewer() {
 
   if (!user) redirect("/auth");
 
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("users").select("is_admin, name").eq("id", user.id).single();
+  const actorName = profile?.name ?? user.email ?? "알 수 없음";
 
-  return { supabase, userId: user.id, isAdmin: profile?.is_admin ?? false };
+  return { supabase, userId: user.id, isAdmin: profile?.is_admin ?? false, actorName };
 }
 
 function readTripRange(formData: FormData, baseDate: string) {
@@ -38,7 +40,7 @@ export async function createSchedule(
   _prevState: ScheduleFormState,
   formData: FormData
 ): Promise<ScheduleFormState> {
-  const { supabase, userId } = await getViewer();
+  const { supabase, userId, actorName } = await getViewer();
 
   const baseDate = String(formData.get("base_date") ?? "").trim();
   if (!isValidDate(baseDate)) return { error: "날짜 형식이 올바르지 않습니다." };
@@ -66,6 +68,14 @@ export async function createSchedule(
 
   if (error) return { error: "등록 중 오류가 발생했습니다." };
 
+  await writeLog({
+    level: "info",
+    action: "CREATE_SCHEDULE",
+    message: `${actorName}님이 일정을 등록했습니다: ${content}`,
+    actorId: userId,
+    actorName,
+  });
+
   revalidatePath("/schedule");
   redirect(`/schedule?ym=${baseDate.slice(0, 7)}&date=${baseDate}`);
 }
@@ -75,7 +85,7 @@ export async function updateSchedule(
   _prevState: ScheduleFormState,
   formData: FormData
 ): Promise<ScheduleFormState> {
-  const { supabase, userId, isAdmin } = await getViewer();
+  const { supabase, userId, isAdmin, actorName } = await getViewer();
 
   const { data: existing } = await supabase.from("schedules").select("user_id").eq("id", id).single();
   if (!existing) return { error: "일정을 찾을 수 없습니다." };
@@ -109,17 +119,32 @@ export async function updateSchedule(
 
   if (error) return { error: "수정 중 오류가 발생했습니다." };
 
+  await writeLog({
+    level: "info",
+    action: "UPDATE_SCHEDULE",
+    message: `${actorName}님이 일정을 수정했습니다: ${content}`,
+    actorId: userId,
+    actorName,
+  });
+
   revalidatePath("/schedule");
   redirect(`/schedule?ym=${baseDate.slice(0, 7)}&date=${baseDate}`);
 }
 
 export async function deleteSchedule(id: string, ym: string): Promise<void> {
-  const { supabase, userId, isAdmin } = await getViewer();
+  const { supabase, userId, isAdmin, actorName } = await getViewer();
 
-  const { data: existing } = await supabase.from("schedules").select("user_id").eq("id", id).single();
+  const { data: existing } = await supabase.from("schedules").select("user_id, content").eq("id", id).single();
 
   if (existing && (existing.user_id === userId || isAdmin)) {
     await supabase.from("schedules").delete().eq("id", id);
+    await writeLog({
+      level: "info",
+      action: "DELETE_SCHEDULE",
+      message: `${actorName}님이 일정을 삭제했습니다: ${existing.content}`,
+      actorId: userId,
+      actorName,
+    });
     revalidatePath("/schedule");
   }
 

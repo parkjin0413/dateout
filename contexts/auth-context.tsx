@@ -17,6 +17,7 @@ type AuthContextValue = {
   user: User | null;
   session: Session | null;
   profileName: string | null;
+  isAdmin: boolean;
   isLoading: boolean;
   signOut: () => Promise<void>;
 };
@@ -28,6 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const supabase = useMemo(() => createClient(), []);
   const [session, setSession] = useState<Session | null>(null);
   const [profileName, setProfileName] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -51,8 +53,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let cancelled = false;
 
     (async () => {
-      const name = userId ? (await supabase.from("users").select("name").eq("id", userId).single()).data?.name ?? null : null;
-      if (!cancelled) setProfileName(name);
+      const profile = userId
+        ? (await supabase.from("users").select("name, is_admin").eq("id", userId).single()).data
+        : null;
+      if (!cancelled) {
+        setProfileName(profile?.name ?? null);
+        setIsAdmin(profile?.is_admin ?? false);
+      }
     })();
 
     return () => {
@@ -65,13 +72,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user: session?.user ?? null,
       session,
       profileName,
+      isAdmin,
       isLoading,
       signOut: async () => {
         await supabase.auth.signOut();
         router.push("/");
       },
     }),
-    [session, profileName, isLoading, supabase, router]
+    [session, profileName, isAdmin, isLoading, supabase, router]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

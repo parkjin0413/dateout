@@ -68,8 +68,8 @@ const PersonCard = ({ person, isAdmin }: { person: Person; isAdmin: boolean }) =
       </Link>
 
       {isAdmin && (
-        <div className="flex items-center gap-2 border-t border-[#E7E2D2] pt-3">
-          <form action={boundUpdate} className="flex flex-1 items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 border-t border-[#E7E2D2] pt-3">
+          <form action={boundUpdate} className="flex min-w-0 flex-1 items-center gap-2">
             <input
               name="department"
               list="report-department-options"

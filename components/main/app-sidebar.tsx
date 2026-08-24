@@ -16,7 +16,14 @@ const NAV_LINKS = [
   { label: "인명록", href: "/directory", icon: "directory" },
 ] as const;
 
-const NavIcon = ({ kind }: { kind: (typeof NAV_LINKS)[number]["icon"] }) => {
+const ADMIN_LINKS = [
+  { label: "로그 관리", href: "/admin/logs", icon: "logs" },
+  { label: "직원 관리", href: "/admin/employees", icon: "staff" },
+] as const;
+
+type IconKind = (typeof NAV_LINKS)[number]["icon"] | (typeof ADMIN_LINKS)[number]["icon"];
+
+const NavIcon = ({ kind }: { kind: IconKind }) => {
   const common = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.75, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   switch (kind) {
     case "dashboard":
@@ -61,33 +68,63 @@ const NavIcon = ({ kind }: { kind: (typeof NAV_LINKS)[number]["icon"] }) => {
           <path d="M18.5 14.3c1.6.5 2.9 2.1 3 4.4" />
         </svg>
       );
+    case "logs":
+      return (
+        <svg {...common} className="h-5 w-5">
+          <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h9L20 8.5V18.5A1.5 1.5 0 0 1 18.5 20h-13A1.5 1.5 0 0 1 4 18.5z" />
+          <path d="M14 4v3.5A1.5 1.5 0 0 0 15.5 9H19" />
+          <path d="M8 13l2 2 4-4.5" />
+        </svg>
+      );
+    case "staff":
+      return (
+        <svg {...common} className="h-5 w-5">
+          <path d="M12 3.5 5 6v5.5c0 4.2 2.9 7 7 9 4.1-2 7-4.8 7-9V6z" />
+          <path d="M9 12l2 2 4-4.5" />
+        </svg>
+      );
   }
 };
 
-const NavLinks = ({ pathname, onNavigate }: { pathname: string | null; onNavigate?: () => void }) => (
-  <nav className="flex flex-col gap-1 px-3">
-    {NAV_LINKS.map((link) => {
-      const active = pathname === link.href;
-      return (
-        <Link
-          key={link.href}
-          href={link.href}
-          prefetch={false}
-          onClick={onNavigate}
-          className={[
-            "flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium transition-colors",
-            active
-              ? "bg-gradient-to-b from-[#16776F] to-[#0C4A45] text-white shadow-md shadow-[#0F5C56]/35"
-              : "text-[#4B4739] hover:bg-[#F5F3EA]",
-          ].join(" ")}
-        >
-          <NavIcon kind={link.icon} />
-          {link.label}
-        </Link>
-      );
-    })}
-  </nav>
+type NavLink = { label: string; href: string; icon: IconKind };
+
+const NavLinkItem = ({ link, active, onNavigate }: { link: NavLink; active: boolean; onNavigate?: () => void }) => (
+  <Link
+    href={link.href}
+    prefetch={false}
+    onClick={onNavigate}
+    className={[
+      "flex items-center gap-3 rounded-xl px-4 py-3 text-base font-medium transition-colors",
+      active
+        ? "bg-gradient-to-b from-[#16776F] to-[#0C4A45] text-white shadow-md shadow-[#0F5C56]/35"
+        : "text-[#4B4739] hover:bg-[#F5F3EA]",
+    ].join(" ")}
+  >
+    <NavIcon kind={link.icon} />
+    {link.label}
+  </Link>
 );
+
+const NavLinks = ({ pathname, onNavigate }: { pathname: string | null; onNavigate?: () => void }) => {
+  const { isAdmin } = useAuth();
+
+  return (
+    <nav className="flex flex-col gap-1 px-3">
+      {NAV_LINKS.map((link) => (
+        <NavLinkItem key={link.href} link={link} active={pathname === link.href} onNavigate={onNavigate} />
+      ))}
+
+      {isAdmin && (
+        <>
+          <div className="mb-1 mt-4 px-4 text-xs font-semibold uppercase tracking-wide text-[#B9B29B]">관리자</div>
+          {ADMIN_LINKS.map((link) => (
+            <NavLinkItem key={link.href} link={link} active={pathname === link.href} onNavigate={onNavigate} />
+          ))}
+        </>
+      )}
+    </nav>
+  );
+};
 
 const UserBlock = ({ onSignOut }: { onSignOut: () => void }) => {
   const { user, profileName } = useAuth();

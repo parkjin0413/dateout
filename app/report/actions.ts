@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { isValidDate } from "@/lib/report/date";
+import { writeLog } from "@/lib/logs";
 
 export type ReportFormState = { error: string } | null;
 
@@ -16,9 +17,10 @@ async function getViewer() {
 
   if (!user) redirect("/auth");
 
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("users").select("is_admin, name").eq("id", user.id).single();
+  const actorName = profile?.name ?? user.email ?? "알 수 없음";
 
-  return { supabase, userId: user.id, isAdmin: profile?.is_admin ?? false };
+  return { supabase, userId: user.id, isAdmin: profile?.is_admin ?? false, actorName };
 }
 
 export async function createReportBoard(formData: FormData): Promise<void> {
@@ -62,7 +64,7 @@ export async function createWorkReport(
   _prevState: ReportFormState,
   formData: FormData
 ): Promise<ReportFormState> {
-  const { supabase, userId } = await getViewer();
+  const { supabase, userId, actorName } = await getViewer();
   if (targetUserId !== userId) return { error: "본인 게시판에서만 작성할 수 있습니다." };
 
   const { data: board } = await supabase.from("report_boards").select("id").eq("user_id", userId).single();
@@ -87,6 +89,14 @@ export async function createWorkReport(
 
   if (error) return { error: "등록 중 오류가 발생했습니다." };
 
+  await writeLog({
+    level: "info",
+    action: "CREATE_REPORT",
+    message: `${actorName}님이 업무보고를 작성했습니다: ${title}`,
+    actorId: userId,
+    actorName,
+  });
+
   revalidatePath(`/report/${userId}`);
   redirect(`/report/${userId}`);
 }
@@ -97,7 +107,7 @@ export async function updateWorkReport(
   _prevState: ReportFormState,
   formData: FormData
 ): Promise<ReportFormState> {
-  const { supabase, userId, isAdmin } = await getViewer();
+  const { supabase, userId, isAdmin, actorName } = await getViewer();
 
   const { data: existing } = await supabase.from("work_reports").select("user_id").eq("id", id).single();
   if (!existing) return { error: "업무보고를 찾을 수 없습니다." };
@@ -124,17 +134,32 @@ export async function updateWorkReport(
 
   if (error) return { error: "수정 중 오류가 발생했습니다." };
 
+  await writeLog({
+    level: "info",
+    action: "UPDATE_REPORT",
+    message: `${actorName}님이 업무보고를 수정했습니다: ${title}`,
+    actorId: userId,
+    actorName,
+  });
+
   revalidatePath(`/report/${targetUserId}`);
   redirect(`/report/${targetUserId}`);
 }
 
 export async function deleteWorkReport(id: string, targetUserId: string): Promise<void> {
-  const { supabase, userId, isAdmin } = await getViewer();
+  const { supabase, userId, isAdmin, actorName } = await getViewer();
 
-  const { data: existing } = await supabase.from("work_reports").select("user_id").eq("id", id).single();
+  const { data: existing } = await supabase.from("work_reports").select("user_id, title").eq("id", id).single();
 
   if (existing && (existing.user_id === userId || isAdmin)) {
     await supabase.from("work_reports").delete().eq("id", id);
+    await writeLog({
+      level: "info",
+      action: "DELETE_REPORT",
+      message: `${actorName}님이 업무보고를 삭제했습니다: ${existing.title}`,
+      actorId: userId,
+      actorName,
+    });
     revalidatePath(`/report/${targetUserId}`);
   }
 

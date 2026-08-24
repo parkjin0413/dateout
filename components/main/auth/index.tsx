@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 
 import { createClient } from "@/lib/supabase/client";
+import { logLogin } from "@/app/auth/actions";
 import logo from "@/public/logo2.png";
 
 const EMAIL_DOMAIN = "ks.com";
@@ -53,6 +54,8 @@ const Auth = () => {
       setIsSubmitting(false);
       return;
     }
+
+    logLogin();
 
     router.push("/dashboard");
     router.refresh();
