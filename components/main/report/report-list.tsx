@@ -13,7 +13,7 @@ type Props = {
 const ReportList = ({ userId, reports, viewerId, isAdmin }: Props) => {
   if (reports.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-12 text-center text-base text-gray-500">
+      <div className="rounded-2xl border border-[#E7E2D2] bg-white px-4 py-12 text-center text-base text-[#8A8270]">
         작성된 업무보고가 없습니다.
       </div>
     );
@@ -26,22 +26,22 @@ const ReportList = ({ userId, reports, viewerId, isAdmin }: Props) => {
         return (
           <div
             key={report.id}
-            className="flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-lg shadow-black/20"
+            className="flex flex-col overflow-hidden rounded-2xl border border-[#E7E2D2] bg-white"
           >
-            <div className="flex items-center justify-between gap-2 border-b border-white/10 bg-white/[0.05] px-5 py-4">
-              <div className="truncate text-base font-semibold text-white">{report.title}</div>
+            <div className="flex items-center justify-between gap-2 border-b border-[#E7E2D2] bg-[#FAF8F0] px-5 py-4">
+              <div className="truncate text-base font-semibold text-[#211D14]">{report.title}</div>
               {canManage && (
                 <div className="flex shrink-0 items-center gap-3">
                   <Link
                     href={`/report/${userId}/${report.id}/edit`}
-                    className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+                    className="text-sm font-medium text-[#6B6455] transition-colors hover:text-[#211D14]"
                   >
                     수정
                   </Link>
                   <DeleteReportButton
                     id={report.id}
                     userId={userId}
-                    className="text-sm font-medium text-red-400 transition-colors hover:text-red-300 disabled:opacity-50"
+                    className="text-sm font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-50"
                   />
                 </div>
               )}
@@ -49,12 +49,12 @@ const ReportList = ({ userId, reports, viewerId, isAdmin }: Props) => {
 
             <div className="flex-1 space-y-5 px-5 py-5">
               <div>
-                <div className="mb-1.5 text-sm font-semibold text-purple-300">금일 업무</div>
-                <div className="whitespace-pre-wrap text-base text-gray-200">{report.today_work || "-"}</div>
+                <div className="mb-1.5 text-sm font-semibold text-[#0F5C56]">금일 업무</div>
+                <div className="whitespace-pre-wrap text-base text-[#4B4739]">{report.today_work || "-"}</div>
               </div>
               <div>
-                <div className="mb-1.5 text-sm font-semibold text-blue-300">명일 업무</div>
-                <div className="whitespace-pre-wrap text-base text-gray-200">{report.tomorrow_work || "-"}</div>
+                <div className="mb-1.5 text-sm font-semibold text-blue-700">명일 업무</div>
+                <div className="whitespace-pre-wrap text-base text-[#4B4739]">{report.tomorrow_work || "-"}</div>
               </div>
             </div>
           </div>

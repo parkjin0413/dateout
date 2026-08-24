@@ -1,6 +1,6 @@
 import { BASE_DEPARTMENTS, getDeptRank } from "@/lib/dept";
 
-export { getDeptClass, DEPT_COLORS, getDeptRank } from "@/lib/dept";
+export { getDeptClass, DEPT_COLORS, DEPT_COLORS_LIGHT, getDeptRank } from "@/lib/dept";
 export type { DeptClass } from "@/lib/dept";
 
 export const DEPARTMENT_OPTIONS = ["공지", ...BASE_DEPARTMENTS] as const;

@@ -25,28 +25,28 @@ const FieldTripCalendar = ({ ym, selectedDate, today, countMap }: Props) => {
   while (cells.length % 7 !== 0) cells.push(null);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="rounded-2xl border border-[#E7E2D2] bg-white p-4">
+      <div className="mb-3 flex items-center justify-between">
         <Link
           href={`/field-trip?ym=${prevYm}&date=${selectedDate}`}
-          className="rounded-lg px-2 py-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-lg px-2 py-1 text-[#6B6455] transition-colors hover:bg-[#F5F3EA] hover:text-[#211D14]"
         >
           ◀
         </Link>
-        <div className="text-base font-semibold text-white">
+        <div className="text-base font-semibold text-[#211D14]">
           {year}년 {String(month).padStart(2, "0")}월
         </div>
         <Link
           href={`/field-trip?ym=${nextYm}&date=${selectedDate}`}
-          className="rounded-lg px-2 py-1 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-lg px-2 py-1 text-[#6B6455] transition-colors hover:bg-[#F5F3EA] hover:text-[#211D14]"
         >
           ▶
         </Link>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-center text-sm text-gray-500">
+      <div className="grid grid-cols-7 gap-1 text-center text-sm text-[#8A8270]">
         {DOW.map((d, i) => (
-          <div key={d} className={i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : ""}>
+          <div key={d} className={i === 0 ? "text-red-500" : i === 6 ? "text-blue-600" : ""}>
             {d}
           </div>
         ))}
@@ -68,17 +68,15 @@ const FieldTripCalendar = ({ ym, selectedDate, today, countMap }: Props) => {
               href={`/field-trip?ym=${ym}&date=${dateStr}`}
               className={[
                 "flex flex-col items-center gap-0.5 rounded-lg border py-1.5 text-sm transition-colors",
-                isSelected ? "border-purple-400/50 bg-purple-500/15" : "border-transparent hover:bg-white/5",
-                isToday ? "ring-1 ring-purple-400/60" : "",
+                isSelected ? "border-[#0F5C56]/40 bg-[#E3EFEC]" : "border-transparent hover:bg-[#F5F3EA]",
+                isToday ? "ring-1 ring-[#0F5C56]/60" : "",
               ].join(" ")}
             >
-              <span className={weekday === 0 ? "text-red-400" : weekday === 6 ? "text-blue-400" : "text-gray-300"}>
+              <span className={weekday === 0 ? "text-red-500" : weekday === 6 ? "text-blue-600" : "text-[#4B4739]"}>
                 {day}
               </span>
               {count > 0 && (
-                <span className="rounded-full bg-purple-500/20 px-1.5 text-xs leading-4 text-purple-300">
-                  {count}건
-                </span>
+                <span className="rounded-full bg-[#E3EFEC] px-1.5 text-xs leading-4 text-[#0F5C56]">{count}건</span>
               )}
             </Link>
           );
@@ -88,7 +86,7 @@ const FieldTripCalendar = ({ ym, selectedDate, today, countMap }: Props) => {
       <div className="mt-4 text-center">
         <Link
           href={`/field-trip?ym=${today.slice(0, 7)}&date=${today}`}
-          className="text-sm text-gray-400 transition-colors hover:text-white"
+          className="text-sm text-[#6B6455] transition-colors hover:text-[#211D14]"
         >
           오늘로
         </Link>

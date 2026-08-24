@@ -34,6 +34,20 @@ export const DEPT_COLORS: Record<DeptClass, { bg: string; text: string; border: 
   "dept-etc": { bg: "bg-gray-500/15", text: "text-gray-300", border: "border-gray-400/30" },
 };
 
+// Light-theme counterpart of DEPT_COLORS for the /schedule pages.
+// `dot` is a literal solid-bg class (not derived from `text`/`bg` at runtime)
+// so Tailwind's static scanner can see and generate it.
+export const DEPT_COLORS_LIGHT: Record<DeptClass, { bg: string; text: string; border: string; dot: string }> = {
+  "dept-notice": { bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200", dot: "bg-amber-500" },
+  "dept-sales": { bg: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", dot: "bg-blue-500" },
+  "dept-support": { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", dot: "bg-orange-500" },
+  "dept-pr": { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200", dot: "bg-purple-500" },
+  "dept-admin": { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200", dot: "bg-slate-500" },
+  "dept-prod": { bg: "bg-green-50", text: "text-green-700", border: "border-green-200", dot: "bg-green-500" },
+  "dept-tech": { bg: "bg-cyan-50", text: "text-cyan-700", border: "border-cyan-200", dot: "bg-cyan-500" },
+  "dept-etc": { bg: "bg-gray-50", text: "text-gray-700", border: "border-gray-200", dot: "bg-gray-500" },
+};
+
 export function getDeptRank(dept: string): number {
   if (/공지/.test(dept)) return 1;
   if (/영업/.test(dept)) return 2;

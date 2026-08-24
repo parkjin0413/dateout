@@ -11,7 +11,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
 const MINUTES = ["00", "30"];
 
 const inputCls =
-  "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-base text-white outline-none transition-colors focus:border-purple-400/50";
+  "w-full rounded-lg border border-[#E7E2D2] bg-white px-3 py-2.5 text-base text-[#211D14] outline-none transition-colors focus:border-[#0F5C56]";
 
 type Props = {
   mode: "create" | "edit";
@@ -29,7 +29,7 @@ const splitTime = (value?: string) => {
 
 const Field = ({ label, children }: { label: string; children: ReactNode }) => (
   <div>
-    <label className="mb-1.5 block text-base font-medium text-gray-300">{label}</label>
+    <label className="mb-1.5 block text-base font-medium text-[#4B4739]">{label}</label>
     {children}
   </div>
 );
@@ -84,31 +84,30 @@ const TripForm = ({ mode, action, workDate, trip, defaultAuthorName, isAdmin }: 
   const listHref = `/field-trip?date=${workDate}&ym=${workDate.slice(0, 7)}`;
 
   return (
-    <div className="relative min-h-screen w-full bg-[#181818]">
-      <div className="mx-auto max-w-2xl px-6 pb-24 pt-32 sm:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">{mode === "create" ? "외근 입력" : "외근 수정"}</h1>
-          <p className="mt-1 text-base text-gray-400">기준일 {workDate}</p>
-        </div>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-[#211D14]">{mode === "create" ? "외근 입력" : "외근 수정"}</h1>
+        <p className="mt-1 text-base text-[#6B6455]">기준일 {workDate}</p>
+      </div>
 
-        <form action={formAction} className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <input type="hidden" name="base_date" value={workDate} />
-          <input type="hidden" name="trip_enabled" value={tripEnabled ? "on" : ""} />
-          <input type="hidden" name="trip_start" value={tripEnabled ? tripStart : workDate} />
-          <input type="hidden" name="trip_end" value={tripEnabled ? tripEnd : workDate} />
-          <input type="hidden" name="depart_time" value={departTime} />
-          <input type="hidden" name="return_time" value={returnTime} />
+      <form action={formAction} className="max-w-2xl space-y-5 rounded-2xl border border-[#E7E2D2] bg-white p-6">
+        <input type="hidden" name="base_date" value={workDate} />
+        <input type="hidden" name="trip_enabled" value={tripEnabled ? "on" : ""} />
+        <input type="hidden" name="trip_start" value={tripEnabled ? tripStart : workDate} />
+        <input type="hidden" name="trip_end" value={tripEnabled ? tripEnd : workDate} />
+        <input type="hidden" name="depart_time" value={departTime} />
+        <input type="hidden" name="return_time" value={returnTime} />
 
-          <Field label="성명">
-            {isAdmin ? (
-              <>
-                <input name="author_name" defaultValue={defaultAuthorName} required className={inputCls} />
-                <p className="mt-1 text-sm text-gray-500">관리자만 성명 수정이 가능합니다.</p>
-              </>
-            ) : (
-              <div className="py-2 text-base font-medium text-white">{defaultAuthorName}</div>
-            )}
-          </Field>
+        <Field label="성명">
+          {isAdmin ? (
+            <>
+              <input name="author_name" defaultValue={defaultAuthorName} required className={inputCls} />
+              <p className="mt-1 text-sm text-[#8A8270]">관리자만 성명 수정이 가능합니다.</p>
+            </>
+          ) : (
+            <div className="py-2 text-base font-medium text-[#211D14]">{defaultAuthorName}</div>
+          )}
+        </Field>
 
           <Field label="부서">
             <select name="department" defaultValue={trip?.department ?? ""} required className={inputCls}>
@@ -124,7 +123,7 @@ const TripForm = ({ mode, action, workDate, trip, defaultAuthorName, isAdmin }: 
           </Field>
 
           <Field label="출장(기간)">
-            <label className="flex items-center gap-2 text-base text-gray-300">
+            <label className="flex items-center gap-2 text-base text-[#4B4739]">
               <input
                 type="checkbox"
                 checked={tripEnabled}
@@ -142,14 +141,14 @@ const TripForm = ({ mode, action, workDate, trip, defaultAuthorName, isAdmin }: 
               />
               기간 선택
             </label>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-[#8A8270]">
               기본은 당일 외근입니다. 여러 날짜에 걸친 출장일 때만 켜주세요.
             </p>
 
             {tripEnabled && (
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div>
-                  <div className="mb-1 text-sm text-gray-400">출발일</div>
+                  <div className="mb-1 text-sm text-[#6B6455]">출발일</div>
                   <input
                     type="date"
                     value={tripStart}
@@ -162,7 +161,7 @@ const TripForm = ({ mode, action, workDate, trip, defaultAuthorName, isAdmin }: 
                   />
                 </div>
                 <div>
-                  <div className="mb-1 text-sm text-gray-400">도착일</div>
+                  <div className="mb-1 text-sm text-[#6B6455]">도착일</div>
                   <input
                     type="date"
                     value={tripEnd}
@@ -234,27 +233,26 @@ const TripForm = ({ mode, action, workDate, trip, defaultAuthorName, isAdmin }: 
                 className={inputCls}
               />
             </div>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-[#8A8270]">
               사무실 복귀·재출발이 있는 경우, 장소명 뒤에 (복귀 12:00) 또는 (출발 15:00)처럼 표시해 주세요.
             </p>
           </Field>
 
-          {state?.error && <p className="text-base text-red-400">{state.error}</p>}
+          {state?.error && <p className="text-base text-red-600">{state.error}</p>}
 
           <div className="flex items-center gap-4 pt-2">
             <button
               type="submit"
               disabled={isPending}
-              className="rounded-lg bg-white px-5 py-2.5 text-base font-semibold text-black transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-[#0F5C56] px-5 py-2.5 text-base font-semibold text-white transition-colors hover:bg-[#0C4A45] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? "저장 중..." : mode === "create" ? "외근 입력" : "수정하기"}
             </button>
-            <Link href={listHref} className="text-base text-gray-400 transition-colors hover:text-white">
+            <Link href={listHref} className="text-base text-[#6B6455] transition-colors hover:text-[#211D14]">
               목록으로
             </Link>
           </div>
-        </form>
-      </div>
+      </form>
     </div>
   );
 };

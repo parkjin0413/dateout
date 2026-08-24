@@ -44,3 +44,17 @@ option {
   background-color: #1f1f1f;
   color: #ffffff;
 }
+
+/* The /schedule pages are light-themed; override the dark form-control
+   defaults above so native selects and date pickers match. */
+.light-shell select,
+.light-shell option,
+.light-shell input[type="date"],
+.light-shell input[type="time"] {
+  color-scheme: light;
+}
+
+.light-shell option {
+  background-color: #ffffff;
+  color: #211d14;
+}

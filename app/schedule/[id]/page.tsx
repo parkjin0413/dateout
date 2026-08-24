@@ -33,40 +33,38 @@ export default async function ScheduleDetailPage({ params, searchParams }: Props
   const listHref = `/schedule?ym=${ym}&date=${schedule.base_date}`;
 
   return (
-    <div className="relative min-h-screen w-full bg-[#181818]">
-      <div className="mx-auto max-w-xl px-6 pb-24 pt-32 sm:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">일정 상세</h1>
-          <p className="mt-1 text-base text-gray-400">기준일 {schedule.base_date}</p>
-        </div>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-[#211D14]">일정 상세</h1>
+        <p className="mt-1 text-base text-[#6B6455]">기준일 {schedule.base_date}</p>
+      </div>
 
-        <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <Row label="부서" value={schedule.department} />
-          <Row label="기간" value={periodText(schedule.trip_start, schedule.trip_end)} />
-          <Row label="내용" value={schedule.content} />
-        </div>
+      <div className="max-w-xl space-y-4 rounded-2xl border border-[#E7E2D2] bg-white p-6">
+        <Row label="부서" value={schedule.department} />
+        <Row label="기간" value={periodText(schedule.trip_start, schedule.trip_end)} />
+        <Row label="내용" value={schedule.content} />
+      </div>
 
-        <div className="mt-6 flex items-center gap-4">
-          <Link href={listHref} className="text-base text-gray-400 transition-colors hover:text-white">
-            목록으로
-          </Link>
+      <div className="mt-6 flex items-center gap-4">
+        <Link href={listHref} className="text-base text-[#6B6455] transition-colors hover:text-[#211D14]">
+          목록으로
+        </Link>
 
-          {canManage && (
-            <>
-              <Link
-                href={`/schedule/${schedule.id}/edit`}
-                className="text-base font-medium text-gray-200 transition-colors hover:text-white"
-              >
-                수정
-              </Link>
-              <DeleteScheduleButton
-                id={schedule.id}
-                ym={ym}
-                className="text-base font-medium text-red-400 transition-colors hover:text-red-300"
-              />
-            </>
-          )}
-        </div>
+        {canManage && (
+          <>
+            <Link
+              href={`/schedule/${schedule.id}/edit`}
+              className="text-base font-medium text-[#4B4739] transition-colors hover:text-[#211D14]"
+            >
+              수정
+            </Link>
+            <DeleteScheduleButton
+              id={schedule.id}
+              ym={ym}
+              className="text-base font-medium text-red-600 transition-colors hover:text-red-700"
+            />
+          </>
+        )}
       </div>
     </div>
   );
@@ -74,7 +72,7 @@ export default async function ScheduleDetailPage({ params, searchParams }: Props
 
 const Row = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
-    <div className="w-16 shrink-0 text-base text-gray-400">{label}</div>
-    <div className="text-base text-white">{value}</div>
+    <div className="w-16 shrink-0 text-base text-[#6B6455]">{label}</div>
+    <div className="text-base text-[#211D14]">{value}</div>
   </div>
 );

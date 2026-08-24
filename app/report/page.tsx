@@ -41,26 +41,15 @@ export default async function ReportPage() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#181818]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-32 sm:px-8">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">업무 보고</h1>
-          <p className="mt-1 text-base text-gray-400">개인별 업무보고 게시판입니다. 본인 게시판을 찾아 작성해주세요.</p>
-        </div>
-
-        {isAdmin && <AddBoardForm candidates={candidates} />}
-
-        <BoardList people={orderedPeople} isAdmin={isAdmin} />
+    <div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-[#211D14]">업무 보고</h1>
+        <p className="mt-1 text-base text-[#6B6455]">개인별 업무보고 게시판입니다. 본인 게시판을 찾아 작성해주세요.</p>
       </div>
+
+      {isAdmin && <AddBoardForm candidates={candidates} />}
+
+      <BoardList people={orderedPeople} isAdmin={isAdmin} />
     </div>
   );
 }

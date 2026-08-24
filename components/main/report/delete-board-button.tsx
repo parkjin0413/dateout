@@ -22,7 +22,7 @@ const DeleteBoardButton = ({ userId, displayName }: { userId: string; displayNam
           deleteReportBoard(userId);
         });
       }}
-      className="shrink-0 text-sm font-medium text-red-400 transition-colors hover:text-red-300 disabled:opacity-50"
+      className="shrink-0 text-sm font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-50"
     >
       게시판 삭제
     </button>

@@ -21,7 +21,7 @@ const remarkLines = (row: FieldTrip) =>
 const ScheduleCards = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
   if (rows.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-12 text-center text-base text-gray-500 md:hidden">
+      <div className="rounded-2xl border border-[#E7E2D2] bg-white px-4 py-12 text-center text-base text-[#8A8270] md:hidden">
         해당 날짜에 등록된 외근이 없습니다.
       </div>
     );
@@ -32,22 +32,22 @@ const ScheduleCards = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
       {rows.map((row) => {
         const canManage = isAdmin || row.user_id === viewerId;
         return (
-          <div key={row.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-lg shadow-black/20">
+          <div key={row.id} className="rounded-2xl border border-[#E7E2D2] bg-white p-6">
             <div className="flex flex-wrap items-center gap-2">
               <DeptBadge department={row.department} />
-              <span className="font-semibold text-white">{row.author_name}</span>
-              {row.destination && <span className="text-base text-gray-400">{row.destination}</span>}
+              <span className="font-semibold text-[#211D14]">{row.author_name}</span>
+              {row.destination && <span className="text-base text-[#6B6455]">{row.destination}</span>}
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-gray-400">
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-base text-[#6B6455]">
               <span>
                 {row.depart_time || "-"} ~ {row.return_time || "-"}
               </span>
-              <span className="text-gray-500">{periodText(row)}</span>
+              <span className="text-[#8A8270]">{periodText(row)}</span>
             </div>
 
             {remarkLines(row).length > 0 && (
-              <div className="mt-3 space-y-1 text-base text-gray-400">
+              <div className="mt-3 space-y-1 text-base text-[#6B6455]">
                 {remarkLines(row).map((line, i) => (
                   <div key={i}>{line}</div>
                 ))}
@@ -55,10 +55,10 @@ const ScheduleCards = ({ rows, viewerId, isAdmin, date, ym }: Props) => {
             )}
 
             {canManage && (
-              <div className="mt-4 flex items-center gap-4 border-t border-white/10 pt-4">
+              <div className="mt-4 flex items-center gap-4 border-t border-[#E7E2D2] pt-4">
                 <Link
                   href={`/field-trip/${row.id}`}
-                  className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+                  className="text-sm font-medium text-[#4B4739] transition-colors hover:text-[#211D14]"
                 >
                   수정
                 </Link>

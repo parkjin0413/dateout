@@ -78,9 +78,9 @@ const UsersIcon = ({ className }: { className?: string }) => (
 );
 
 const BADGE_TONE = {
-  neutral: "border-purple-400/20 bg-purple-500/10 text-purple-300",
-  success: "border-green-400/20 bg-green-500/10 text-green-300",
-  warning: "border-amber-400/20 bg-amber-500/10 text-amber-300",
+  neutral: "border-[#CFE3E0] bg-[#E3EFEC] text-[#0F5C56]",
+  success: "border-green-200 bg-green-50 text-green-700",
+  warning: "border-amber-200 bg-amber-50 text-amber-700",
 } as const;
 
 const Badge = ({ label, tone }: { label: string; tone: keyof typeof BADGE_TONE }) => (
@@ -126,71 +126,53 @@ const Dashboard = ({ name, email, avatarUrl, fieldTripCount, scheduleCount, hasR
   ];
 
   return (
-    <div className="relative min-h-screen w-full bg-[#181818]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(168,85,247,0.08), transparent)",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-32 sm:px-8">
-        <div className="mb-12 flex items-center gap-4">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={avatarUrl}
-              alt={greetingLabel}
-              className="h-14 w-14 shrink-0 rounded-full border border-white/10"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg font-semibold text-gray-300">
-              {(name ?? email).slice(0, 1)}
-            </div>
-          )}
-          <div className="min-w-0">
-            <p className="text-sm text-gray-400">환영합니다</p>
-            <h1
-              className="break-words bg-gradient-to-b from-white to-gray-400 bg-clip-text font-bold tracking-tight text-transparent"
-              style={{ fontSize: "clamp(1.125rem, 5.5vw, 1.875rem)" }}
-            >
-              {greetingLabel}님
-            </h1>
+    <div>
+      <div className="mb-10 flex items-center gap-4">
+        {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={avatarUrl}
+            alt={greetingLabel}
+            className="h-14 w-14 shrink-0 rounded-full border border-[#E7E2D2]"
+            referrerPolicy="no-referrer"
+          />
+        ) : (
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#E7E2D2] bg-white text-lg font-semibold text-[#4B4739]">
+            {(name ?? email).slice(0, 1)}
           </div>
+        )}
+        <div className="min-w-0">
+          <p className="text-sm text-[#6B6455]">환영합니다</p>
+          <h1
+            className="break-words font-bold tracking-tight text-[#211D14]"
+            style={{ fontSize: "clamp(1.125rem, 5.5vw, 1.875rem)" }}
+          >
+            {greetingLabel}님
+          </h1>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {tools.map((tool) => (
-            <Link
-              key={tool.href}
-              href={tool.href}
-              prefetch={false}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-8 transition-all duration-300 hover:-translate-y-1 hover:border-purple-400/30 hover:bg-white/[0.06] hover:shadow-2xl hover:shadow-purple-500/10"
-            >
-              <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-purple-400/20 bg-purple-500/10 text-purple-300">
-                <tool.icon className="h-6 w-6" />
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {tools.map((tool) => (
+          <Link
+            key={tool.href}
+            href={tool.href}
+            prefetch={false}
+            className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#E7E2D2] bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:border-[#0F5C56]/40 hover:shadow-lg"
+          >
+            <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-[#CFE3E0] bg-[#E3EFEC] text-[#0F5C56]">
+              <tool.icon className="h-6 w-6" />
+            </div>
+            <h2 className="mb-2 text-lg font-semibold text-[#211D14]">{tool.label}</h2>
+            <p className="text-sm leading-relaxed text-[#6B6455]">{tool.description}</p>
+            {tool.badge && (
+              <div className="mt-4">
+                <Badge label={tool.badge.label} tone={tool.badge.tone} />
               </div>
-              <h2 className="mb-2 text-lg font-semibold text-white">{tool.label}</h2>
-              <p className="text-sm leading-relaxed text-gray-400">{tool.description}</p>
-              {tool.badge && (
-                <div className="mt-4">
-                  <Badge label={tool.badge.label} tone={tool.badge.tone} />
-                </div>
-              )}
-              <ArrowRightIcon className="absolute right-6 top-8 h-5 w-5 text-gray-600 transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
-            </Link>
-          ))}
-        </div>
+            )}
+            <ArrowRightIcon className="absolute right-6 top-8 h-5 w-5 text-[#B9B29B] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#0F5C56]" />
+          </Link>
+        ))}
       </div>
     </div>
   );

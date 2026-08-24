@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { DEPT_COLORS, getDeptClass } from "@/lib/directory/dept";
+import { DEPT_COLORS_LIGHT, getDeptClass } from "@/lib/directory/dept";
 import type { Employee } from "@/lib/directory/types";
 import DeleteEmployeeButton from "./delete-employee-button";
 
@@ -16,10 +16,10 @@ const PhoneIcon = () => (
 );
 
 const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: boolean }) => {
-  const colors = DEPT_COLORS[getDeptClass(employee.department)];
+  const colors = DEPT_COLORS_LIGHT[getDeptClass(employee.department)];
 
   return (
-    <div className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-lg shadow-black/20">
+    <div className="group flex items-center gap-4 rounded-2xl border border-[#E7E2D2] bg-white p-5">
       <div
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${colors.bg} ${colors.text}`}
       >
@@ -28,8 +28,8 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="truncate text-base font-semibold text-white">{employee.name}</span>
-          <span className="text-sm text-gray-400">{employee.job_title}</span>
+          <span className="truncate text-base font-semibold text-[#211D14]">{employee.name}</span>
+          <span className="text-sm text-[#6B6455]">{employee.job_title}</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <span
@@ -39,7 +39,7 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
           </span>
           <a
             href={`tel:${employee.phone}`}
-            className="inline-flex items-center gap-1 text-sm text-gray-300 transition-colors hover:text-white"
+            className="inline-flex items-center gap-1 text-sm text-[#4B4739] transition-colors hover:text-[#211D14]"
           >
             <PhoneIcon />
             {employee.phone}
@@ -47,7 +47,7 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
           {employee.direct_line && (
             <a
               href={`tel:${employee.direct_line}`}
-              className="inline-flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-white"
+              className="inline-flex items-center gap-1 text-sm text-[#8A8270] transition-colors hover:text-[#211D14]"
             >
               직통 {employee.direct_line}
             </a>
@@ -59,7 +59,7 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
         <div className="flex shrink-0 items-center gap-3 opacity-0 transition-opacity group-hover:opacity-100">
           <Link
             href={`/directory/${employee.id}/edit`}
-            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            className="text-sm font-medium text-[#4B4739] transition-colors hover:text-[#211D14]"
           >
             수정
           </Link>
@@ -73,12 +73,12 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
 const DirectoryList = ({ groups, isAdmin }: Props) => {
   if (groups.length === 0) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-16 text-center text-base text-gray-500">
+      <div className="rounded-2xl border border-[#E7E2D2] bg-white px-4 py-16 text-center text-base text-[#8A8270]">
         아직 등록된 직원이 없습니다.
         {isAdmin && (
           <>
             {" "}
-            <Link href="/directory/new" className="text-purple-300 hover:underline">
+            <Link href="/directory/new" className="text-[#0F5C56] hover:underline">
               직원 추가하기
             </Link>
           </>
@@ -91,8 +91,8 @@ const DirectoryList = ({ groups, isAdmin }: Props) => {
     <div className="space-y-8">
       {groups.map(({ department, members }) => (
         <div key={department}>
-          <h2 className="mb-3 text-lg font-semibold text-white">
-            {department} <span className="text-sm font-normal text-gray-500">{members.length}명</span>
+          <h2 className="mb-3 text-lg font-semibold text-[#211D14]">
+            {department} <span className="text-sm font-normal text-[#8A8270]">{members.length}명</span>
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {members.map((employee) => (

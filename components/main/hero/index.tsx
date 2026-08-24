@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 
-import ParticleBackground from "@/components/common/particle-background";
 import { ArrowRightIcon } from "@/components/common/icons";
 
 const BoltIcon = ({ className }: { className?: string }) => (
@@ -36,8 +35,15 @@ const fadeUpVariants: Variants = {
 
 const Hero = () => {
   return (
-    <div className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden">
-      <ParticleBackground />
+    <div className="relative flex min-h-[70vh] w-full flex-col items-center justify-center overflow-hidden rounded-3xl border border-[#E7E2D2] bg-white">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(15,92,86,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,92,86,0.05) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
 
       <div className="relative z-10 text-center p-6">
         <motion.div
@@ -45,10 +51,10 @@ const Hero = () => {
           variants={fadeUpVariants}
           initial="hidden"
           animate="visible"
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6 backdrop-blur-sm"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E3EFEC] border border-[#CFE3E0] mb-6"
         >
-          <BoltIcon className="h-4 w-4 text-purple-400" />
-          <span className="text-sm font-medium text-gray-200">
+          <BoltIcon className="h-4 w-4 text-[#0F5C56]" />
+          <span className="text-sm font-medium text-[#0F5C56]">
             강산이엔지 업무지원 시스템
           </span>
         </motion.div>
@@ -58,7 +64,7 @@ const Hero = () => {
           variants={fadeUpVariants}
           initial="hidden"
           animate="visible"
-          className="text-5xl md:text-8xl font-bold tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400"
+          className="text-5xl md:text-8xl font-bold tracking-tighter mb-6 text-[#211D14]"
         >
           KANGSAN WORK
         </motion.h1>
@@ -68,7 +74,7 @@ const Hero = () => {
           variants={fadeUpVariants}
           initial="hidden"
           animate="visible"
-          className="max-w-2xl mx-auto text-lg text-gray-400 mb-10"
+          className="max-w-2xl mx-auto text-lg text-[#6B6455] mb-10"
         >
           외근계획표부터 연간 일정, 개별 업무보고까지. 강산이엔지 임직원을 위한 업무 도구를
           한 곳에 모았습니다.
@@ -77,7 +83,7 @@ const Hero = () => {
         <motion.div custom={3} variants={fadeUpVariants} initial="hidden" animate="visible">
           <Link
             href="/auth"
-            className="px-8 py-4 bg-white text-black font-semibold rounded-lg shadow-lg hover:bg-gray-200 transition-colors duration-300 inline-flex items-center gap-2 mx-auto"
+            className="px-8 py-4 bg-[#0F5C56] text-white font-semibold rounded-lg shadow-lg shadow-[#0F5C56]/15 hover:bg-[#0C4A45] transition-colors duration-300 inline-flex items-center gap-2 mx-auto"
           >
             업무 도구 살펴보기
             <ArrowRightIcon className="h-5 w-5" />

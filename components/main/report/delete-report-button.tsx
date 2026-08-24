@@ -23,7 +23,7 @@ const DeleteReportButton = ({ id, userId, className }: Props) => {
           deleteWorkReport(id, userId);
         });
       }}
-      className={className ?? "text-sm font-medium text-red-400 transition-colors hover:text-red-300 disabled:opacity-50"}
+      className={className ?? "text-sm font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-50"}
     >
       삭제
     </button>

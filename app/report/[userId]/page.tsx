@@ -36,28 +36,26 @@ export default async function UserReportPage({ params }: Props) {
   const isOwner = user.id === userId;
 
   return (
-    <div className="relative min-h-screen w-full bg-[#181818]">
-      <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-32 sm:px-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <Link href="/report" className="text-sm text-gray-500 transition-colors hover:text-gray-300">
-              ← 업무 보고 목록
-            </Link>
-            <h1 className="mt-1 text-3xl font-bold text-white">{displayName}(업무보고)</h1>
-          </div>
-
-          {isOwner && (
-            <Link
-              href={`/report/${userId}/new`}
-              className="rounded-lg bg-white px-4 py-2 text-base font-semibold text-black transition-colors hover:bg-gray-200"
-            >
-              업무보고 작성
-            </Link>
-          )}
+    <div>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <Link href="/report" className="text-sm text-[#8A8270] transition-colors hover:text-[#4B4739]">
+            ← 업무 보고 목록
+          </Link>
+          <h1 className="mt-1 text-3xl font-bold text-[#211D14]">{displayName}(업무보고)</h1>
         </div>
 
-        <ReportList userId={userId} reports={reports ?? []} viewerId={user.id} isAdmin={isAdmin} />
+        {isOwner && (
+          <Link
+            href={`/report/${userId}/new`}
+            className="rounded-lg bg-[#0F5C56] px-4 py-2 text-base font-semibold text-white transition-colors hover:bg-[#0C4A45]"
+          >
+            업무보고 작성
+          </Link>
+        )}
       </div>
+
+      <ReportList userId={userId} reports={reports ?? []} viewerId={user.id} isAdmin={isAdmin} />
     </div>
   );
 }

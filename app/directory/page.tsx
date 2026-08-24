@@ -35,53 +35,42 @@ export default async function DirectoryPage({ searchParams }: Props) {
   }));
 
   return (
-    <div className="relative min-h-screen w-full bg-[#181818]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-32 sm:px-8">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white">인명록</h1>
-            <p className="mt-1 text-base text-gray-400">부서·직급·연락처로 동료를 빠르게 찾아보세요.</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <form method="get" className="flex items-center gap-2">
-              <input
-                type="text"
-                name="q"
-                defaultValue={query}
-                placeholder="이름, 부서, 직급 검색"
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-base text-white outline-none placeholder:text-gray-500"
-              />
-              <button
-                type="submit"
-                className="rounded-lg border border-white/30 px-4 py-2 text-base font-semibold text-white transition-colors hover:bg-white hover:text-black"
-              >
-                검색
-              </button>
-            </form>
-
-            {isAdmin && (
-              <Link
-                href="/directory/new"
-                className="rounded-lg bg-white px-4 py-2 text-base font-semibold text-black transition-colors hover:bg-gray-200"
-              >
-                직원 추가
-              </Link>
-            )}
-          </div>
+    <div>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-[#211D14]">인명록</h1>
+          <p className="mt-1 text-base text-[#6B6455]">부서·직급·연락처로 동료를 빠르게 찾아보세요.</p>
         </div>
 
-        <DirectoryList groups={groups} isAdmin={isAdmin} />
+        <div className="flex flex-wrap items-center gap-2">
+          <form method="get" className="flex items-center gap-2">
+            <input
+              type="text"
+              name="q"
+              defaultValue={query}
+              placeholder="이름, 부서, 직급 검색"
+              className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none placeholder:text-[#8A8270]"
+            />
+            <button
+              type="submit"
+              className="rounded-lg border border-[#E7E2D2] px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
+            >
+              검색
+            </button>
+          </form>
+
+          {isAdmin && (
+            <Link
+              href="/directory/new"
+              className="rounded-lg bg-[#0F5C56] px-4 py-2 text-base font-semibold text-white transition-colors hover:bg-[#0C4A45]"
+            >
+              직원 추가
+            </Link>
+          )}
+        </div>
       </div>
+
+      <DirectoryList groups={groups} isAdmin={isAdmin} />
     </div>
   );
 }

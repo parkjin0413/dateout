@@ -42,90 +42,81 @@ export default async function FieldTripPage({ searchParams }: Props) {
   const csvYear = Number(params.year) || new Date().getUTCFullYear();
 
   return (
-    <div className="relative min-h-screen w-full bg-[#181818]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "48px 48px",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-32 sm:px-8">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white">외근 현황</h1>
-            <p className="mt-1 text-base text-gray-400">
-              {selectedDate === today && <span className="mr-2 rounded bg-purple-500/20 px-1.5 py-0.5 text-sm text-purple-300">TODAY</span>}
-              {selectedDate}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <form method="get" className="flex items-center gap-2">
-              <input type="hidden" name="ym" value={ym} />
-              <input
-                type="date"
-                name="date"
-                defaultValue={selectedDate}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-base text-white outline-none"
-              />
-              <button
-                type="submit"
-                className="rounded-lg border border-white/30 px-4 py-2 text-base font-semibold text-white transition-colors hover:bg-white hover:text-black"
-              >
-                조회
-              </button>
-            </form>
-
-            {isAdmin && (
-              <>
-                <form method="get" action="/field-trip/csv" className="flex items-center gap-2">
-                  <select
-                    name="year"
-                    defaultValue={csvYear}
-                    className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-base text-white outline-none"
-                  >
-                    {Array.from({ length: 9 }, (_, i) => new Date().getUTCFullYear() + 1 - i).map((y) => (
-                      <option key={y} value={y}>
-                        {y}년
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="submit"
-                    className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-base font-medium text-gray-200 transition-colors hover:bg-white/10"
-                  >
-                    CSV
-                  </button>
-                </form>
-                <Link
-                  href={`/field-trip/stats?year=${csvYear}`}
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-base font-medium text-gray-200 transition-colors hover:bg-white/10"
-                >
-                  통계
-                </Link>
-              </>
+    <div>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-[#211D14]">외근 현황</h1>
+          <p className="mt-1 text-base text-[#6B6455]">
+            {selectedDate === today && (
+              <span className="mr-2 rounded bg-[#E3EFEC] px-1.5 py-0.5 text-sm text-[#0F5C56]">TODAY</span>
             )}
+            {selectedDate}
+          </p>
+        </div>
 
-            <Link
-              href={`/field-trip/new?date=${selectedDate}`}
-              className="rounded-lg bg-white px-4 py-2 text-base font-semibold text-black transition-colors hover:bg-gray-200"
+        <div className="flex flex-wrap items-center gap-2">
+          <form method="get" className="flex items-center gap-2">
+            <input type="hidden" name="ym" value={ym} />
+            <input
+              type="date"
+              name="date"
+              defaultValue={selectedDate}
+              className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none"
+            />
+            <button
+              type="submit"
+              className="rounded-lg border border-[#E7E2D2] px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
             >
-              내 외근 입력
-            </Link>
-          </div>
+              조회
+            </button>
+          </form>
+
+          {isAdmin && (
+            <>
+              <form method="get" action="/field-trip/csv" className="flex items-center gap-2">
+                <select
+                  name="year"
+                  defaultValue={csvYear}
+                  className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none"
+                >
+                  {Array.from({ length: 9 }, (_, i) => new Date().getUTCFullYear() + 1 - i).map((y) => (
+                    <option key={y} value={y}>
+                      {y}년
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="submit"
+                  className="rounded-lg border border-[#E7E2D2] bg-white px-4 py-2 text-base font-medium text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
+                >
+                  CSV
+                </button>
+              </form>
+              <Link
+                href={`/field-trip/stats?year=${csvYear}`}
+                className="rounded-lg border border-[#E7E2D2] bg-white px-4 py-2 text-base font-medium text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
+              >
+                통계
+              </Link>
+            </>
+          )}
+
+          <Link
+            href={`/field-trip/new?date=${selectedDate}`}
+            className="rounded-lg bg-[#0F5C56] px-4 py-2 text-base font-semibold text-white transition-colors hover:bg-[#0C4A45]"
+          >
+            내 외근 입력
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-3">
+          <ScheduleTable rows={rows} viewerId={user.id} isAdmin={isAdmin} date={selectedDate} ym={ym} />
+          <ScheduleCards rows={rows} viewerId={user.id} isAdmin={isAdmin} date={selectedDate} ym={ym} />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="space-y-3">
-            <ScheduleTable rows={rows} viewerId={user.id} isAdmin={isAdmin} date={selectedDate} ym={ym} />
-            <ScheduleCards rows={rows} viewerId={user.id} isAdmin={isAdmin} date={selectedDate} ym={ym} />
-          </div>
-
-          <FieldTripCalendar ym={ym} selectedDate={selectedDate} today={today} countMap={countMap} />
-        </div>
+        <FieldTripCalendar ym={ym} selectedDate={selectedDate} today={today} countMap={countMap} />
       </div>
     </div>
   );

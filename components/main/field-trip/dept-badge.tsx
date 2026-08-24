@@ -1,8 +1,8 @@
-import { DEPT_COLORS, getDeptClass, getDeptLabel } from "@/lib/field-trip/dept";
+import { DEPT_COLORS_LIGHT, getDeptClass, getDeptLabel } from "@/lib/field-trip/dept";
 
 const DeptBadge = ({ department }: { department: string }) => {
   const cls = getDeptClass(department);
-  const colors = DEPT_COLORS[cls];
+  const colors = DEPT_COLORS_LIGHT[cls];
 
   return (
     <span
