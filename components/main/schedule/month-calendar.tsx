@@ -124,8 +124,8 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
             >
               <div className="flex items-center justify-between">
                 <Link
-                  href={`/schedule/new?date=${dateStr}`}
-                  title={`${dateStr} 일정 입력`}
+                  href={`/schedule/day/${dateStr}?ym=${ym}`}
+                  title={`${dateStr} 일정 보기`}
                   className={[
                     "flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold transition-colors",
                     isToday ? "bg-[#0F5C56] text-white" : `${dayColor} hover:bg-[#F5F3EA]`,
@@ -134,9 +134,12 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
                   {day}
                 </Link>
                 {items.length > 0 && (
-                  <span className="hidden rounded-full bg-[#F5F3EA] px-1.5 text-xs leading-4 text-[#8A8270] md:inline-flex">
+                  <Link
+                    href={`/schedule/day/${dateStr}?ym=${ym}`}
+                    className="hidden rounded-full bg-[#F5F3EA] px-1.5 text-xs leading-4 text-[#8A8270] transition-colors hover:bg-[#E3EFEC] hover:text-[#0F5C56] md:inline-flex"
+                  >
                     {items.length}건
-                  </span>
+                  </Link>
                 )}
               </div>
 
@@ -144,9 +147,12 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
 
               {items.length > 0 && (
                 <div className="md:hidden">
-                  <span className="inline-flex rounded-full bg-[#E3EFEC] px-1.5 py-0.5 text-[10px] font-semibold leading-4 text-[#0F5C56]">
+                  <Link
+                    href={`/schedule/day/${dateStr}?ym=${ym}`}
+                    className="inline-flex rounded-full bg-[#E3EFEC] px-1.5 py-0.5 text-[10px] font-semibold leading-4 text-[#0F5C56]"
+                  >
                     {items.length}건
-                  </span>
+                  </Link>
                 </div>
               )}
 
@@ -156,7 +162,7 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
                   return (
                     <Link
                       key={item.id}
-                      href={`/schedule/${item.id}?ym=${ym}`}
+                      href={`/schedule/day/${dateStr}?ym=${ym}`}
                       className={`truncate rounded border px-1.5 py-0.5 text-xs ${colors.bg} ${colors.text} ${colors.border}`}
                       title={item.content}
                     >
