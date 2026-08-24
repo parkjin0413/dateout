@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { label: "외근계획표", href: "/field-trip", icon: "trip" },
   { label: "연간 일정", href: "/schedule", icon: "calendar" },
   { label: "업무 보고", href: "/report", icon: "report" },
-  { label: "인명록", href: "/directory", icon: "directory" },
+  { label: "직원명부", href: "/directory", icon: "directory" },
 ] as const;
 
 const ADMIN_LINKS = [

@@ -117,7 +117,7 @@ const Dashboard = ({ name, email, avatarUrl, fieldTripCount, scheduleCount, hasR
         : { label: "오늘 미작성", tone: "warning" as const },
     },
     {
-      label: "인명록",
+      label: "직원명부",
       description: "부서·직급·연락처로 동료를 찾아보세요.",
       href: "/directory",
       icon: UsersIcon,

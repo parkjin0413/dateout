@@ -30,7 +30,7 @@ const DirectoryForm = ({ mode, action, employee }: Props) => {
     <div>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-[#211D14]">{mode === "create" ? "직원 추가" : "직원 정보 수정"}</h1>
-        <p className="mt-1 text-base text-[#6B6455]">인명록에 표시될 정보를 입력하세요.</p>
+        <p className="mt-1 text-base text-[#6B6455]">직원명부에 표시될 정보를 입력하세요.</p>
       </div>
 
       <form action={formAction} className="max-w-lg space-y-5 rounded-2xl border border-[#E7E2D2] bg-white p-6">
