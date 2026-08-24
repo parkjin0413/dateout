@@ -38,7 +38,7 @@ export default async function DirectoryPage({ searchParams }: Props) {
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#211D14]">인명록</h1>
+          <h1 className="text-3xl font-bold text-[#211D14]">직원명부</h1>
           <p className="mt-1 text-base text-[#6B6455]">부서·직급·연락처로 동료를 빠르게 찾아보세요.</p>
         </div>
 
