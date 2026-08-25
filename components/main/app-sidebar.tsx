@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { label: "외근계획표", href: "/field-trip", icon: "trip" },
   { label: "연간 일정", href: "/schedule", icon: "calendar" },
   { label: "업무 보고", href: "/report", icon: "report" },
+  { label: "고객관리", href: "/customers", icon: "customers" },
   { label: "직원명부", href: "/directory", icon: "directory" },
 ] as const;
 
@@ -57,6 +58,15 @@ const NavIcon = ({ kind }: { kind: IconKind }) => {
         <svg {...common} className="h-5 w-5">
           <path d="M6 3.5h9l3 3V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" />
           <path d="M9 12h6M9 15.5h6M9 8.5h3" />
+        </svg>
+      );
+    case "customers":
+      return (
+        <svg {...common} className="h-5 w-5">
+          <rect x="3.5" y="5" width="17" height="13" rx="2" />
+          <path d="M3.5 9.5h17" />
+          <circle cx="8.5" cy="14" r="1.5" />
+          <path d="M13 14h4.5" />
         </svg>
       );
     case "directory":
