@@ -13,9 +13,10 @@ type Props = {
   contacts: CustomerContact[];
   viewerId: string;
   isAdmin: boolean;
+  today: string;
 };
 
-const ContactLog = ({ customerId, contacts, viewerId, isAdmin }: Props) => {
+const ContactLog = ({ customerId, contacts, viewerId, isAdmin, today }: Props) => {
   const boundCreate = createContact.bind(null, customerId);
   const [state, formAction, isPending] = useActionState(boundCreate, null);
 
@@ -29,7 +30,7 @@ const ContactLog = ({ customerId, contacts, viewerId, isAdmin }: Props) => {
             type="date"
             name="contact_date"
             required
-            defaultValue={new Date().toISOString().slice(0, 10)}
+            defaultValue={today}
             className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none focus:border-[#0F5C56]"
           />
           <select

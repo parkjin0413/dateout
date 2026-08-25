@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { todayKst } from "@/lib/customers/date";
 import DeleteCustomerButton from "@/components/main/customers/delete-customer-button";
 import ContactLog from "@/components/main/customers/contact-log";
 import ReassignOwnerForm from "@/components/main/customers/reassign-owner-form";
@@ -26,6 +27,7 @@ export default async function CustomerDetailPage({ params }: Props) {
   if (!customer) notFound();
 
   const canManage = isAdmin || customer.owner_id === user.id;
+  const today = todayKst();
 
   const ownerRow = customer.owner_id
     ? (await supabase.from("users").select("name, email").eq("id", customer.owner_id).single()).data
@@ -79,7 +81,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             </dl>
           </div>
 
-          <ContactLog customerId={id} contacts={contacts ?? []} viewerId={user.id} isAdmin={isAdmin} />
+          <ContactLog customerId={id} contacts={contacts ?? []} viewerId={user.id} isAdmin={isAdmin} today={today} />
         </div>
 
         {isAdmin && (
