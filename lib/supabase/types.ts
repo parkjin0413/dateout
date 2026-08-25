@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      customer_categories: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      customer_contacts: {
+        Row: {
+          contact_date: string
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          id: string
+          memo: string
+          method: string
+        }
+        Insert: {
+          contact_date: string
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          id?: string
+          memo?: string
+          method: string
+        }
+        Update: {
+          contact_date?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          id?: string
+          memo?: string
+          method?: string
+        }
+        Relationships: []
+      }
+      customers: {
+        Row: {
+          category: string
+          company: string
+          created_at: string
+          email: string
+          id: string
+          memo: string
+          name: string
+          owner_id: string | null
+          phone: string
+          phone_normalized: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          company: string
+          created_at?: string
+          email?: string
+          id?: string
+          memo?: string
+          name: string
+          owner_id?: string | null
+          phone: string
+          phone_normalized: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          company?: string
+          created_at?: string
+          email?: string
+          id?: string
+          memo?: string
+          name?: string
+          owner_id?: string | null
+          phone?: string
+          phone_normalized?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string

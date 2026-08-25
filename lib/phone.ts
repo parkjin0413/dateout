@@ -14,3 +14,7 @@ export function formatPhoneNumber(raw: string): string {
 
   return digits;
 }
+
+export function normalizePhoneDigits(raw: string): string {
+  return raw.replace(/\D/g, "");
+}
