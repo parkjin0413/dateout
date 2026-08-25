@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
 import { formatPhoneNumber, normalizePhoneDigits } from "@/lib/phone";
+import { isValidDate } from "@/lib/customers/date";
 import { writeLog } from "@/lib/logs";
 
 export type CustomerFormState = { error: string } | null;
@@ -186,5 +187,68 @@ export async function reassignOwner(customerId: string, formData: FormData): Pro
   });
 
   revalidatePath(`/customers/${customerId}`);
+  redirect(`/customers/${customerId}`);
+}
+
+// --- 연락 기록 ---
+
+export type ContactFormState = { error: string } | null;
+
+export async function createContact(
+  customerId: string,
+  _prevState: ContactFormState,
+  formData: FormData
+): Promise<ContactFormState> {
+  const { supabase, userId, actorName } = await getViewer();
+
+  const contactDate = String(formData.get("contact_date") ?? "").trim();
+  if (!isValidDate(contactDate)) return { error: "날짜 형식이 올바르지 않습니다." };
+
+  const method = String(formData.get("method") ?? "").trim();
+  if (!["문자", "전화", "이메일", "방문", "기타"].includes(method)) {
+    return { error: "연락 방법을 선택해주세요." };
+  }
+
+  const memo = String(formData.get("memo") ?? "").trim();
+
+  const { error } = await supabase.from("customer_contacts").insert({
+    customer_id: customerId,
+    contact_date: contactDate,
+    method,
+    memo,
+    created_by: userId,
+  });
+
+  if (error) return { error: "연락 기록 저장 중 오류가 발생했습니다." };
+
+  await writeLog({
+    level: "info",
+    action: "CREATE_CUSTOMER_CONTACT",
+    message: `${actorName}님이 연락 기록을 추가했습니다.`,
+    actorId: userId,
+    actorName,
+  });
+
+  revalidatePath(`/customers/${customerId}`);
+  redirect(`/customers/${customerId}`);
+}
+
+export async function deleteContact(id: string, customerId: string): Promise<void> {
+  const { supabase, userId, isAdmin, actorName } = await getViewer();
+
+  const { data: existing } = await supabase.from("customer_contacts").select("created_by").eq("id", id).single();
+
+  if (existing && (existing.created_by === userId || isAdmin)) {
+    await supabase.from("customer_contacts").delete().eq("id", id);
+    await writeLog({
+      level: "info",
+      action: "DELETE_CUSTOMER_CONTACT",
+      message: `${actorName}님이 연락 기록을 삭제했습니다.`,
+      actorId: userId,
+      actorName,
+    });
+    revalidatePath(`/customers/${customerId}`);
+  }
+
   redirect(`/customers/${customerId}`);
 }
