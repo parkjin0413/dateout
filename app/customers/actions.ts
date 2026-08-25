@@ -252,3 +252,46 @@ export async function deleteContact(id: string, customerId: string): Promise<voi
 
   redirect(`/customers/${customerId}`);
 }
+
+// --- 구분 관리 ---
+
+export async function createCategory(formData: FormData): Promise<void> {
+  const { supabase } = await getViewer();
+
+  const label = String(formData.get("label") ?? "").trim();
+  if (label) {
+    const { data: maxRow } = await supabase
+      .from("customer_categories")
+      .select("sort_order")
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const nextSortOrder = (maxRow?.sort_order ?? 0) + 1;
+
+    await supabase.from("customer_categories").insert({ label, sort_order: nextSortOrder });
+    revalidatePath("/customers/categories");
+  }
+
+  redirect("/customers/categories");
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  const { supabase, isAdmin } = await getViewer();
+  if (!isAdmin) redirect("/customers/categories");
+
+  const { data: category } = await supabase.from("customer_categories").select("label").eq("id", id).single();
+
+  if (category) {
+    const { count } = await supabase
+      .from("customers")
+      .select("id", { count: "exact", head: true })
+      .eq("category", category.label);
+
+    if ((count ?? 0) === 0) {
+      await supabase.from("customer_categories").delete().eq("id", id);
+      revalidatePath("/customers/categories");
+    }
+  }
+
+  redirect("/customers/categories");
+}
