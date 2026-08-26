@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { todayKst } from "@/lib/customers/date";
+import { getCardImageSignedUrl } from "@/lib/customers/card-image";
 import DeleteCustomerButton from "@/components/main/customers/delete-customer-button";
 import ContactLog from "@/components/main/customers/contact-log";
 import ReassignOwnerForm from "@/components/main/customers/reassign-owner-form";
@@ -28,6 +29,7 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   const canManage = isAdmin || customer.owner_id === user.id;
   const today = todayKst();
+  const cardImageUrl = await getCardImageSignedUrl(supabase, customer.card_image_path);
 
   const ownerRow = customer.owner_id
     ? (await supabase.from("users").select("name, email").eq("id", customer.owner_id).single()).data
@@ -72,6 +74,14 @@ export default async function CustomerDetailPage({ params }: Props) {
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="space-y-4">
           <div className="rounded-2xl border border-[#E7E2D2] bg-white p-6">
+            {cardImageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- 비공개 버킷 서명 URL, next/image 원격 도메인 설정 불필요
+              <img
+                src={cardImageUrl}
+                alt="명함 사진"
+                className="mb-4 h-40 w-40 rounded-lg border border-[#E7E2D2] object-cover"
+              />
+            )}
             <dl className="space-y-3">
               <Row label="구분" value={customer.category} />
               <Row label="연락처" value={customer.phone} href={`tel:${customer.phone}`} />

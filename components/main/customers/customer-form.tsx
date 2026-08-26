@@ -14,6 +14,7 @@ type Props = {
   action: (state: CustomerFormState, formData: FormData) => Promise<CustomerFormState>;
   categories: CustomerCategory[];
   customer?: Customer;
+  cardImageUrl?: string | null;
 };
 
 const Field = ({ label, children }: { label: string; children: ReactNode }) => (
@@ -23,7 +24,7 @@ const Field = ({ label, children }: { label: string; children: ReactNode }) => (
   </div>
 );
 
-const CustomerForm = ({ mode, action, categories, customer }: Props) => {
+const CustomerForm = ({ mode, action, categories, customer, cardImageUrl }: Props) => {
   const [state, formAction, isPending] = useActionState(action, null);
   const listHref = customer ? `/customers/${customer.id}` : "/customers";
 
@@ -74,6 +75,20 @@ const CustomerForm = ({ mode, action, categories, customer }: Props) => {
 
         <Field label="메모">
           <textarea name="memo" defaultValue={customer?.memo ?? ""} rows={4} className={inputCls} />
+        </Field>
+
+        <Field label="명함 사진">
+          {cardImageUrl && (
+            <div className="mb-2 flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element -- 비공개 버킷 서명 URL, next/image 원격 도메인 설정 불필요 */}
+              <img src={cardImageUrl} alt="명함 사진" className="h-24 w-24 rounded-lg border border-[#E7E2D2] object-cover" />
+              <label className="flex items-center gap-1.5 text-sm text-[#6B6455]">
+                <input type="checkbox" name="remove_card_image" />
+                사진 삭제
+              </label>
+            </div>
+          )}
+          <input type="file" name="card_image" accept="image/jpeg,image/png,image/webp" className={inputCls} />
         </Field>
 
         {state?.error && <p className="text-base text-red-600">{state.error}</p>}

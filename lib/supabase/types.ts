@@ -67,6 +67,7 @@ export type Database = {
       }
       customers: {
         Row: {
+          card_image_path: string | null
           category: string
           company: string
           created_at: string
@@ -80,6 +81,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          card_image_path?: string | null
           category: string
           company: string
           created_at?: string
@@ -93,6 +95,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          card_image_path?: string | null
           category?: string
           company?: string
           created_at?: string

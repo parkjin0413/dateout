@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatPhoneNumber, normalizePhoneDigits } from "@/lib/phone";
 import { isValidDate } from "@/lib/customers/date";
 import { parseCustomerCsv } from "@/lib/customers/csv";
+import { CARD_IMAGE_BUCKET, buildCardImagePath } from "@/lib/customers/card-image";
 import { writeLog } from "@/lib/logs";
 
 export type CustomerFormState = { error: string } | null;
@@ -66,20 +67,33 @@ export async function createCustomer(_prevState: CustomerFormState, formData: Fo
   const duplicateOwnerName = await findDuplicateOwnerName(supabase, phoneNormalized);
   if (duplicateOwnerName) return { error: `이미 ${duplicateOwnerName}님이 등록한 연락처입니다.` };
 
-  const { error } = await supabase.from("customers").insert({
-    owner_id: userId,
-    category,
-    name,
-    company,
-    phone: formatPhoneNumber(phoneRaw),
-    phone_normalized: phoneNormalized,
-    email,
-    memo,
-  });
+  const { data: inserted, error } = await supabase
+    .from("customers")
+    .insert({
+      owner_id: userId,
+      category,
+      name,
+      company,
+      phone: formatPhoneNumber(phoneRaw),
+      phone_normalized: phoneNormalized,
+      email,
+      memo,
+    })
+    .select("id")
+    .single();
 
-  if (error) {
-    if (error.code === "23505") return { error: "이미 등록된 연락처입니다." };
+  if (error || !inserted) {
+    if (error?.code === "23505") return { error: "이미 등록된 연락처입니다." };
     return { error: "등록 중 오류가 발생했습니다." };
+  }
+
+  const cardImage = formData.get("card_image");
+  if (cardImage instanceof File && cardImage.size > 0) {
+    const path = buildCardImagePath(inserted.id, cardImage.name);
+    const { error: uploadError } = await supabase.storage.from(CARD_IMAGE_BUCKET).upload(path, cardImage);
+    if (!uploadError) {
+      await supabase.from("customers").update({ card_image_path: path }).eq("id", inserted.id);
+    }
   }
 
   await writeLog({
@@ -101,7 +115,7 @@ export async function updateCustomer(
 ): Promise<CustomerFormState> {
   const { supabase, userId, isAdmin, actorName } = await getViewer();
 
-  const { data: existing } = await supabase.from("customers").select("owner_id").eq("id", id).single();
+  const { data: existing } = await supabase.from("customers").select("owner_id, card_image_path").eq("id", id).single();
   if (!existing) return { error: "고객을 찾을 수 없습니다." };
   if (existing.owner_id !== userId && !isAdmin) return { error: "수정 권한이 없습니다." };
 
@@ -136,6 +150,23 @@ export async function updateCustomer(
     return { error: "수정 중 오류가 발생했습니다." };
   }
 
+  const cardImage = formData.get("card_image");
+  const removeCardImage = formData.get("remove_card_image") === "on";
+
+  if (cardImage instanceof File && cardImage.size > 0) {
+    const path = buildCardImagePath(id, cardImage.name);
+    const { error: uploadError } = await supabase.storage.from(CARD_IMAGE_BUCKET).upload(path, cardImage);
+    if (!uploadError) {
+      if (existing.card_image_path) {
+        await supabase.storage.from(CARD_IMAGE_BUCKET).remove([existing.card_image_path]);
+      }
+      await supabase.from("customers").update({ card_image_path: path }).eq("id", id);
+    }
+  } else if (removeCardImage && existing.card_image_path) {
+    await supabase.storage.from(CARD_IMAGE_BUCKET).remove([existing.card_image_path]);
+    await supabase.from("customers").update({ card_image_path: null }).eq("id", id);
+  }
+
   await writeLog({
     level: "info",
     action: "UPDATE_CUSTOMER",
@@ -152,10 +183,17 @@ export async function updateCustomer(
 export async function deleteCustomer(id: string): Promise<void> {
   const { supabase, userId, isAdmin, actorName } = await getViewer();
 
-  const { data: existing } = await supabase.from("customers").select("owner_id, name, company").eq("id", id).single();
+  const { data: existing } = await supabase
+    .from("customers")
+    .select("owner_id, name, company, card_image_path")
+    .eq("id", id)
+    .single();
 
   if (existing && (existing.owner_id === userId || isAdmin)) {
     await supabase.from("customers").delete().eq("id", id);
+    if (existing.card_image_path) {
+      await supabase.storage.from(CARD_IMAGE_BUCKET).remove([existing.card_image_path]);
+    }
     await writeLog({
       level: "info",
       action: "DELETE_CUSTOMER",
@@ -323,11 +361,16 @@ export async function runBulkAction(_prevState: BulkState, formData: FormData): 
   }
 
   if (kind === "delete") {
-    const { data: rows } = await supabase.from("customers").select("id, owner_id").in("id", ids);
+    const { data: rows } = await supabase.from("customers").select("id, owner_id, card_image_path").in("id", ids);
     const allowed = (rows ?? []).filter((r) => r.owner_id === userId || isAdmin);
 
     if (allowed.length > 0) {
       await supabase.from("customers").delete().in("id", allowed.map((r) => r.id));
+
+      const imagePaths = allowed.map((r) => r.card_image_path).filter((p): p is string => !!p);
+      if (imagePaths.length > 0) {
+        await supabase.storage.from(CARD_IMAGE_BUCKET).remove(imagePaths);
+      }
 
       await writeLog({
         level: "info",

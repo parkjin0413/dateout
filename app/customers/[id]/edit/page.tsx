@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { updateCustomer } from "@/app/customers/actions";
+import { getCardImageSignedUrl } from "@/lib/customers/card-image";
 import CustomerForm from "@/components/main/customers/customer-form";
 
 type Props = {
@@ -30,6 +31,15 @@ export default async function EditCustomerPage({ params }: Props) {
     .order("sort_order", { ascending: true });
 
   const boundUpdate = updateCustomer.bind(null, id);
+  const cardImageUrl = await getCardImageSignedUrl(supabase, customer.card_image_path);
 
-  return <CustomerForm mode="edit" action={boundUpdate} categories={categories ?? []} customer={customer} />;
+  return (
+    <CustomerForm
+      mode="edit"
+      action={boundUpdate}
+      categories={categories ?? []}
+      customer={customer}
+      cardImageUrl={cardImageUrl}
+    />
+  );
 }
