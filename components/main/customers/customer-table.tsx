@@ -82,8 +82,8 @@ const CustomerTable = ({
             <SortableHeader label="이메일" column="email" sort={sort} dir={dir} buildSortHref={buildSortHref} />
             <th className="px-4 py-4 font-medium">메모</th>
             <SortableHeader label="등록일" column="created_at" sort={sort} dir={dir} buildSortHref={buildSortHref} />
-            <th className="px-4 py-4 font-medium">마지막 연락</th>
-            <th className="px-4 py-4 font-medium">담당자</th>
+            <SortableHeader label="마지막 연락" column="last_contact" sort={sort} dir={dir} buildSortHref={buildSortHref} />
+            <SortableHeader label="담당자" column="owner" sort={sort} dir={dir} buildSortHref={buildSortHref} />
           </tr>
         </thead>
         <tbody>

@@ -4,10 +4,11 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCardImageSignedUrls } from "@/lib/customers/card-image";
 import { todayKst } from "@/lib/customers/date";
+import type { CustomerListItem } from "@/lib/customers/types";
 import CustomerListSection from "@/components/main/customers/customer-list-section";
 
 const PAGE_SIZE = 25;
-const SORTABLE_COLUMNS = ["category", "name", "company", "phone", "email", "created_at"] as const;
+const SORTABLE_COLUMNS = ["category", "name", "company", "phone", "email", "created_at", "owner", "last_contact"] as const;
 type SortColumn = (typeof SORTABLE_COLUMNS)[number];
 
 type Props = {
@@ -62,11 +63,54 @@ export default async function CustomersPage({ searchParams }: Props) {
 
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
-  const orderColumn = sort === "phone" ? "phone_normalized" : sort;
-  query = query.order(orderColumn, { ascending: dir === "asc" }).range(from, to);
 
-  const { data: rows, count } = await query;
-  const customers = rows ?? [];
+  // "owner"/"last_contact" aren't real columns on customers (owner name lives in a
+  // separate users table, last contact is derived from customer_contacts), so they
+  // can't be sorted via a DB-level .order(). Fetch every filtered row, sort in JS,
+  // then slice the page — fine at this app's scale (a small company's customer list).
+  const needsJsSort = sort === "owner" || sort === "last_contact";
+
+  let customers: CustomerListItem[];
+  let totalCount: number;
+
+  if (needsJsSort) {
+    const { data: allRows, count } = await query;
+    const all = allRows ?? [];
+    totalCount = count ?? 0;
+
+    const allOwnerIds = Array.from(new Set(all.map((c) => c.owner_id).filter((id): id is string => !!id)));
+    const { data: allOwners } =
+      allOwnerIds.length > 0 ? await supabase.from("users").select("id, name, email").in("id", allOwnerIds) : { data: [] };
+    const allOwnerNameMap = new Map((allOwners ?? []).map((o) => [o.id, o.name ?? o.email]));
+
+    const allIds = all.map((c) => c.id);
+    const { data: allContacts } =
+      allIds.length > 0
+        ? await supabase
+            .from("customer_contacts")
+            .select("customer_id, contact_date")
+            .in("customer_id", allIds)
+            .order("contact_date", { ascending: false })
+        : { data: [] };
+    const allLastContactMap = new Map<string, string>();
+    for (const row of allContacts ?? []) {
+      if (!allLastContactMap.has(row.customer_id)) allLastContactMap.set(row.customer_id, row.contact_date);
+    }
+
+    const sorted = [...all].sort((a, b) => {
+      const av = sort === "owner" ? (allOwnerNameMap.get(a.owner_id ?? "") ?? "") : (allLastContactMap.get(a.id) ?? "");
+      const bv = sort === "owner" ? (allOwnerNameMap.get(b.owner_id ?? "") ?? "") : (allLastContactMap.get(b.id) ?? "");
+      const cmp = sort === "owner" ? av.localeCompare(bv, "ko") : av.localeCompare(bv);
+      return dir === "asc" ? cmp : -cmp;
+    });
+
+    customers = sorted.slice(from, to + 1);
+  } else {
+    const orderColumn = sort === "phone" ? "phone_normalized" : sort;
+    const { data: rows, count } = await query.order(orderColumn, { ascending: dir === "asc" }).range(from, to);
+    totalCount = count ?? 0;
+    customers = rows ?? [];
+  }
 
   const ownerIds = Array.from(new Set(customers.map((c) => c.owner_id).filter((id): id is string => !!id)));
   const { data: owners } =
@@ -101,7 +145,6 @@ export default async function CustomersPage({ searchParams }: Props) {
     if (!lastContactMap.has(row.customer_id)) lastContactMap.set(row.customer_id, row.contact_date);
   }
 
-  const totalCount = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const baseParams = new URLSearchParams();
