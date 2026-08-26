@@ -78,13 +78,6 @@ export default async function CustomersPage({ searchParams }: Props) {
   if (q) baseParams.set("q", q);
   for (const c of selectedCategories) baseParams.append("category", c);
 
-  const buildSortHref = (column: string) => {
-    const p = new URLSearchParams(baseParams);
-    p.set("sort", column);
-    p.set("dir", sort === column && dir === "asc" ? "desc" : "asc");
-    return `/customers?${p.toString()}`;
-  };
-
   const buildPageHref = (targetPage: number) => {
     const p = new URLSearchParams(baseParams);
     p.set("sort", sort);
@@ -165,7 +158,7 @@ export default async function CustomersPage({ searchParams }: Props) {
         ownerMap={ownerMap}
         sort={sort}
         dir={dir}
-        buildSortHref={buildSortHref}
+        baseParams={baseParams.toString()}
         categories={categories}
       />
 

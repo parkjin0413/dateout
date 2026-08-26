@@ -12,7 +12,7 @@ type Props = {
   ownerMap: Map<string, string | null>;
   sort: string;
   dir: "asc" | "desc";
-  buildSortHref: (column: string) => string;
+  baseParams: string;
   categories: { id: string; label: string }[];
 };
 
@@ -31,10 +31,17 @@ const HiddenIds = ({ ids }: { ids: string[] }) => (
 const selectCls =
   "rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none focus:border-[#0F5C56]";
 
-const CustomerListSection = ({ customers, ownerMap, sort, dir, buildSortHref, categories }: Props) => {
+const CustomerListSection = ({ customers, ownerMap, sort, dir, baseParams, categories }: Props) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [panel, setPanel] = useState<Panel>(null);
   const [state, formAction, isPending] = useActionState(runBulkAction, null);
+
+  const buildSortHref = (column: string) => {
+    const p = new URLSearchParams(baseParams);
+    p.set("sort", column);
+    p.set("dir", sort === column && dir === "asc" ? "desc" : "asc");
+    return `/customers?${p.toString()}`;
+  };
 
   const toggle = (id: string) => {
     setSelectedIds((prev) => {
