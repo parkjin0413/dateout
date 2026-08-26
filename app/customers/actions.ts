@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { formatPhoneNumber, normalizePhoneDigits } from "@/lib/phone";
 import { isValidDate } from "@/lib/customers/date";
+import { parseCustomerCsv } from "@/lib/customers/csv";
 import { writeLog } from "@/lib/logs";
 
 export type CustomerFormState = { error: string } | null;
@@ -252,6 +253,119 @@ export async function deleteContact(id: string, customerId: string): Promise<voi
   }
 
   redirect(`/customers/${customerId}`);
+}
+
+// --- 일괄등록 ---
+
+export type ImportState = {
+  error?: string;
+  total: number;
+  successCount: number;
+  failures: { row: number; reason: string }[];
+} | null;
+
+export async function importCustomers(_prevState: ImportState, formData: FormData): Promise<ImportState> {
+  const { supabase, userId, actorName } = await getViewer();
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "CSV 파일을 선택해주세요.", total: 0, successCount: 0, failures: [] };
+  }
+
+  const text = await file.text();
+  const { rows, headerError } = parseCustomerCsv(text);
+  if (headerError) return { error: headerError, total: 0, successCount: 0, failures: [] };
+  if (rows.length === 0) return { error: "등록할 데이터가 없습니다.", total: 0, successCount: 0, failures: [] };
+
+  const { data: categoryRows } = await supabase.from("customer_categories").select("label");
+  const validCategories = new Set((categoryRows ?? []).map((c) => c.label));
+
+  const { data: existingRows } = await supabase.from("customers").select("phone_normalized");
+  const existingPhones = new Set((existingRows ?? []).map((c) => c.phone_normalized));
+
+  const failures: { row: number; reason: string }[] = [];
+  const seenPhones = new Set<string>();
+  const toInsert: {
+    owner_id: string;
+    category: string;
+    name: string;
+    company: string;
+    phone: string;
+    phone_normalized: string;
+    email: string;
+    memo: string;
+  }[] = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const rowNum = i + 2; // 1행은 헤더
+
+    if (!r.category) {
+      failures.push({ row: rowNum, reason: "구분이 비어 있습니다." });
+      continue;
+    }
+    if (!validCategories.has(r.category)) {
+      failures.push({ row: rowNum, reason: `등록되지 않은 구분입니다: ${r.category}` });
+      continue;
+    }
+    if (!r.name) {
+      failures.push({ row: rowNum, reason: "이름이 비어 있습니다." });
+      continue;
+    }
+    if (!r.company) {
+      failures.push({ row: rowNum, reason: "소속이 비어 있습니다." });
+      continue;
+    }
+    if (!r.phoneRaw) {
+      failures.push({ row: rowNum, reason: "연락처가 비어 있습니다." });
+      continue;
+    }
+
+    const phoneNormalized = normalizePhoneDigits(r.phoneRaw);
+    if (phoneNormalized.length < 8) {
+      failures.push({ row: rowNum, reason: "연락처 형식이 올바르지 않습니다." });
+      continue;
+    }
+    if (existingPhones.has(phoneNormalized)) {
+      failures.push({ row: rowNum, reason: "이미 등록된 연락처입니다." });
+      continue;
+    }
+    if (seenPhones.has(phoneNormalized)) {
+      failures.push({ row: rowNum, reason: "파일 내에 중복된 연락처입니다." });
+      continue;
+    }
+
+    seenPhones.add(phoneNormalized);
+    toInsert.push({
+      owner_id: userId,
+      category: r.category,
+      name: r.name,
+      company: r.company,
+      phone: formatPhoneNumber(r.phoneRaw),
+      phone_normalized: phoneNormalized,
+      email: r.email,
+      memo: r.memo,
+    });
+  }
+
+  if (toInsert.length > 0) {
+    const { error } = await supabase.from("customers").insert(toInsert);
+    if (error) {
+      return { error: "등록 중 오류가 발생했습니다. 다시 시도해주세요.", total: rows.length, successCount: 0, failures };
+    }
+
+    await writeLog({
+      level: "info",
+      action: "IMPORT_CUSTOMERS",
+      message: `${actorName}님이 고객 ${toInsert.length}건을 일괄등록했습니다.`,
+      actorId: userId,
+      actorName,
+    });
+
+    revalidatePath("/customers");
+  }
+
+  return { total: rows.length, successCount: toInsert.length, failures };
 }
 
 // --- 구분 관리 ---

@@ -103,6 +103,18 @@ export default async function CustomersPage({ searchParams }: Props) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
+            href="/customers/import"
+            className="rounded-lg border border-[#E7E2D2] bg-white px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
+          >
+            일괄등록
+          </Link>
+          <Link
+            href={`/customers/export?${baseParams.toString()}`}
+            className="rounded-lg border border-[#E7E2D2] bg-white px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
+          >
+            내보내기
+          </Link>
+          <Link
             href="/customers/categories"
             className="rounded-lg border border-[#E7E2D2] bg-white px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
           >
