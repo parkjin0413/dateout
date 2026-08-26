@@ -47,7 +47,7 @@ export default async function CustomersPage({ searchParams }: Props) {
 
   let query = supabase
     .from("customers")
-    .select("id, owner_id, category, name, company, phone, email, memo, created_at", { count: "exact" });
+    .select("id, owner_id, category, name, company, phone, email, created_at", { count: "exact" });
 
   if (q) {
     const safeQ = q.replace(/[,()]/g, " ").trim();
@@ -61,7 +61,8 @@ export default async function CustomersPage({ searchParams }: Props) {
 
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
-  query = query.order(sort, { ascending: dir === "asc" }).range(from, to);
+  const orderColumn = sort === "phone" ? "phone_normalized" : sort;
+  query = query.order(orderColumn, { ascending: dir === "asc" }).range(from, to);
 
   const { data: rows, count } = await query;
   const customers = rows ?? [];

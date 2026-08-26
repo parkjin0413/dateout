@@ -5,12 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 import { createCategory } from "@/app/customers/actions";
 import DeleteCategoryButton from "@/components/main/customers/delete-category-button";
 
-export default async function CustomerCategoriesPage() {
+type Props = {
+  searchParams: Promise<{ dup?: string }>;
+};
+
+export default async function CustomerCategoriesPage({ searchParams }: Props) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth");
+
+  const { dup } = await searchParams;
 
   const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
   const isAdmin = profile?.is_admin ?? false;
@@ -52,6 +58,7 @@ export default async function CustomerCategoriesPage() {
         >
           추가
         </button>
+        {dup === "1" && <p className="w-full text-sm text-red-600">이미 등록된 구분입니다.</p>}
       </form>
 
       <div className="overflow-hidden rounded-2xl border border-[#E7E2D2] bg-white">

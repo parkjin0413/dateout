@@ -186,6 +186,7 @@ export async function reassignOwner(customerId: string, formData: FormData): Pro
     actorName,
   });
 
+  revalidatePath("/customers");
   revalidatePath(`/customers/${customerId}`);
   redirect(`/customers/${customerId}`);
 }
@@ -268,7 +269,8 @@ export async function createCategory(formData: FormData): Promise<void> {
       .maybeSingle();
     const nextSortOrder = (maxRow?.sort_order ?? 0) + 1;
 
-    await supabase.from("customer_categories").insert({ label, sort_order: nextSortOrder });
+    const { error } = await supabase.from("customer_categories").insert({ label, sort_order: nextSortOrder });
+    if (error) redirect("/customers/categories?dup=1");
     revalidatePath("/customers/categories");
   }
 
