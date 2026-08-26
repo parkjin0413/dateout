@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import type { CustomerListItem } from "@/lib/customers/types";
@@ -8,6 +10,9 @@ type Props = {
   sort: string;
   dir: "asc" | "desc";
   buildSortHref: (column: string) => string;
+  selectedIds: Set<string>;
+  onToggle: (id: string) => void;
+  onToggleAll: () => void;
 };
 
 const COLUMNS: { key: string; label: string }[] = [
@@ -18,12 +23,17 @@ const COLUMNS: { key: string; label: string }[] = [
   { key: "email", label: "이메일" },
 ];
 
-const CustomerTable = ({ customers, ownerMap, sort, dir, buildSortHref }: Props) => {
+const CustomerTable = ({ customers, ownerMap, sort, dir, buildSortHref, selectedIds, onToggle, onToggleAll }: Props) => {
+  const allSelected = customers.length > 0 && selectedIds.size === customers.length;
+
   return (
     <div className="hidden overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white md:block">
-      <table className="w-full min-w-[860px] text-base">
+      <table className="w-full min-w-[900px] text-base">
         <thead>
           <tr className="border-b border-[#E7E2D2] text-left text-sm text-[#8A8270]">
+            <th className="w-10 px-4 py-4">
+              <input type="checkbox" checked={allSelected} onChange={onToggleAll} aria-label="전체 선택" />
+            </th>
             {COLUMNS.map((col) => (
               <th key={col.key} className="px-4 py-4 font-medium">
                 <Link href={buildSortHref(col.key)} className="inline-flex items-center gap-1 hover:text-[#4B4739]">
@@ -39,13 +49,21 @@ const CustomerTable = ({ customers, ownerMap, sort, dir, buildSortHref }: Props)
         <tbody>
           {customers.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-4 py-12 text-center text-base text-[#8A8270]">
+              <td colSpan={8} className="px-4 py-12 text-center text-base text-[#8A8270]">
                 등록된 고객이 없습니다.
               </td>
             </tr>
           ) : (
             customers.map((customer) => (
               <tr key={customer.id} className="border-b border-[#EDE7D3] text-[#4B4739]">
+                <td className="px-4 py-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(customer.id)}
+                    onChange={() => onToggle(customer.id)}
+                    aria-label={`${customer.name} 선택`}
+                  />
+                </td>
                 <td className="px-4 py-4">{customer.category}</td>
                 <td className="px-4 py-4">
                   <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">

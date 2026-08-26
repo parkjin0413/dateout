@@ -255,6 +255,97 @@ export async function deleteContact(id: string, customerId: string): Promise<voi
   redirect(`/customers/${customerId}`);
 }
 
+// --- 목록 일괄 작업 ---
+
+export type BulkState = { error?: string; successCount: number; skipCount: number } | null;
+
+export async function runBulkAction(_prevState: BulkState, formData: FormData): Promise<BulkState> {
+  const kind = String(formData.get("kind") ?? "");
+  const ids = formData.getAll("ids").map(String);
+  if (ids.length === 0) return { successCount: 0, skipCount: 0 };
+
+  const { supabase, userId, isAdmin, actorName } = await getViewer();
+
+  if (kind === "category") {
+    const category = String(formData.get("category") ?? "").trim();
+    if (!category) return { error: "구분을 선택해주세요.", successCount: 0, skipCount: ids.length };
+
+    const { data: rows } = await supabase.from("customers").select("id, owner_id").in("id", ids);
+    const allowedIds = (rows ?? []).filter((r) => r.owner_id === userId || isAdmin).map((r) => r.id);
+
+    if (allowedIds.length > 0) {
+      await supabase
+        .from("customers")
+        .update({ category, updated_at: new Date().toISOString() })
+        .in("id", allowedIds);
+
+      await writeLog({
+        level: "info",
+        action: "BULK_UPDATE_CUSTOMER_CATEGORY",
+        message: `${actorName}님이 고객 ${allowedIds.length}건의 구분을 일괄 변경했습니다: ${category}`,
+        actorId: userId,
+        actorName,
+      });
+
+      revalidatePath("/customers");
+    }
+
+    return { successCount: allowedIds.length, skipCount: ids.length - allowedIds.length };
+  }
+
+  if (kind === "contact") {
+    const contactDate = String(formData.get("contact_date") ?? "").trim();
+    if (!isValidDate(contactDate)) return { error: "날짜 형식이 올바르지 않습니다.", successCount: 0, skipCount: ids.length };
+
+    const method = String(formData.get("method") ?? "").trim();
+    if (!["문자", "전화", "이메일", "방문", "기타"].includes(method)) {
+      return { error: "연락 방법을 선택해주세요.", successCount: 0, skipCount: ids.length };
+    }
+
+    const memo = String(formData.get("memo") ?? "").trim();
+
+    const { error } = await supabase
+      .from("customer_contacts")
+      .insert(ids.map((customerId) => ({ customer_id: customerId, contact_date: contactDate, method, memo, created_by: userId })));
+
+    if (error) return { error: "연락 기록 저장 중 오류가 발생했습니다.", successCount: 0, skipCount: ids.length };
+
+    await writeLog({
+      level: "info",
+      action: "BULK_CREATE_CUSTOMER_CONTACT",
+      message: `${actorName}님이 고객 ${ids.length}건에 연락 기록을 일괄 추가했습니다.`,
+      actorId: userId,
+      actorName,
+    });
+
+    revalidatePath("/customers");
+    return { successCount: ids.length, skipCount: 0 };
+  }
+
+  if (kind === "delete") {
+    const { data: rows } = await supabase.from("customers").select("id, owner_id").in("id", ids);
+    const allowed = (rows ?? []).filter((r) => r.owner_id === userId || isAdmin);
+
+    if (allowed.length > 0) {
+      await supabase.from("customers").delete().in("id", allowed.map((r) => r.id));
+
+      await writeLog({
+        level: "info",
+        action: "BULK_DELETE_CUSTOMER",
+        message: `${actorName}님이 고객 ${allowed.length}건을 일괄 삭제했습니다.`,
+        actorId: userId,
+        actorName,
+      });
+
+      revalidatePath("/customers");
+    }
+
+    return { successCount: allowed.length, skipCount: ids.length - allowed.length };
+  }
+
+  return { successCount: 0, skipCount: ids.length };
+}
+
 // --- 일괄등록 ---
 
 export type ImportState = {

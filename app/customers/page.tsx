@@ -2,8 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import CustomerTable from "@/components/main/customers/customer-table";
-import CustomerCards from "@/components/main/customers/customer-cards";
+import CustomerListSection from "@/components/main/customers/customer-list-section";
 
 const PAGE_SIZE = 25;
 const SORTABLE_COLUMNS = ["category", "name", "company", "phone", "email", "created_at"] as const;
@@ -103,6 +102,12 @@ export default async function CustomersPage({ searchParams }: Props) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link
+            href="/customers/stats"
+            className="rounded-lg border border-[#E7E2D2] bg-white px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
+          >
+            통계
+          </Link>
+          <Link
             href="/customers/import"
             className="rounded-lg border border-[#E7E2D2] bg-white px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
           >
@@ -155,10 +160,14 @@ export default async function CustomersPage({ searchParams }: Props) {
         </button>
       </form>
 
-      <div className="space-y-3">
-        <CustomerTable customers={customers} ownerMap={ownerMap} sort={sort} dir={dir} buildSortHref={buildSortHref} />
-        <CustomerCards customers={customers} ownerMap={ownerMap} />
-      </div>
+      <CustomerListSection
+        customers={customers}
+        ownerMap={ownerMap}
+        sort={sort}
+        dir={dir}
+        buildSortHref={buildSortHref}
+        categories={categories}
+      />
 
       <div className="mt-4 flex items-center justify-between text-sm text-[#6B6455]">
         <span>
