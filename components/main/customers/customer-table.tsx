@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { createPortal } from "react-dom";
 
 import type { CustomerListItem } from "@/lib/customers/types";
 
 type Props = {
   customers: CustomerListItem[];
   ownerMap: Map<string, string | null>;
+  cardImageMap: Map<string, string>;
   sort: string;
   dir: "asc" | "desc";
   buildSortHref: (column: string) => string;
@@ -23,8 +26,28 @@ const COLUMNS: { key: string; label: string }[] = [
   { key: "email", label: "이메일" },
 ];
 
-const CustomerTable = ({ customers, ownerMap, sort, dir, buildSortHref, selectedIds, onToggle, onToggleAll }: Props) => {
+const CustomerTable = ({
+  customers,
+  ownerMap,
+  cardImageMap,
+  sort,
+  dir,
+  buildSortHref,
+  selectedIds,
+  onToggle,
+  onToggleAll,
+}: Props) => {
   const allSelected = customers.length > 0 && selectedIds.size === customers.length;
+  const [hover, setHover] = useState<{ id: string; top: number; left: number } | null>(null);
+
+  const showPreview = (id: string, el: HTMLElement) => {
+    const rect = el.getBoundingClientRect();
+    setHover({ id, top: rect.bottom + window.scrollY + 6, left: rect.left + window.scrollX });
+  };
+
+  const hideOwnPreview = (id: string) => {
+    setHover((h) => (h?.id === id ? null : h));
+  };
 
   return (
     <div className="hidden overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white md:block">
@@ -66,9 +89,21 @@ const CustomerTable = ({ customers, ownerMap, sort, dir, buildSortHref, selected
                 </td>
                 <td className="px-4 py-4">{customer.category}</td>
                 <td className="px-4 py-4">
-                  <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">
-                    {customer.name}
-                  </Link>
+                  {cardImageMap.has(customer.id) ? (
+                    <span
+                      className="inline-block"
+                      onMouseEnter={(e) => showPreview(customer.id, e.currentTarget)}
+                      onMouseLeave={() => hideOwnPreview(customer.id)}
+                    >
+                      <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">
+                        {customer.name}
+                      </Link>
+                    </span>
+                  ) : (
+                    <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">
+                      {customer.name}
+                    </Link>
+                  )}
                 </td>
                 <td className="px-4 py-4">{customer.company}</td>
                 <td className="px-4 py-4">
@@ -96,6 +131,22 @@ const CustomerTable = ({ customers, ownerMap, sort, dir, buildSortHref, selected
           )}
         </tbody>
       </table>
+      {hover &&
+        cardImageMap.has(hover.id) &&
+        createPortal(
+          <div
+            className="pointer-events-none fixed z-50 rounded-lg border border-[#E7E2D2] bg-white p-2 shadow-lg"
+            style={{ top: hover.top, left: hover.left }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- 비공개 버킷 서명 URL, next/image 원격 도메인 설정 불필요 */}
+            <img
+              src={cardImageMap.get(hover.id)}
+              alt="명함 사진"
+              className="h-32 w-52 rounded-md bg-[#F5F3EA] object-contain"
+            />
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCardImageSignedUrls } from "@/lib/customers/card-image";
 import CustomerListSection from "@/components/main/customers/customer-list-section";
 
 const PAGE_SIZE = 25;
@@ -70,6 +71,21 @@ export default async function CustomersPage({ searchParams }: Props) {
   const { data: owners } =
     ownerIds.length > 0 ? await supabase.from("users").select("id, name, email").in("id", ownerIds) : { data: [] };
   const ownerMap = new Map((owners ?? []).map((o) => [o.id, o.name ?? o.email]));
+
+  const customerIds = customers.map((c) => c.id);
+  const { data: cardRows } =
+    customerIds.length > 0
+      ? await supabase.from("customers").select("id, card_image_path").in("id", customerIds).not("card_image_path", "is", null)
+      : { data: [] };
+  const cardPaths = (cardRows ?? []).map((r) => r.card_image_path).filter((p): p is string => !!p);
+  const signedByPath = await getCardImageSignedUrls(supabase, cardPaths);
+  const cardImageMap = new Map<string, string>();
+  for (const row of cardRows ?? []) {
+    if (row.card_image_path) {
+      const url = signedByPath.get(row.card_image_path);
+      if (url) cardImageMap.set(row.id, url);
+    }
+  }
 
   const totalCount = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
@@ -156,6 +172,7 @@ export default async function CustomersPage({ searchParams }: Props) {
       <CustomerListSection
         customers={customers}
         ownerMap={ownerMap}
+        cardImageMap={cardImageMap}
         sort={sort}
         dir={dir}
         baseParams={baseParams.toString()}
