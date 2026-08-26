@@ -69,7 +69,7 @@ const CustomerTable = ({
 
   return (
     <div className="hidden overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white md:block">
-      <table className="w-full min-w-[1240px] text-base">
+      <table className="w-full min-w-[1140px] text-base">
         <thead>
           <tr className="border-b border-[#E7E2D2] text-left text-sm text-[#8A8270]">
             <th className="w-10 px-4 py-4">
@@ -84,13 +84,12 @@ const CustomerTable = ({
             <SortableHeader label="등록일" column="created_at" sort={sort} dir={dir} buildSortHref={buildSortHref} />
             <th className="px-4 py-4 font-medium">마지막 연락</th>
             <th className="px-4 py-4 font-medium">담당자</th>
-            <th className="px-4 py-4 font-medium" />
           </tr>
         </thead>
         <tbody>
           {customers.length === 0 ? (
             <tr>
-              <td colSpan={11} className="px-4 py-12 text-center text-base text-[#8A8270]">
+              <td colSpan={10} className="px-4 py-12 text-center text-base text-[#8A8270]">
                 등록된 고객이 없습니다.
               </td>
             </tr>
@@ -146,11 +145,6 @@ const CustomerTable = ({
                   <td className="px-4 py-4 text-[#6B6455]">{formatKstDate(customer.created_at)}</td>
                   <td className="px-4 py-4 text-[#6B6455]">{lastContact ? formatRelativeDays(lastContact, today) : "기록 없음"}</td>
                   <td className="px-4 py-4 text-[#6B6455]">{ownerMap.get(customer.owner_id ?? "") ?? "담당자 미지정"}</td>
-                  <td className="px-4 py-4">
-                    <Link href={`/customers/${customer.id}`} className="text-sm font-medium text-[#4B4739] hover:text-[#211D14]">
-                      상세
-                    </Link>
-                  </td>
                 </tr>
               );
             })
@@ -165,11 +159,7 @@ const CustomerTable = ({
             style={{ top: hover.top, left: hover.left }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- 비공개 버킷 서명 URL, next/image 원격 도메인 설정 불필요 */}
-            <img
-              src={cardImageMap.get(hover.id)}
-              alt="명함 사진"
-              className="h-32 w-52 rounded-md bg-[#F5F3EA] object-contain"
-            />
+            <img src={cardImageMap.get(hover.id)} alt="명함 사진" className="h-auto w-72 rounded-md" />
           </div>,
           document.body
         )}

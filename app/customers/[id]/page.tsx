@@ -79,7 +79,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               <img
                 src={cardImageUrl}
                 alt="명함 사진"
-                className="mb-4 h-40 w-64 rounded-lg border border-[#E7E2D2] bg-[#F5F3EA] object-contain"
+                className="mb-4 h-auto w-full rounded-lg border border-[#E7E2D2] sm:w-80"
               />
             )}
             <dl className="space-y-3">

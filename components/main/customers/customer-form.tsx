@@ -79,13 +79,9 @@ const CustomerForm = ({ mode, action, categories, customer, cardImageUrl }: Prop
 
         <Field label="명함 사진">
           {cardImageUrl && (
-            <div className="mb-2 flex items-center gap-3">
+            <div className="mb-2 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
               {/* eslint-disable-next-line @next/next/no-img-element -- 비공개 버킷 서명 URL, next/image 원격 도메인 설정 불필요 */}
-              <img
-                src={cardImageUrl}
-                alt="명함 사진"
-                className="h-24 w-40 rounded-lg border border-[#E7E2D2] bg-[#F5F3EA] object-contain"
-              />
+              <img src={cardImageUrl} alt="명함 사진" className="h-auto w-full rounded-lg border border-[#E7E2D2] sm:w-64" />
               <label className="flex items-center gap-1.5 text-sm text-[#6B6455]">
                 <input type="checkbox" name="remove_card_image" />
                 사진 삭제
