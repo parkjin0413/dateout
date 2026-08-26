@@ -51,7 +51,7 @@ const ContactLog = ({ customerId, contacts, viewerId, isAdmin, today }: Props) =
         </div>
         <input
           name="memo"
-          placeholder="메모 (선택)"
+          placeholder="상세 내용 (선택)"
           className="w-full rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none focus:border-[#0F5C56]"
         />
         {state?.error && <p className="text-sm text-red-600">{state.error}</p>}

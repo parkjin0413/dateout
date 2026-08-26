@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getCardImageSignedUrls } from "@/lib/customers/card-image";
+import { todayKst } from "@/lib/customers/date";
 import CustomerListSection from "@/components/main/customers/customer-list-section";
 
 const PAGE_SIZE = 25;
@@ -47,7 +48,7 @@ export default async function CustomersPage({ searchParams }: Props) {
 
   let query = supabase
     .from("customers")
-    .select("id, owner_id, category, name, company, phone, email, created_at", { count: "exact" });
+    .select("id, owner_id, category, name, company, phone, email, memo, created_at", { count: "exact" });
 
   if (q) {
     const safeQ = q.replace(/[,()]/g, " ").trim();
@@ -85,6 +86,19 @@ export default async function CustomersPage({ searchParams }: Props) {
       const url = signedByPath.get(row.card_image_path);
       if (url) cardImageMap.set(row.id, url);
     }
+  }
+
+  const { data: contactRows } =
+    customerIds.length > 0
+      ? await supabase
+          .from("customer_contacts")
+          .select("customer_id, contact_date")
+          .in("customer_id", customerIds)
+          .order("contact_date", { ascending: false })
+      : { data: [] };
+  const lastContactMap = new Map<string, string>();
+  for (const row of contactRows ?? []) {
+    if (!lastContactMap.has(row.customer_id)) lastContactMap.set(row.customer_id, row.contact_date);
   }
 
   const totalCount = count ?? 0;
@@ -173,6 +187,8 @@ export default async function CustomersPage({ searchParams }: Props) {
         customers={customers}
         ownerMap={ownerMap}
         cardImageMap={cardImageMap}
+        lastContactMap={lastContactMap}
+        today={todayKst()}
         sort={sort}
         dir={dir}
         baseParams={baseParams.toString()}

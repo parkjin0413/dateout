@@ -11,6 +11,8 @@ type Props = {
   customers: CustomerListItem[];
   ownerMap: Map<string, string | null>;
   cardImageMap: Map<string, string>;
+  lastContactMap: Map<string, string>;
+  today: string;
   sort: string;
   dir: "asc" | "desc";
   baseParams: string;
@@ -32,7 +34,17 @@ const HiddenIds = ({ ids }: { ids: string[] }) => (
 const selectCls =
   "rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none focus:border-[#0F5C56]";
 
-const CustomerListSection = ({ customers, ownerMap, cardImageMap, sort, dir, baseParams, categories }: Props) => {
+const CustomerListSection = ({
+  customers,
+  ownerMap,
+  cardImageMap,
+  lastContactMap,
+  today,
+  sort,
+  dir,
+  baseParams,
+  categories,
+}: Props) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [panel, setPanel] = useState<Panel>(null);
   const [state, formAction, isPending] = useActionState(runBulkAction, null);
@@ -147,7 +159,7 @@ const CustomerListSection = ({ customers, ownerMap, cardImageMap, sort, dir, bas
               </option>
             ))}
           </select>
-          <input name="memo" placeholder="메모 (선택)" className={`min-w-0 flex-1 ${selectCls}`} />
+          <input name="memo" placeholder="상세 내용 (선택)" className={`min-w-0 flex-1 ${selectCls}`} />
           <button
             type="submit"
             disabled={isPending}
@@ -189,6 +201,8 @@ const CustomerListSection = ({ customers, ownerMap, cardImageMap, sort, dir, bas
         customers={customers}
         ownerMap={ownerMap}
         cardImageMap={cardImageMap}
+        lastContactMap={lastContactMap}
+        today={today}
         sort={sort}
         dir={dir}
         buildSortHref={buildSortHref}

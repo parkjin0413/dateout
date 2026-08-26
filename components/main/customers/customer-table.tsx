@@ -5,11 +5,14 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { CustomerListItem } from "@/lib/customers/types";
+import { formatKstDate, formatRelativeDays } from "@/lib/customers/date";
 
 type Props = {
   customers: CustomerListItem[];
   ownerMap: Map<string, string | null>;
   cardImageMap: Map<string, string>;
+  lastContactMap: Map<string, string>;
+  today: string;
   sort: string;
   dir: "asc" | "desc";
   buildSortHref: (column: string) => string;
@@ -18,18 +21,33 @@ type Props = {
   onToggleAll: () => void;
 };
 
-const COLUMNS: { key: string; label: string }[] = [
-  { key: "category", label: "구분" },
-  { key: "name", label: "이름" },
-  { key: "company", label: "소속" },
-  { key: "phone", label: "연락처" },
-  { key: "email", label: "이메일" },
-];
+const SortableHeader = ({
+  label,
+  column,
+  sort,
+  dir,
+  buildSortHref,
+}: {
+  label: string;
+  column: string;
+  sort: string;
+  dir: "asc" | "desc";
+  buildSortHref: (column: string) => string;
+}) => (
+  <th className="px-4 py-4 font-medium">
+    <Link href={buildSortHref(column)} className="inline-flex items-center gap-1 hover:text-[#4B4739]">
+      {label}
+      {sort === column && <span>{dir === "asc" ? "▲" : "▼"}</span>}
+    </Link>
+  </th>
+);
 
 const CustomerTable = ({
   customers,
   ownerMap,
   cardImageMap,
+  lastContactMap,
+  today,
   sort,
   dir,
   buildSortHref,
@@ -51,20 +69,20 @@ const CustomerTable = ({
 
   return (
     <div className="hidden overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white md:block">
-      <table className="w-full min-w-[900px] text-base">
+      <table className="w-full min-w-[1240px] text-base">
         <thead>
           <tr className="border-b border-[#E7E2D2] text-left text-sm text-[#8A8270]">
             <th className="w-10 px-4 py-4">
               <input type="checkbox" checked={allSelected} onChange={onToggleAll} aria-label="전체 선택" />
             </th>
-            {COLUMNS.map((col) => (
-              <th key={col.key} className="px-4 py-4 font-medium">
-                <Link href={buildSortHref(col.key)} className="inline-flex items-center gap-1 hover:text-[#4B4739]">
-                  {col.label}
-                  {sort === col.key && <span>{dir === "asc" ? "▲" : "▼"}</span>}
-                </Link>
-              </th>
-            ))}
+            <SortableHeader label="구분" column="category" sort={sort} dir={dir} buildSortHref={buildSortHref} />
+            <SortableHeader label="소속" column="company" sort={sort} dir={dir} buildSortHref={buildSortHref} />
+            <SortableHeader label="이름" column="name" sort={sort} dir={dir} buildSortHref={buildSortHref} />
+            <SortableHeader label="연락처" column="phone" sort={sort} dir={dir} buildSortHref={buildSortHref} />
+            <SortableHeader label="이메일" column="email" sort={sort} dir={dir} buildSortHref={buildSortHref} />
+            <th className="px-4 py-4 font-medium">메모</th>
+            <SortableHeader label="등록일" column="created_at" sort={sort} dir={dir} buildSortHref={buildSortHref} />
+            <th className="px-4 py-4 font-medium">마지막 연락</th>
             <th className="px-4 py-4 font-medium">담당자</th>
             <th className="px-4 py-4 font-medium" />
           </tr>
@@ -72,62 +90,70 @@ const CustomerTable = ({
         <tbody>
           {customers.length === 0 ? (
             <tr>
-              <td colSpan={8} className="px-4 py-12 text-center text-base text-[#8A8270]">
+              <td colSpan={11} className="px-4 py-12 text-center text-base text-[#8A8270]">
                 등록된 고객이 없습니다.
               </td>
             </tr>
           ) : (
-            customers.map((customer) => (
-              <tr key={customer.id} className="border-b border-[#EDE7D3] text-[#4B4739]">
-                <td className="px-4 py-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(customer.id)}
-                    onChange={() => onToggle(customer.id)}
-                    aria-label={`${customer.name} 선택`}
-                  />
-                </td>
-                <td className="px-4 py-4">{customer.category}</td>
-                <td className="px-4 py-4">
-                  {cardImageMap.has(customer.id) ? (
-                    <span
-                      className="inline-block"
-                      onMouseEnter={(e) => showPreview(customer.id, e.currentTarget)}
-                      onMouseLeave={() => hideOwnPreview(customer.id)}
-                    >
+            customers.map((customer) => {
+              const lastContact = lastContactMap.get(customer.id);
+              return (
+                <tr key={customer.id} className="border-b border-[#EDE7D3] text-[#4B4739]">
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(customer.id)}
+                      onChange={() => onToggle(customer.id)}
+                      aria-label={`${customer.name} 선택`}
+                    />
+                  </td>
+                  <td className="px-4 py-4">{customer.category}</td>
+                  <td className="px-4 py-4">{customer.company}</td>
+                  <td className="px-4 py-4">
+                    {cardImageMap.has(customer.id) ? (
+                      <span
+                        className="inline-block"
+                        onMouseEnter={(e) => showPreview(customer.id, e.currentTarget)}
+                        onMouseLeave={() => hideOwnPreview(customer.id)}
+                      >
+                        <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">
+                          {customer.name}
+                        </Link>
+                      </span>
+                    ) : (
                       <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">
                         {customer.name}
                       </Link>
-                    </span>
-                  ) : (
-                    <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">
-                      {customer.name}
-                    </Link>
-                  )}
-                </td>
-                <td className="px-4 py-4">{customer.company}</td>
-                <td className="px-4 py-4">
-                  <a href={`tel:${customer.phone}`} className="hover:text-[#0F5C56]">
-                    {customer.phone}
-                  </a>
-                </td>
-                <td className="px-4 py-4">
-                  {customer.email ? (
-                    <a href={`mailto:${customer.email}`} className="hover:text-[#0F5C56]">
-                      {customer.email}
+                    )}
+                  </td>
+                  <td className="px-4 py-4">
+                    <a href={`tel:${customer.phone}`} className="hover:text-[#0F5C56]">
+                      {customer.phone}
                     </a>
-                  ) : (
-                    "-"
-                  )}
-                </td>
-                <td className="px-4 py-4 text-[#6B6455]">{ownerMap.get(customer.owner_id ?? "") ?? "담당자 미지정"}</td>
-                <td className="px-4 py-4">
-                  <Link href={`/customers/${customer.id}`} className="text-sm font-medium text-[#4B4739] hover:text-[#211D14]">
-                    상세
-                  </Link>
-                </td>
-              </tr>
-            ))
+                  </td>
+                  <td className="px-4 py-4">
+                    {customer.email ? (
+                      <a href={`mailto:${customer.email}`} className="hover:text-[#0F5C56]">
+                        {customer.email}
+                      </a>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td className="max-w-[160px] truncate px-4 py-4 text-[#6B6455]" title={customer.memo || undefined}>
+                    {customer.memo || "-"}
+                  </td>
+                  <td className="px-4 py-4 text-[#6B6455]">{formatKstDate(customer.created_at)}</td>
+                  <td className="px-4 py-4 text-[#6B6455]">{lastContact ? formatRelativeDays(lastContact, today) : "기록 없음"}</td>
+                  <td className="px-4 py-4 text-[#6B6455]">{ownerMap.get(customer.owner_id ?? "") ?? "담당자 미지정"}</td>
+                  <td className="px-4 py-4">
+                    <Link href={`/customers/${customer.id}`} className="text-sm font-medium text-[#4B4739] hover:text-[#211D14]">
+                      상세
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

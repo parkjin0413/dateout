@@ -36,8 +36,8 @@ const CustomerCards = ({ customers, ownerMap, selectedIds, onToggle }: Props) =>
               <span className="inline-flex items-center rounded-full border border-[#CFE3E0] bg-[#E3EFEC] px-2.5 py-0.5 text-xs font-medium text-[#0F5C56]">
                 {customer.category}
               </span>
-              <span className="font-semibold text-[#211D14]">{customer.name}</span>
               <span className="text-base text-[#6B6455]">{customer.company}</span>
+              <span className="font-semibold text-[#211D14]">{customer.name}</span>
             </div>
             <div className="mt-2 text-base text-[#4B4739]">{customer.phone}</div>
             {customer.email && <div className="text-sm text-[#8A8270]">{customer.email}</div>}
