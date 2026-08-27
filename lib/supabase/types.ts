@@ -263,6 +263,57 @@ export type Database = {
         }
         Relationships: []
       }
+      leave_requests: {
+        Row: {
+          approvers: Json
+          created_at: string
+          days: number
+          department: string
+          doc_number: string
+          drafted_at: string
+          drafter_id: string
+          drafter_name: string
+          end_date: string
+          id: string
+          leave_type: string
+          reason: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          approvers?: Json
+          created_at?: string
+          days: number
+          department?: string
+          doc_number: string
+          drafted_at: string
+          drafter_id: string
+          drafter_name: string
+          end_date: string
+          id?: string
+          leave_type: string
+          reason?: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          approvers?: Json
+          created_at?: string
+          days?: number
+          department?: string
+          doc_number?: string
+          drafted_at?: string
+          drafter_id?: string
+          drafter_name?: string
+          end_date?: string
+          id?: string
+          leave_type?: string
+          reason?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       logs: {
         Row: {
           action: string

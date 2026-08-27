@@ -11,6 +11,12 @@ const DOC_TYPES = [
     available: true,
   },
   {
+    label: "연차신청서",
+    description: "휴가기간과 사유를 정리해 결재를 받는 문서",
+    href: "/forms/leave",
+    available: true,
+  },
+  {
     label: "사내 공지문",
     description: "준비 중입니다.",
     href: "#",
