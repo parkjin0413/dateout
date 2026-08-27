@@ -9,6 +9,10 @@ type DashboardProps = {
   fieldTripCount: number;
   scheduleCount: number;
   hasReportToday: boolean;
+  employeeCount: number;
+  customerCount: number;
+  expenseReportCount: number;
+  leaveRequestCount: number;
 };
 
 const MapPinIcon = ({ className }: { className?: string }) => (
@@ -60,6 +64,41 @@ const ClipboardIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const CustomersIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="M3 9.5h18" />
+    <circle cx="8.5" cy="14.5" r="1.5" />
+    <path d="M13 14.5h5" />
+  </svg>
+);
+
+const FormIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M6 3.5h9l3 3V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" />
+    <path d="M9 8.5h6M9 12h4" />
+    <path d="M14 17.5 15.5 16l1.5 1.5-1.5 3.5-1.5-3.5z" />
+  </svg>
+);
+
 const UsersIcon = ({ className }: { className?: string }) => (
   <svg
     viewBox="0 0 24 24"
@@ -84,12 +123,23 @@ const BADGE_TONE = {
 } as const;
 
 const Badge = ({ label, tone }: { label: string; tone: keyof typeof BADGE_TONE }) => (
-  <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${BADGE_TONE[tone]}`}>
+  <span className={`inline-flex items-center rounded-full border px-4 py-1.5 text-base font-bold ${BADGE_TONE[tone]}`}>
     {label}
   </span>
 );
 
-const Dashboard = ({ name, email, avatarUrl, fieldTripCount, scheduleCount, hasReportToday }: DashboardProps) => {
+const Dashboard = ({
+  name,
+  email,
+  avatarUrl,
+  fieldTripCount,
+  scheduleCount,
+  hasReportToday,
+  employeeCount,
+  customerCount,
+  expenseReportCount,
+  leaveRequestCount,
+}: DashboardProps) => {
   const greetingLabel = name ? `${name}(${email})` : email;
 
   const tools = [
@@ -98,30 +148,49 @@ const Dashboard = ({ name, email, avatarUrl, fieldTripCount, scheduleCount, hasR
       description: "외근 및 현장 방문 일정을 등록하고 관리하세요.",
       href: "/field-trip",
       icon: MapPinIcon,
-      badge: { label: `오늘 외근 ${fieldTripCount}명`, tone: "neutral" as const },
+      badges: [{ label: `오늘 외근 ${fieldTripCount}명`, tone: "neutral" as const }],
     },
     {
       label: "연간 일정",
       description: "회사의 연간 주요 일정과 행사를 확인하세요.",
       href: "/schedule",
       icon: CalendarIcon,
-      badge: { label: `오늘 일정 ${scheduleCount}건`, tone: "neutral" as const },
+      badges: [{ label: `오늘 일정 ${scheduleCount}건`, tone: "neutral" as const }],
     },
     {
       label: "업무 보고",
       description: "개별 업무 진행 상황을 작성하고 보고하세요.",
       href: "/report",
       icon: ClipboardIcon,
-      badge: hasReportToday
-        ? { label: "오늘 작성완료", tone: "success" as const }
-        : { label: "오늘 미작성", tone: "warning" as const },
+      badges: [
+        hasReportToday
+          ? { label: "오늘 작성완료", tone: "success" as const }
+          : { label: "오늘 미작성", tone: "warning" as const },
+      ],
+    },
+    {
+      label: "고객관리",
+      description: "고객 정보와 연락 이력을 등록하고 관리하세요.",
+      href: "/customers",
+      icon: CustomersIcon,
+      badges: [{ label: `등록 고객 ${customerCount}명`, tone: "neutral" as const }],
     },
     {
       label: "직원명부",
       description: "부서·직급·연락처로 동료를 찾아보세요.",
       href: "/directory",
       icon: UsersIcon,
-      badge: null,
+      badges: [{ label: `등록 인원 ${employeeCount}명`, tone: "neutral" as const }],
+    },
+    {
+      label: "양식 문서 작성",
+      description: "사내 서류를 정해진 양식에 맞춰 작성하고 인쇄하세요.",
+      href: "/forms",
+      icon: FormIcon,
+      badges: [
+        { label: `지출결의서 ${expenseReportCount}건`, tone: "neutral" as const },
+        { label: `연차신청서 ${leaveRequestCount}건`, tone: "neutral" as const },
+      ],
     },
   ];
 
@@ -152,7 +221,7 @@ const Dashboard = ({ name, email, avatarUrl, fieldTripCount, scheduleCount, hasR
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((tool) => (
           <Link
             key={tool.href}
@@ -165,9 +234,11 @@ const Dashboard = ({ name, email, avatarUrl, fieldTripCount, scheduleCount, hasR
             </div>
             <h2 className="mb-2 text-lg font-semibold text-[#211D14]">{tool.label}</h2>
             <p className="text-sm leading-relaxed text-[#6B6455]">{tool.description}</p>
-            {tool.badge && (
-              <div className="mt-4">
-                <Badge label={tool.badge.label} tone={tool.badge.tone} />
+            {tool.badges.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {tool.badges.map((badge) => (
+                  <Badge key={badge.label} label={badge.label} tone={badge.tone} />
+                ))}
               </div>
             )}
             <ArrowRightIcon className="absolute right-6 top-8 h-5 w-5 text-[#B9B29B] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#0F5C56]" />
