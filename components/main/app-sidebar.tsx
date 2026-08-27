@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { label: "업무 보고", href: "/report", icon: "report" },
   { label: "고객관리", href: "/customers", icon: "customers" },
   { label: "직원명부", href: "/directory", icon: "directory" },
+  { label: "양식 문서 작성", href: "/forms", icon: "forms" },
 ] as const;
 
 const ADMIN_LINKS = [
@@ -76,6 +77,14 @@ const NavIcon = ({ kind }: { kind: IconKind }) => {
           <path d="M3.5 19c.6-3 2.7-5 5.5-5s4.9 2 5.5 5" />
           <path d="M16.5 5.5c1.4.4 2.5 1.7 2.5 3.3s-1.1 2.9-2.5 3.3" />
           <path d="M18.5 14.3c1.6.5 2.9 2.1 3 4.4" />
+        </svg>
+      );
+    case "forms":
+      return (
+        <svg {...common} className="h-5 w-5">
+          <path d="M6 3.5h9l3 3V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" />
+          <path d="M14.5 17.5 16 16l1.5 1.5-1.5 4-1.5-4z" />
+          <path d="M9 8.5h6M9 12h4" />
         </svg>
       );
     case "logs":

@@ -143,6 +143,69 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_reports: {
+        Row: {
+          approvers: Json
+          attachment_other: string
+          attachment_types: Json
+          attachments: Json
+          content: string
+          created_at: string
+          department: string
+          doc_number: string
+          drafted_at: string
+          drafter_id: string
+          drafter_name: string
+          id: string
+          items: Json
+          payment_method: string
+          title: string
+          total_amount: number
+          updated_at: string
+          vendor_basis: string
+        }
+        Insert: {
+          approvers?: Json
+          attachment_other?: string
+          attachment_types?: Json
+          attachments?: Json
+          content?: string
+          created_at?: string
+          department?: string
+          doc_number: string
+          drafted_at: string
+          drafter_id: string
+          drafter_name: string
+          id?: string
+          items?: Json
+          payment_method: string
+          title: string
+          total_amount?: number
+          updated_at?: string
+          vendor_basis?: string
+        }
+        Update: {
+          approvers?: Json
+          attachment_other?: string
+          attachment_types?: Json
+          attachments?: Json
+          content?: string
+          created_at?: string
+          department?: string
+          doc_number?: string
+          drafted_at?: string
+          drafter_id?: string
+          drafter_name?: string
+          id?: string
+          items?: Json
+          payment_method?: string
+          title?: string
+          total_amount?: number
+          updated_at?: string
+          vendor_basis?: string
+        }
+        Relationships: []
+      }
       field_trips: {
         Row: {
           author_name: string
@@ -301,6 +364,7 @@ export type Database = {
           job_title: string
           name: string | null
           phone: string
+          stamp_path: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -312,6 +376,7 @@ export type Database = {
           job_title?: string
           name?: string | null
           phone?: string
+          stamp_path?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -323,6 +388,7 @@ export type Database = {
           job_title?: string
           name?: string | null
           phone?: string
+          stamp_path?: string | null
         }
         Relationships: []
       }
