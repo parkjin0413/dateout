@@ -62,7 +62,7 @@ const ExpensePaper = ({
           {docNumber && <p className="mt-1 text-sm text-[#8A8270]">문서번호 {docNumber}</p>}
         </div>
         <div className="flex shrink-0">
-          <ApprovalBox label="기안" name={drafterName} jobTitle={drafterJobTitle ?? ""} stampUrl={stampUrl} />
+          <ApprovalBox label="담당" name={drafterName} jobTitle={drafterJobTitle ?? ""} stampUrl={stampUrl} />
           {approvers.map((a, i) => {
             const isFinal = i === approvers.length - 1;
             return <ApprovalBox key={a.order} label={isFinal ? "최종 결재" : `${i + 1}차 결재`} name={a.name} jobTitle={a.jobTitle} />;

@@ -17,16 +17,10 @@ const DOC_TYPES = [
     available: true,
   },
   {
-    label: "사내 공지문",
-    description: "준비 중입니다.",
-    href: "#",
-    available: false,
-  },
-  {
-    label: "기획안 초안",
-    description: "준비 중입니다.",
-    href: "#",
-    available: false,
+    label: "현장 협의록",
+    description: "현장 담당자와 협의한 내용을 기록해 두는 문서",
+    href: "/forms/meeting",
+    available: true,
   },
 ] as const;
 

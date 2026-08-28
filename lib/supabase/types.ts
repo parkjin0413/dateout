@@ -344,6 +344,66 @@ export type Database = {
         }
         Relationships: []
       }
+      meeting_records: {
+        Row: {
+          approvers: Json
+          counterpart_name: string
+          counterpart_org: string
+          created_at: string
+          department: string
+          doc_number: string
+          drafted_at: string
+          drafter_id: string
+          drafter_name: string
+          drawing_attached: boolean
+          id: string
+          items: Json
+          location: string
+          meeting_date: string
+          photo_taken: boolean
+          site_name: string
+          updated_at: string
+        }
+        Insert: {
+          approvers?: Json
+          counterpart_name?: string
+          counterpart_org?: string
+          created_at?: string
+          department?: string
+          doc_number: string
+          drafted_at: string
+          drafter_id: string
+          drafter_name: string
+          drawing_attached?: boolean
+          id?: string
+          items?: Json
+          location?: string
+          meeting_date: string
+          photo_taken?: boolean
+          site_name: string
+          updated_at?: string
+        }
+        Update: {
+          approvers?: Json
+          counterpart_name?: string
+          counterpart_org?: string
+          created_at?: string
+          department?: string
+          doc_number?: string
+          drafted_at?: string
+          drafter_id?: string
+          drafter_name?: string
+          drawing_attached?: boolean
+          id?: string
+          items?: Json
+          location?: string
+          meeting_date?: string
+          photo_taken?: boolean
+          site_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       report_boards: {
         Row: {
           created_at: string
