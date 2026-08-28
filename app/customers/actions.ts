@@ -8,7 +8,16 @@ import { formatPhoneNumber, normalizePhoneDigits } from "@/lib/phone";
 import { isValidDate } from "@/lib/customers/date";
 import { parseCustomerCsv } from "@/lib/customers/csv";
 import { CARD_IMAGE_BUCKET, buildCardImagePath } from "@/lib/customers/card-image";
+import { CONTACT_METHODS } from "@/lib/customers/types";
 import { writeLog } from "@/lib/logs";
+
+const MAX_CARD_IMAGE_SIZE = 5 * 1024 * 1024;
+
+function validateCardImage(file: File): { error: string } | null {
+  if (!file.type.startsWith("image/")) return { error: "이미지 파일만 업로드할 수 있습니다." };
+  if (file.size > MAX_CARD_IMAGE_SIZE) return { error: "파일 크기는 5MB 이하로 업로드해주세요." };
+  return null;
+}
 
 export type CustomerFormState = { error: string } | null;
 
@@ -67,6 +76,12 @@ export async function createCustomer(_prevState: CustomerFormState, formData: Fo
   const duplicateOwnerName = await findDuplicateOwnerName(supabase, phoneNormalized);
   if (duplicateOwnerName) return { error: `이미 ${duplicateOwnerName}님이 등록한 연락처입니다.` };
 
+  const cardImage = formData.get("card_image");
+  if (cardImage instanceof File && cardImage.size > 0) {
+    const validationError = validateCardImage(cardImage);
+    if (validationError) return validationError;
+  }
+
   const { data: inserted, error } = await supabase
     .from("customers")
     .insert({
@@ -87,12 +102,14 @@ export async function createCustomer(_prevState: CustomerFormState, formData: Fo
     return { error: "등록 중 오류가 발생했습니다." };
   }
 
-  const cardImage = formData.get("card_image");
+  let photoUploadFailed = false;
   if (cardImage instanceof File && cardImage.size > 0) {
     const path = buildCardImagePath(inserted.id, cardImage.name);
     const { error: uploadError } = await supabase.storage.from(CARD_IMAGE_BUCKET).upload(path, cardImage);
     if (!uploadError) {
       await supabase.from("customers").update({ card_image_path: path }).eq("id", inserted.id);
+    } else {
+      photoUploadFailed = true;
     }
   }
 
@@ -105,7 +122,7 @@ export async function createCustomer(_prevState: CustomerFormState, formData: Fo
   });
 
   revalidatePath("/customers");
-  redirect("/customers");
+  redirect(photoUploadFailed ? `/customers/${inserted.id}?photo_error=1` : "/customers");
 }
 
 export async function updateCustomer(
@@ -131,6 +148,12 @@ export async function updateCustomer(
   const duplicateOwnerName = await findDuplicateOwnerName(supabase, phoneNormalized, id);
   if (duplicateOwnerName) return { error: `이미 ${duplicateOwnerName}님이 등록한 연락처입니다.` };
 
+  const cardImage = formData.get("card_image");
+  if (cardImage instanceof File && cardImage.size > 0) {
+    const validationError = validateCardImage(cardImage);
+    if (validationError) return validationError;
+  }
+
   const { error } = await supabase
     .from("customers")
     .update({
@@ -150,9 +173,9 @@ export async function updateCustomer(
     return { error: "수정 중 오류가 발생했습니다." };
   }
 
-  const cardImage = formData.get("card_image");
   const removeCardImage = formData.get("remove_card_image") === "on";
 
+  let photoUploadFailed = false;
   if (cardImage instanceof File && cardImage.size > 0) {
     const path = buildCardImagePath(id, cardImage.name);
     const { error: uploadError } = await supabase.storage.from(CARD_IMAGE_BUCKET).upload(path, cardImage);
@@ -161,6 +184,8 @@ export async function updateCustomer(
         await supabase.storage.from(CARD_IMAGE_BUCKET).remove([existing.card_image_path]);
       }
       await supabase.from("customers").update({ card_image_path: path }).eq("id", id);
+    } else {
+      photoUploadFailed = true;
     }
   } else if (removeCardImage && existing.card_image_path) {
     await supabase.storage.from(CARD_IMAGE_BUCKET).remove([existing.card_image_path]);
@@ -177,7 +202,7 @@ export async function updateCustomer(
 
   revalidatePath("/customers");
   revalidatePath(`/customers/${id}`);
-  redirect(`/customers/${id}`);
+  redirect(photoUploadFailed ? `/customers/${id}?photo_error=1` : `/customers/${id}`);
 }
 
 export async function deleteCustomer(id: string): Promise<void> {
@@ -245,7 +270,7 @@ export async function createContact(
   if (!isValidDate(contactDate)) return { error: "날짜 형식이 올바르지 않습니다." };
 
   const method = String(formData.get("method") ?? "").trim();
-  if (!["문자", "전화", "이메일", "방문", "기타"].includes(method)) {
+  if (!(CONTACT_METHODS as readonly string[]).includes(method)) {
     return { error: "연락 방법을 선택해주세요." };
   }
 
@@ -336,28 +361,34 @@ export async function runBulkAction(_prevState: BulkState, formData: FormData): 
     if (!isValidDate(contactDate)) return { error: "날짜 형식이 올바르지 않습니다.", successCount: 0, skipCount: ids.length };
 
     const method = String(formData.get("method") ?? "").trim();
-    if (!["문자", "전화", "이메일", "방문", "기타"].includes(method)) {
+    if (!(CONTACT_METHODS as readonly string[]).includes(method)) {
       return { error: "연락 방법을 선택해주세요.", successCount: 0, skipCount: ids.length };
     }
 
     const memo = String(formData.get("memo") ?? "").trim();
 
-    const { error } = await supabase
-      .from("customer_contacts")
-      .insert(ids.map((customerId) => ({ customer_id: customerId, contact_date: contactDate, method, memo, created_by: userId })));
+    const { data: rows } = await supabase.from("customers").select("id, owner_id").in("id", ids);
+    const allowedIds = (rows ?? []).filter((r) => r.owner_id === userId || isAdmin).map((r) => r.id);
 
-    if (error) return { error: "연락 기록 저장 중 오류가 발생했습니다.", successCount: 0, skipCount: ids.length };
+    if (allowedIds.length > 0) {
+      const { error } = await supabase
+        .from("customer_contacts")
+        .insert(allowedIds.map((customerId) => ({ customer_id: customerId, contact_date: contactDate, method, memo, created_by: userId })));
 
-    await writeLog({
-      level: "info",
-      action: "BULK_CREATE_CUSTOMER_CONTACT",
-      message: `${actorName}님이 고객 ${ids.length}건에 연락 기록을 일괄 추가했습니다.`,
-      actorId: userId,
-      actorName,
-    });
+      if (error) return { error: "연락 기록 저장 중 오류가 발생했습니다.", successCount: 0, skipCount: ids.length };
 
-    revalidatePath("/customers");
-    return { successCount: ids.length, skipCount: 0 };
+      await writeLog({
+        level: "info",
+        action: "BULK_CREATE_CUSTOMER_CONTACT",
+        message: `${actorName}님이 고객 ${allowedIds.length}건에 연락 기록을 일괄 추가했습니다.`,
+        actorId: userId,
+        actorName,
+      });
+
+      revalidatePath("/customers");
+    }
+
+    return { successCount: allowedIds.length, skipCount: ids.length - allowedIds.length };
   }
 
   if (kind === "delete") {

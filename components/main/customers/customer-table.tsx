@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { CustomerListItem } from "@/lib/customers/types";
@@ -57,6 +57,7 @@ const CustomerTable = ({
 }: Props) => {
   const allSelected = customers.length > 0 && selectedIds.size === customers.length;
   const [hover, setHover] = useState<{ id: string; top: number; left: number } | null>(null);
+  const [tapped, setTapped] = useState<string | null>(null);
 
   const showPreview = (id: string, el: HTMLElement) => {
     const rect = el.getBoundingClientRect();
@@ -64,8 +65,29 @@ const CustomerTable = ({
   };
 
   const hideOwnPreview = (id: string) => {
-    setHover((h) => (h?.id === id ? null : h));
+    setHover((h) => (h?.id === id && tapped !== id ? null : h));
   };
+
+  const togglePreview = (id: string, el: HTMLElement) => {
+    setTapped((prev) => {
+      if (prev === id) {
+        setHover((h) => (h?.id === id ? null : h));
+        return null;
+      }
+      showPreview(id, el);
+      return id;
+    });
+  };
+
+  useEffect(() => {
+    if (tapped === null) return;
+    const closeTapped = () => {
+      setTapped(null);
+      setHover(null);
+    };
+    document.addEventListener("click", closeTapped);
+    return () => document.removeEventListener("click", closeTapped);
+  }, [tapped]);
 
   return (
     <div className="hidden overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white md:block">
@@ -111,13 +133,25 @@ const CustomerTable = ({
                   <td className="px-4 py-4">
                     {cardImageMap.has(customer.id) ? (
                       <span
-                        className="inline-block"
+                        className="inline-flex items-center gap-1"
                         onMouseEnter={(e) => showPreview(customer.id, e.currentTarget)}
                         onMouseLeave={() => hideOwnPreview(customer.id)}
                       >
                         <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">
                           {customer.name}
                         </Link>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            togglePreview(customer.id, e.currentTarget);
+                          }}
+                          aria-label="명함 사진 보기"
+                          className="text-sm text-[#8A8270] hover:text-[#0F5C56]"
+                        >
+                          📷
+                        </button>
                       </span>
                     ) : (
                       <Link href={`/customers/${customer.id}`} className="font-medium text-[#211D14] hover:underline">

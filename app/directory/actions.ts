@@ -3,24 +3,11 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { formatPhoneNumber } from "@/lib/phone";
+import { writeLog } from "@/lib/logs";
 
 export type DirectoryFormState = { error: string } | null;
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/auth");
-
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect("/directory");
-
-  return supabase;
-}
 
 function readFields(formData: FormData) {
   return {
@@ -36,7 +23,7 @@ export async function createEmployee(
   _prevState: DirectoryFormState,
   formData: FormData
 ): Promise<DirectoryFormState> {
-  const supabase = await requireAdmin();
+  const { supabase } = await requireAdmin("/directory");
 
   const { department, jobTitle, name, phone, directLine } = readFields(formData);
   if (!department) return { error: "부서를 입력해주세요." };
@@ -44,11 +31,16 @@ export async function createEmployee(
   if (!name) return { error: "이름을 입력해주세요." };
   if (!phone) return { error: "연락처를 입력해주세요." };
 
+  const formattedPhone = formatPhoneNumber(phone);
+
+  const { data: existing } = await supabase.from("employees").select("id").eq("phone", formattedPhone).maybeSingle();
+  if (existing) return { error: "이미 등록된 전화번호입니다. 기존 직원 정보를 수정해주세요." };
+
   const { error } = await supabase.from("employees").insert({
     department,
     job_title: jobTitle,
     name,
-    phone: formatPhoneNumber(phone),
+    phone: formattedPhone,
     direct_line: directLine ? formatPhoneNumber(directLine) : "",
   });
 
@@ -63,7 +55,7 @@ export async function updateEmployee(
   _prevState: DirectoryFormState,
   formData: FormData
 ): Promise<DirectoryFormState> {
-  const supabase = await requireAdmin();
+  const { supabase } = await requireAdmin("/directory");
 
   const { department, jobTitle, name, phone, directLine } = readFields(formData);
   if (!department) return { error: "부서를 입력해주세요." };
@@ -89,8 +81,19 @@ export async function updateEmployee(
 }
 
 export async function deleteEmployee(id: string): Promise<void> {
-  const supabase = await requireAdmin();
-  await supabase.from("employees").delete().eq("id", id);
+  const { supabase } = await requireAdmin("/directory");
+  const { error } = await supabase.from("employees").delete().eq("id", id);
+
+  if (error) {
+    await writeLog({
+      level: "error",
+      action: "DELETE_DIRECTORY_EMPLOYEE",
+      message: `직원 삭제 실패 (id: ${id}): ${error.message}`,
+      actorId: null,
+      actorName: "system",
+    });
+  }
+
   revalidatePath("/directory");
   redirect("/directory");
 }

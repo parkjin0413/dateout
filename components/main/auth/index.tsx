@@ -3,26 +3,16 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { createClient } from "@/lib/supabase/client";
 import { logLogin } from "@/app/auth/actions";
+import { createFadeUpVariants } from "@/components/common/motion";
 import logo from "@/public/logo2.png";
 
 const EMAIL_DOMAIN = "ks.com";
 
-const fadeUpVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.15 + 0.2,
-      duration: 0.6,
-      ease: "easeInOut",
-    },
-  }),
-};
+const fadeUpVariants = createFadeUpVariants();
 
 const Auth = () => {
   const router = useRouter();
@@ -55,7 +45,7 @@ const Auth = () => {
       return;
     }
 
-    logLogin();
+    logLogin().catch(() => {});
 
     router.push("/dashboard");
     router.refresh();
@@ -79,9 +69,10 @@ const Auth = () => {
 
         <form onSubmit={handleSignIn} className="space-y-4 text-left">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[#4B4739]">아이디</label>
+            <label htmlFor="login-id" className="mb-1.5 block text-sm font-medium text-[#4B4739]">아이디</label>
             <div className="flex items-center overflow-hidden rounded-lg border border-[#E7E2D2] bg-white transition-colors focus-within:border-[#0F5C56]">
               <input
+                id="login-id"
                 type="text"
                 value={id}
                 onChange={(e) => setId(e.target.value)}
@@ -95,8 +86,9 @@ const Auth = () => {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[#4B4739]">비밀번호</label>
+            <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-[#4B4739]">비밀번호</label>
             <input
+              id="login-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

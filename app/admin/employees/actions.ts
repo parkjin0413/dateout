@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatPhoneNumber } from "@/lib/phone";
 import { writeLog } from "@/lib/logs";
@@ -12,24 +12,13 @@ export type EmployeeAccountFormState = { error: string } | null;
 
 const EMAIL_DOMAIN = "ks.com";
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth");
-
-  const { data: profile } = await supabase.from("users").select("is_admin, name").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect("/dashboard");
-
-  return { adminId: user.id, adminName: profile.name ?? user.email ?? "관리자" };
-}
-
 export async function createEmployeeAccount(
   _prevState: EmployeeAccountFormState,
   formData: FormData
 ): Promise<EmployeeAccountFormState> {
-  const { adminId, adminName } = await requireAdmin();
+  const { user, name: adminProfileName } = await requireAdmin("/dashboard");
+  const adminId = user.id;
+  const adminName = adminProfileName ?? user.email ?? "관리자";
 
   const name = String(formData.get("name") ?? "").trim();
   const department = String(formData.get("department") ?? "").trim();
@@ -46,8 +35,12 @@ export async function createEmployeeAccount(
   const digits = phoneRaw.replace(/\D/g, "");
   if (digits.length < 4) return { error: "전화번호를 정확히 입력해주세요." };
   const email = `${digits.slice(-4)}@${EMAIL_DOMAIN}`;
+  const formattedPhone = formatPhoneNumber(phoneRaw);
 
   const admin = createAdminClient();
+
+  const { data: existing } = await admin.from("employees").select("id").eq("phone", formattedPhone).maybeSingle();
+  if (existing) return { error: "이미 등록된 전화번호입니다. 주소록에서 기존 직원 정보를 확인해주세요." };
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
@@ -63,8 +56,6 @@ export async function createEmployeeAccount(
         : "계정 생성 중 오류가 발생했습니다.",
     };
   }
-
-  const formattedPhone = formatPhoneNumber(phoneRaw);
 
   const { error: profileError } = await admin.from("users").upsert({
     id: created.user.id,
@@ -108,23 +99,49 @@ export async function createEmployeeAccount(
 }
 
 export async function deleteEmployeeAccount(id: string): Promise<void> {
-  const { adminId, adminName } = await requireAdmin();
+  const { user, name: adminProfileName } = await requireAdmin("/dashboard");
+  const adminId = user.id;
+  const adminName = adminProfileName ?? user.email ?? "관리자";
   if (id === adminId) redirect("/admin/employees");
 
   const admin = createAdminClient();
   const { data: target } = await admin.from("users").select("name, email").eq("id", id).single();
+  const targetLabel = target?.name ?? target?.email ?? id;
 
-  await admin.auth.admin.deleteUser(id);
-  await admin.from("users").delete().eq("id", id);
-  await admin.from("employees").delete().eq("id", id);
+  const { error: authError } = await admin.auth.admin.deleteUser(id);
+  if (authError) {
+    await writeLog({
+      level: "error",
+      action: "DELETE_EMPLOYEE",
+      message: `${adminName}님이 ${targetLabel} 계정 삭제 실패: ${authError.message}`,
+      actorId: adminId,
+      actorName: adminName,
+    });
+    revalidatePath("/admin/employees");
+    redirect("/admin/employees");
+  }
 
-  await writeLog({
-    level: "info",
-    action: "DELETE_EMPLOYEE",
-    message: `${adminName}님이 ${target?.name ?? target?.email ?? id} 계정을 삭제했습니다.`,
-    actorId: adminId,
-    actorName: adminName,
-  });
+  const { error: usersError } = await admin.from("users").delete().eq("id", id);
+  const { error: employeesError } = await admin.from("employees").delete().eq("id", id);
+
+  if (usersError || employeesError) {
+    const failed = [usersError && "users", employeesError && "employees"].filter(Boolean).join(", ");
+    await writeLog({
+      level: "error",
+      action: "DELETE_EMPLOYEE",
+      message: `${adminName}님이 ${targetLabel} 계정을 삭제했지만 ${failed} 테이블 삭제에 실패했습니다.`,
+      actorId: adminId,
+      actorName: adminName,
+    });
+  } else {
+    await writeLog({
+      level: "info",
+      action: "DELETE_EMPLOYEE",
+      message: `${adminName}님이 ${targetLabel} 계정을 삭제했습니다.`,
+      actorId: adminId,
+      actorName: adminName,
+    });
+  }
 
   revalidatePath("/admin/employees");
   redirect("/admin/employees");

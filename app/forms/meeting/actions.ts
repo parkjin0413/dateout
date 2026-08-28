@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
-import { isValidDate } from "@/lib/customers/date";
+import { isValidDate } from "@/lib/date-kst";
 import { generateDocNumber } from "@/lib/meeting/doc-number";
 import type { MeetingApprover, MeetingItem } from "@/lib/meeting/types";
 import { writeLog } from "@/lib/logs";
@@ -18,7 +18,7 @@ async function getViewer() {
 
   const { data: profile } = await supabase
     .from("users")
-    .select("name, department, is_admin")
+    .select("name, department, is_admin, phone")
     .eq("id", user.id)
     .single();
 
@@ -28,6 +28,7 @@ async function getViewer() {
     actorName: profile?.name ?? user.email ?? "알 수 없음",
     department: profile?.department ?? "",
     isAdmin: profile?.is_admin ?? false,
+    phone: profile?.phone ?? null,
   };
 }
 
@@ -47,12 +48,16 @@ function readItems(formData: FormData): MeetingItem[] {
 
 async function readApprovers(
   supabase: Awaited<ReturnType<typeof getViewer>>["supabase"],
-  formData: FormData
-): Promise<MeetingApprover[]> {
+  formData: FormData,
+  drafterId: string
+): Promise<MeetingApprover[] | { error: string }> {
   const ids = [1, 2, 3]
     .map((n) => String(formData.get(`approver_${n}`) ?? "").trim())
     .filter((id) => id.length > 0);
   if (ids.length === 0) return [];
+
+  if (new Set(ids).size !== ids.length) return { error: "결재자를 중복 없이 지정해주세요." };
+  if (ids.includes(drafterId)) return { error: "본인을 결재자로 지정할 수 없습니다." };
 
   const { data: rows } = await supabase.from("users").select("id, name, job_title").in("id", ids);
   const byId = new Map((rows ?? []).map((r) => [r.id, r]));
@@ -105,15 +110,16 @@ function parseFields(formData: FormData): ParsedFields | { error: string } {
 }
 
 export async function createMeetingRecord(_prevState: MeetingFormState, formData: FormData): Promise<MeetingFormState> {
-  const { supabase, userId, actorName, department } = await getViewer();
+  const { supabase, userId, actorName, department, phone } = await getViewer();
 
   const parsed = parseFields(formData);
   if ("error" in parsed) return parsed;
 
-  const approvers = await readApprovers(supabase, formData);
+  const approvers = await readApprovers(supabase, formData, userId);
+  if ("error" in approvers) return approvers;
   if (approvers.length < 1) return { error: "결재자를 1명 이상 지정해주세요." };
 
-  const docNumber = await generateDocNumber(supabase);
+  const docNumber = await generateDocNumber(supabase, userId, phone);
 
   const { data: inserted, error } = await supabase
     .from("meeting_records")
@@ -163,7 +169,8 @@ export async function updateMeetingRecord(
   const parsed = parseFields(formData);
   if ("error" in parsed) return parsed;
 
-  const approvers = await readApprovers(supabase, formData);
+  const approvers = await readApprovers(supabase, formData, userId);
+  if ("error" in approvers) return approvers;
   if (approvers.length < 1) return { error: "결재자를 1명 이상 지정해주세요." };
 
   const { error } = await supabase

@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import DeleteEmployeeAccountButton from "@/components/main/admin/delete-employee-account-button";
 
 const StatIcon = ({ kind }: { kind: "total" | "admin" | "staff" }) => {
@@ -40,14 +39,7 @@ const StatCard = ({ label, value, icon }: { label: string; value: number; icon: 
 );
 
 export default async function AdminEmployeesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth");
-
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect("/dashboard");
+  const { supabase, user } = await requireAdmin("/dashboard");
 
   const { data: employees } = await supabase
     .from("users")

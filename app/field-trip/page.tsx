@@ -39,7 +39,7 @@ export default async function FieldTripPage({ searchParams }: Props) {
   const countMap = buildMonthCountMap(monthRows ?? [], monthFirst, monthLast);
   const rows = (dayRows ?? []).slice().sort(compareFieldTrips);
 
-  const csvYear = Number(params.year) || new Date().getUTCFullYear();
+  const csvYear = Number(params.year) || Number(todayKst().slice(0, 4));
 
   return (
     <div>
@@ -79,7 +79,7 @@ export default async function FieldTripPage({ searchParams }: Props) {
                   defaultValue={csvYear}
                   className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none"
                 >
-                  {Array.from({ length: 9 }, (_, i) => new Date().getUTCFullYear() + 1 - i).map((y) => (
+                  {Array.from({ length: 9 }, (_, i) => Number(todayKst().slice(0, 4)) + 1 - i).map((y) => (
                     <option key={y} value={y}>
                       {y}년
                     </option>

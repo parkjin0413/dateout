@@ -19,8 +19,8 @@ const DeleteScheduleButton = ({ id, ym, className }: Props) => {
       disabled={isPending}
       onClick={() => {
         if (!confirm("정말 삭제하시겠습니까?")) return;
-        startTransition(() => {
-          deleteSchedule(id, ym);
+        startTransition(async () => {
+          await deleteSchedule(id, ym);
         });
       }}
       className={className ?? "text-sm font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-50"}

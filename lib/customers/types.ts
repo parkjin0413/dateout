@@ -10,3 +10,5 @@ export type CustomerListItem = Pick<
   Customer,
   "id" | "owner_id" | "category" | "name" | "company" | "phone" | "email" | "memo" | "created_at"
 >;
+
+export const CONTACT_METHODS = ["문자", "전화", "이메일", "방문", "기타"] as const;

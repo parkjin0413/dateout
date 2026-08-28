@@ -77,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signOut: async () => {
         await supabase.auth.signOut();
         router.push("/");
+        router.refresh();
       },
     }),
     [session, profileName, isAdmin, isLoading, supabase, router]

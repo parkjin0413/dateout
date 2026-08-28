@@ -5,7 +5,7 @@ import BoardList from "@/components/main/report/board-list";
 import AddBoardForm from "@/components/main/report/add-board-form";
 
 type Props = {
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; dup?: string }>;
 };
 
 export default async function ReportPage({ searchParams }: Props) {
@@ -15,7 +15,7 @@ export default async function ReportPage({ searchParams }: Props) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth");
 
-  const { view } = await searchParams;
+  const { view, dup } = await searchParams;
   const showAll = view === "all";
 
   const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
@@ -55,6 +55,8 @@ export default async function ReportPage({ searchParams }: Props) {
         <h1 className="text-3xl font-bold text-[#211D14]">업무 보고</h1>
         <p className="mt-1 text-base text-[#6B6455]">개인별 업무보고 게시판입니다. 본인 게시판을 찾아 작성하거나 동료의 보고를 확인해보세요.</p>
       </div>
+
+      {dup === "1" && <p className="mb-4 text-sm text-red-600">이미 게시판이 있는 직원입니다.</p>}
 
       {isAdmin && <AddBoardForm candidates={candidates} />}
 

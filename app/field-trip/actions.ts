@@ -77,6 +77,9 @@ export async function createFieldTrip(
 
   if (!department) return { error: "부서를 선택해주세요." };
   if (!departTime || !returnTime) return { error: "출발/복귀 시간을 입력해주세요." };
+  if (tripStart === tripEnd && departTime >= returnTime) {
+    return { error: "복귀 시간은 출발 시간보다 늦어야 합니다." };
+  }
 
   const authorName = isAdmin
     ? String(formData.get("author_name") ?? "").trim() || name
@@ -152,6 +155,9 @@ export async function updateFieldTrip(
 
   if (!department) return { error: "부서를 선택해주세요." };
   if (!departTime || !returnTime) return { error: "출발/복귀 시간을 입력해주세요." };
+  if (tripStart === tripEnd && departTime >= returnTime) {
+    return { error: "복귀 시간은 출발 시간보다 늦어야 합니다." };
+  }
 
   const authorName = isAdmin ? String(formData.get("author_name") ?? "").trim() : undefined;
 

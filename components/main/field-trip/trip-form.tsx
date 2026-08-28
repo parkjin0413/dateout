@@ -10,6 +10,13 @@ import type { FieldTrip } from "@/lib/field-trip/types";
 const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
 const MINUTES = ["00", "30"];
 
+const hourLabel = (h: string) => {
+  const n = Number(h);
+  const period = n < 12 ? "오전" : "오후";
+  const displayHour = n % 12 === 0 ? 12 : n % 12;
+  return `${period} ${String(displayHour).padStart(2, "0")}시`;
+};
+
 const inputCls =
   "w-full rounded-lg border border-[#E7E2D2] bg-white px-3 py-2.5 text-base text-[#211D14] outline-none transition-colors focus:border-[#0F5C56]";
 
@@ -48,7 +55,7 @@ const TimeSelect = ({
       <option value="">시</option>
       {HOURS.map((h) => (
         <option key={h} value={h}>
-          {h}
+          {hourLabel(h)}
         </option>
       ))}
     </select>

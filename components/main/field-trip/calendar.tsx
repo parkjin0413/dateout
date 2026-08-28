@@ -29,6 +29,7 @@ const FieldTripCalendar = ({ ym, selectedDate, today, countMap }: Props) => {
       <div className="mb-3 flex items-center justify-between">
         <Link
           href={`/field-trip?ym=${prevYm}&date=${selectedDate}`}
+          aria-label="이전 달"
           className="rounded-lg px-2 py-1 text-[#6B6455] transition-colors hover:bg-[#F5F3EA] hover:text-[#211D14]"
         >
           ◀
@@ -38,6 +39,7 @@ const FieldTripCalendar = ({ ym, selectedDate, today, countMap }: Props) => {
         </div>
         <Link
           href={`/field-trip?ym=${nextYm}&date=${selectedDate}`}
+          aria-label="다음 달"
           className="rounded-lg px-2 py-1 text-[#6B6455] transition-colors hover:bg-[#F5F3EA] hover:text-[#211D14]"
         >
           ▶

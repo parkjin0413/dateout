@@ -10,10 +10,12 @@ import ReassignOwnerForm from "@/components/main/customers/reassign-owner-form";
 
 type Props = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ photo_error?: string }>;
 };
 
-export default async function CustomerDetailPage({ params }: Props) {
+export default async function CustomerDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const { photo_error } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -70,6 +72,12 @@ export default async function CustomerDetailPage({ params }: Props) {
           </div>
         )}
       </div>
+
+      {photo_error === "1" && (
+        <p className="mb-4 text-base text-red-600">
+          명함 사진 업로드 중 오류가 발생했습니다. 나머지 정보는 정상 저장되었습니다. 수정 화면에서 다시 시도해주세요.
+        </p>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="space-y-4">

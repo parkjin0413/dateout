@@ -10,11 +10,15 @@ export default async function LeaveRequestListPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth");
 
-  const { data: requests } = await supabase
+  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
+  const isAdmin = profile?.is_admin ?? false;
+
+  let query = supabase
     .from("leave_requests")
-    .select("id, doc_number, start_date, end_date, days, leave_type")
-    .eq("drafter_id", user.id)
+    .select("id, doc_number, start_date, end_date, days, leave_type, drafter_name")
     .order("created_at", { ascending: false });
+  if (!isAdmin) query = query.eq("drafter_id", user.id);
+  const { data: requests } = await query;
 
   const rows = requests ?? [];
 
@@ -23,7 +27,7 @@ export default async function LeaveRequestListPage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#211D14]">연차신청서</h1>
-          <p className="mt-1 text-base text-[#6B6455]">내가 작성한 연차신청서 목록입니다.</p>
+          <p className="mt-1 text-base text-[#6B6455]">{isAdmin ? "전체 직원이 작성한 연차신청서 목록입니다." : "내가 작성한 연차신청서 목록입니다."}</p>
         </div>
         <Link
           href="/forms/leave/new"
@@ -43,6 +47,7 @@ export default async function LeaveRequestListPage() {
             <thead>
               <tr className="border-b border-[#E7E2D2] text-sm text-[#8A8270]">
                 <th className="px-5 py-3 font-medium">문서번호</th>
+                {isAdmin && <th className="px-5 py-3 font-medium">기안자</th>}
                 <th className="px-5 py-3 font-medium">휴가종류</th>
                 <th className="px-5 py-3 font-medium">휴가기간</th>
                 <th className="px-5 py-3 font-medium">일수</th>
@@ -56,6 +61,7 @@ export default async function LeaveRequestListPage() {
                       {r.doc_number}
                     </Link>
                   </td>
+                  {isAdmin && <td className="px-5 py-3 text-[#4B4739]">{r.drafter_name}</td>}
                   <td className="px-5 py-3 text-[#211D14]">{r.leave_type}</td>
                   <td className="px-5 py-3 text-[#4B4739]">
                     {r.start_date} ~ {r.end_date}

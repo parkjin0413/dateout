@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/contexts/auth-context";
+import { FieldTripIcon } from "@/components/common/icons";
 import logo from "@/public/logo2.png";
 
 const NAV_LINKS = [
@@ -38,14 +39,7 @@ const NavIcon = ({ kind }: { kind: IconKind }) => {
         </svg>
       );
     case "trip":
-      return (
-        <svg {...common} className="h-5 w-5">
-          <path d="M3 12l2-6h14l2 6" />
-          <path d="M4 12h16v5H4z" />
-          <circle cx="7.5" cy="17.5" r="1.5" />
-          <circle cx="16.5" cy="17.5" r="1.5" />
-        </svg>
-      );
+      return <FieldTripIcon className="h-5 w-5" />;
     case "calendar":
       return (
         <svg {...common} className="h-5 w-5">

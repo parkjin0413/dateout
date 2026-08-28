@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { ArrowRightIcon } from "@/components/common/icons";
+import { ArrowRightIcon, FieldTripIcon } from "@/components/common/icons";
+import DashboardAvatar from "./avatar";
 
 type DashboardProps = {
   name: string | null;
@@ -14,22 +15,6 @@ type DashboardProps = {
   expenseReportCount: number;
   leaveRequestCount: number;
 };
-
-const MapPinIcon = ({ className }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    aria-hidden="true"
-  >
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
 
 const CalendarIcon = ({ className }: { className?: string }) => (
   <svg
@@ -147,7 +132,7 @@ const Dashboard = ({
       label: "외근계획표",
       description: "외근 및 현장 방문 일정을 등록하고 관리하세요.",
       href: "/field-trip",
-      icon: MapPinIcon,
+      icon: FieldTripIcon,
       badges: [{ label: `오늘 외근 ${fieldTripCount}명`, tone: "neutral" as const }],
     },
     {
@@ -197,19 +182,7 @@ const Dashboard = ({
   return (
     <div>
       <div className="mb-10 flex items-center gap-4">
-        {avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={avatarUrl}
-            alt={greetingLabel}
-            className="h-14 w-14 shrink-0 rounded-full border border-[#E7E2D2]"
-            referrerPolicy="no-referrer"
-          />
-        ) : (
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#E7E2D2] bg-white text-lg font-semibold text-[#4B4739]">
-            {(name ?? email).slice(0, 1)}
-          </div>
-        )}
+        <DashboardAvatar avatarUrl={avatarUrl} alt={greetingLabel} fallbackText={name ?? email} />
         <div className="min-w-0">
           <p className="text-sm text-[#6B6455]">환영합니다</p>
           <h1

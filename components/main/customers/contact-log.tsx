@@ -3,10 +3,8 @@
 import { useActionState } from "react";
 
 import { createContact } from "@/app/customers/actions";
-import type { CustomerContact } from "@/lib/customers/types";
+import { CONTACT_METHODS, type CustomerContact } from "@/lib/customers/types";
 import DeleteContactButton from "./delete-contact-button";
-
-const METHODS = ["문자", "전화", "이메일", "방문", "기타"] as const;
 
 type Props = {
   customerId: string;
@@ -42,7 +40,7 @@ const ContactLog = ({ customerId, contacts, viewerId, isAdmin, today }: Props) =
             <option value="" disabled>
               연락 방법
             </option>
-            {METHODS.map((m) => (
+            {CONTACT_METHODS.map((m) => (
               <option key={m} value={m}>
                 {m}
               </option>

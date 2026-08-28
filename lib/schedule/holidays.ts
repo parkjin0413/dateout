@@ -41,6 +41,12 @@ function addDays(dateStr: string, delta: number): string {
 }
 
 export function getHolidays(year: number, month: number): Record<string, string[]> {
+  if (!MANUAL_OVERRIDES[year]) {
+    console.warn(
+      `[holidays] ${year}년 음력 공휴일/선거일 데이터가 없습니다. lib/schedule/holidays.ts의 MANUAL_OVERRIDES를 갱신하세요.`
+    );
+  }
+
   const yearHolidays: Record<string, string[]> = {};
 
   for (const [md, name] of Object.entries(FIXED_HOLIDAYS)) {

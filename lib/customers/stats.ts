@@ -20,6 +20,11 @@ export function computeCustomerStats(
   const categoryCounts: Record<string, number> = {};
   const ownerCounts: Record<string, number> = {};
   const monthCounts = new Array(12).fill(0) as number[];
+  const kstFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "numeric",
+  });
 
   for (const row of rows) {
     categoryCounts[row.category] = (categoryCounts[row.category] ?? 0) + 1;
@@ -27,10 +32,11 @@ export function computeCustomerStats(
     const ownerName = row.owner_id ? (ownerNameMap.get(row.owner_id) ?? "담당자 미지정") : "담당자 미지정";
     ownerCounts[ownerName] = (ownerCounts[ownerName] ?? 0) + 1;
 
-    const createdYear = Number(row.created_at.slice(0, 4));
+    const parts = kstFormatter.formatToParts(new Date(row.created_at));
+    const createdYear = Number(parts.find((p) => p.type === "year")!.value);
+    const createdMonth = Number(parts.find((p) => p.type === "month")!.value);
     if (createdYear === year) {
-      const month = Number(row.created_at.slice(5, 7));
-      monthCounts[month - 1] += 1;
+      monthCounts[createdMonth - 1] += 1;
     }
   }
 

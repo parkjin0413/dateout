@@ -10,11 +10,15 @@ export default async function MeetingRecordListPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth");
 
-  const { data: records } = await supabase
+  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
+  const isAdmin = profile?.is_admin ?? false;
+
+  let query = supabase
     .from("meeting_records")
-    .select("id, doc_number, site_name, meeting_date, counterpart_name")
-    .eq("drafter_id", user.id)
+    .select("id, doc_number, site_name, meeting_date, counterpart_name, drafter_name")
     .order("created_at", { ascending: false });
+  if (!isAdmin) query = query.eq("drafter_id", user.id);
+  const { data: records } = await query;
 
   const rows = records ?? [];
 
@@ -23,7 +27,7 @@ export default async function MeetingRecordListPage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#211D14]">현장 협의록</h1>
-          <p className="mt-1 text-base text-[#6B6455]">내가 작성한 현장 협의록 목록입니다.</p>
+          <p className="mt-1 text-base text-[#6B6455]">{isAdmin ? "전체 직원이 작성한 현장 협의록 목록입니다." : "내가 작성한 현장 협의록 목록입니다."}</p>
         </div>
         <Link
           href="/forms/meeting/new"
@@ -43,6 +47,7 @@ export default async function MeetingRecordListPage() {
             <thead>
               <tr className="border-b border-[#E7E2D2] text-sm text-[#8A8270]">
                 <th className="px-5 py-3 font-medium">문서번호</th>
+                {isAdmin && <th className="px-5 py-3 font-medium">기안자</th>}
                 <th className="px-5 py-3 font-medium">현장명</th>
                 <th className="px-5 py-3 font-medium">협의일자</th>
                 <th className="px-5 py-3 font-medium">협의 상대방</th>
@@ -56,6 +61,7 @@ export default async function MeetingRecordListPage() {
                       {r.doc_number}
                     </Link>
                   </td>
+                  {isAdmin && <td className="px-5 py-3 text-[#4B4739]">{r.drafter_name}</td>}
                   <td className="px-5 py-3 text-[#211D14]">{r.site_name}</td>
                   <td className="px-5 py-3 text-[#4B4739]">{r.meeting_date}</td>
                   <td className="px-5 py-3 text-[#4B4739]">{r.counterpart_name || "-"}</td>

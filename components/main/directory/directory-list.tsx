@@ -19,7 +19,7 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
   const colors = DEPT_COLORS_LIGHT[getDeptClass(employee.department)];
 
   return (
-    <div className="group flex items-center gap-4 rounded-2xl border border-[#E7E2D2] bg-white p-5">
+    <div className="flex items-center gap-4 rounded-2xl border border-[#E7E2D2] bg-white p-5">
       <div
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${colors.bg} ${colors.text}`}
       >
@@ -56,14 +56,14 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
       </div>
 
       {isAdmin && (
-        <div className="flex shrink-0 items-center gap-3 opacity-0 transition-opacity group-hover:opacity-100">
+        <div className="flex shrink-0 items-center gap-2">
           <Link
             href={`/directory/${employee.id}/edit`}
-            className="text-sm font-medium text-[#4B4739] transition-colors hover:text-[#211D14]"
+            className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-1.5 text-sm font-medium text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
           >
             수정
           </Link>
-          <DeleteEmployeeButton id={employee.id} />
+          <DeleteEmployeeButton id={employee.id} name={employee.name} />
         </div>
       )}
     </div>

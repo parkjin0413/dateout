@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { addMonths, daysInMonth, firstWeekday } from "@/lib/schedule/date";
+import { addMonths, daysInMonth, firstWeekday, todayKst } from "@/lib/schedule/date";
 import { DEPT_COLORS_LIGHT, getDeptClass } from "@/lib/schedule/dept";
 import type { Schedule } from "@/lib/schedule/types";
 
@@ -23,7 +23,7 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
   const firstW = firstWeekday(year, month);
   const prevYm = addMonths(ym, -1);
   const nextYm = addMonths(ym, 1);
-  const currentYear = new Date().getUTCFullYear();
+  const currentYear = Number(todayKst().slice(0, 4));
   const deptQuery = dept ? `&dept=${encodeURIComponent(dept)}` : "";
 
   const cells: (number | null)[] = [
@@ -38,6 +38,7 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
         <div className="flex items-center gap-1">
           <Link
             href={`/schedule?ym=${prevYm}&date=${selectedDate}${deptQuery}`}
+            aria-label="이전 달"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B6455] transition-colors hover:bg-[#F5F3EA] hover:text-[#211D14]"
           >
             ◀
@@ -47,6 +48,7 @@ const MonthCalendar = ({ ym, today, selectedDate, dept, holidays, itemsByDate }:
           </div>
           <Link
             href={`/schedule?ym=${nextYm}&date=${selectedDate}${deptQuery}`}
+            aria-label="다음 달"
             className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B6455] transition-colors hover:bg-[#F5F3EA] hover:text-[#211D14]"
           >
             ▶

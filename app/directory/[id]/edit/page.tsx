@@ -1,6 +1,6 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import DirectoryForm from "@/components/main/directory/directory-form";
 import { updateEmployee } from "../../actions";
 
@@ -11,14 +11,7 @@ type Props = {
 export default async function EditEmployeePage({ params }: Props) {
   const { id } = await params;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth");
-
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect("/directory");
+  const { supabase } = await requireAdmin("/directory");
 
   const { data: employee } = await supabase.from("employees").select("*").eq("id", id).single();
   if (!employee) notFound();

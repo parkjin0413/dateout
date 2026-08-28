@@ -19,8 +19,8 @@ const DeleteTripButton = ({ id, date, ym }: Props) => {
       disabled={isPending}
       onClick={() => {
         if (!confirm("정말 삭제하시겠습니까?")) return;
-        startTransition(() => {
-          deleteFieldTrip(id, date, ym);
+        startTransition(async () => {
+          await deleteFieldTrip(id, date, ym);
         });
       }}
       className="text-sm font-medium text-red-600 transition-colors hover:text-red-700 disabled:opacity-50"

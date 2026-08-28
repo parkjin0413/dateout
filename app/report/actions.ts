@@ -29,6 +29,9 @@ export async function createReportBoard(formData: FormData): Promise<void> {
 
   const targetUserId = String(formData.get("user_id") ?? "").trim();
   if (targetUserId) {
+    const { data: existing } = await supabase.from("report_boards").select("user_id").eq("user_id", targetUserId).single();
+    if (existing) redirect("/report?dup=1");
+
     await supabase.from("report_boards").insert({ user_id: targetUserId, created_by: userId });
     revalidatePath("/report");
   }

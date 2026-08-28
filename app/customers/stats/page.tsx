@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { computeCustomerStats } from "@/lib/customers/stats";
+import { todayKst } from "@/lib/customers/date";
 
 type Props = {
   searchParams: Promise<{ year?: string }>;
@@ -16,7 +17,7 @@ export default async function CustomerStatsPage({ searchParams }: Props) {
   if (!user) redirect("/auth");
 
   const params = await searchParams;
-  const currentYear = new Date().getUTCFullYear();
+  const currentYear = Number(todayKst().slice(0, 4));
   const year = Number(params.year) || currentYear;
 
   const { data: rows } = await supabase.from("customers").select("category, owner_id, created_at");

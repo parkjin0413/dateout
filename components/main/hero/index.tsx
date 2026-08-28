@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { ArrowRightIcon } from "@/components/common/icons";
+import { createFadeUpVariants } from "@/components/common/motion";
 
 const BoltIcon = ({ className }: { className?: string }) => (
   <svg
@@ -20,18 +21,7 @@ const BoltIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const fadeUpVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.2 + 0.5,
-      duration: 0.8,
-      ease: "easeInOut",
-    },
-  }),
-};
+const fadeUpVariants = createFadeUpVariants({ delayStep: 0.2, delayOffset: 0.5, duration: 0.8 });
 
 const Hero = () => {
   return (

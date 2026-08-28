@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type Props = {
@@ -52,14 +51,7 @@ const buildHref = (q: string, level: string | null) => {
 };
 
 export default async function AdminLogsPage({ searchParams }: Props) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth");
-
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
-  if (!profile?.is_admin) redirect("/dashboard");
+  await requireAdmin("/dashboard");
 
   const params = await searchParams;
   const q = (params.q ?? "").trim();

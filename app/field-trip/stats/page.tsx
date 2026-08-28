@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { daysInMonth } from "@/lib/field-trip/date";
+import { daysInMonth, todayKst } from "@/lib/field-trip/date";
 import { computeFieldTripStats } from "@/lib/field-trip/stats";
 
 type Props = {
@@ -20,7 +20,7 @@ export default async function FieldTripStatsPage({ searchParams }: Props) {
   if (!profile?.is_admin) redirect("/field-trip");
 
   const params = await searchParams;
-  const currentYear = new Date().getUTCFullYear();
+  const currentYear = Number(todayKst().slice(0, 4));
   const year = Number(params.year) || currentYear;
   const month = Number(params.month) || 0;
   const monthFilter = month >= 1 && month <= 12 ? month : null;
@@ -125,14 +125,16 @@ export default async function FieldTripStatsPage({ searchParams }: Props) {
                 <div key={idx} className="flex w-12 flex-shrink-0 flex-col items-center gap-1">
                   <span className="text-sm text-[#6B6455]">{value > 0 ? value : ""}</span>
                   <div
-                    className={`w-full rounded-t ${idx + 1 === stats.busyMonth ? "bg-[#0F5C56]" : "bg-[#0F5C56]/30"}`}
+                    className={`w-full rounded-t ${stats.totalDays > 0 && idx + 1 === stats.busyMonth ? "bg-[#0F5C56]" : "bg-[#0F5C56]/30"}`}
                     style={{ height: `${Math.round((value / monthMax) * 140)}px` }}
                   />
                   <span className="text-sm text-[#8A8270]">{idx + 1}월</span>
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-sm text-[#8A8270]">※ {stats.busyMonth}월이 월별 최다 외근일입니다.</p>
+            <p className="mt-3 text-sm text-[#8A8270]">
+              {stats.totalDays > 0 ? `※ ${stats.busyMonth}월이 월별 최다 외근일입니다.` : "등록된 외근 기록이 없습니다."}
+            </p>
           </>
         ) : (
           <>

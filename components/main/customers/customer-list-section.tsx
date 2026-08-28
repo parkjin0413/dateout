@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 
 import { runBulkAction } from "@/app/customers/actions";
-import type { CustomerListItem } from "@/lib/customers/types";
+import { CONTACT_METHODS, type CustomerListItem } from "@/lib/customers/types";
 import CustomerTable from "./customer-table";
 import CustomerCards from "./customer-cards";
 
@@ -20,8 +20,6 @@ type Props = {
 };
 
 type Panel = "category" | "contact" | "delete" | null;
-
-const CONTACT_METHODS = ["문자", "전화", "이메일", "방문", "기타"];
 
 const HiddenIds = ({ ids }: { ids: string[] }) => (
   <>
@@ -48,6 +46,15 @@ const CustomerListSection = ({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [panel, setPanel] = useState<Panel>(null);
   const [state, formAction, isPending] = useActionState(runBulkAction, null);
+  const [handledState, setHandledState] = useState(state);
+
+  if (state !== handledState) {
+    setHandledState(state);
+    if (state && !state.error) {
+      setSelectedIds(new Set());
+      setPanel(null);
+    }
+  }
 
   const buildSortHref = (column: string) => {
     const p = new URLSearchParams(baseParams);
@@ -70,11 +77,6 @@ const CustomerListSection = ({
   };
 
   const ids = Array.from(selectedIds);
-
-  const closeAfterSubmit = () => {
-    setSelectedIds(new Set());
-    setPanel(null);
-  };
 
   return (
     <div className="space-y-3">
@@ -115,7 +117,6 @@ const CustomerListSection = ({
       {panel === "category" && (
         <form
           action={formAction}
-          onSubmit={closeAfterSubmit}
           className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#E7E2D2] bg-white px-4 py-3"
         >
           <input type="hidden" name="kind" value="category" />
@@ -143,12 +144,11 @@ const CustomerListSection = ({
       {panel === "contact" && (
         <form
           action={formAction}
-          onSubmit={closeAfterSubmit}
           className="flex flex-wrap items-center gap-2 rounded-2xl border border-[#E7E2D2] bg-white px-4 py-3"
         >
           <input type="hidden" name="kind" value="contact" />
           <HiddenIds ids={ids} />
-          <input type="date" name="contact_date" required className={selectCls} />
+          <input type="date" name="contact_date" required defaultValue={today} className={selectCls} />
           <select name="method" required className={selectCls}>
             <option value="" disabled>
               방법 선택
@@ -173,7 +173,6 @@ const CustomerListSection = ({
       {panel === "delete" && (
         <form
           action={formAction}
-          onSubmit={closeAfterSubmit}
           className="flex flex-wrap items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3"
         >
           <input type="hidden" name="kind" value="delete" />

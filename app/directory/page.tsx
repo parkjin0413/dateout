@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/lib/auth/require-admin";
 import { compareEmployees } from "@/lib/directory/dept";
 import DirectoryList from "@/components/main/directory/directory-list";
 
@@ -10,11 +9,7 @@ type Props = {
 };
 
 export default async function DirectoryPage({ searchParams }: Props) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/auth");
+  const { supabase, user } = await requireUser();
 
   const { data: profile } = await supabase.from("users").select("is_admin").eq("id", user.id).single();
   const isAdmin = profile?.is_admin ?? false;
@@ -24,9 +19,12 @@ export default async function DirectoryPage({ searchParams }: Props) {
 
   let request = supabase.from("employees").select("*");
   if (query) {
-    request = request.or(`name.ilike.%${query}%,department.ilike.%${query}%,job_title.ilike.%${query}%`);
+    const safeQuery = query.replace(/[,()]/g, " ").trim();
+    if (safeQuery) {
+      request = request.or(`name.ilike.%${safeQuery}%,department.ilike.%${safeQuery}%,job_title.ilike.%${safeQuery}%`);
+    }
   }
-  const { data: employees } = await request;
+  const { data: employees, error } = await request;
 
   const rows = (employees ?? []).slice().sort(compareEmployees);
   const groups = Array.from(new Set(rows.map((e) => e.department))).map((department) => ({
@@ -70,7 +68,13 @@ export default async function DirectoryPage({ searchParams }: Props) {
         </div>
       </div>
 
-      <DirectoryList groups={groups} isAdmin={isAdmin} />
+      {error ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-16 text-center text-base text-red-700">
+          검색 중 오류가 발생했습니다.
+        </div>
+      ) : (
+        <DirectoryList groups={groups} isAdmin={isAdmin} />
+      )}
     </div>
   );
 }
