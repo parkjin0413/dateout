@@ -62,7 +62,7 @@ option {
 @media print {
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 20mm 12mm 12mm 12mm;
   }
 
   body * {
