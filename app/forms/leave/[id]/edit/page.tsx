@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getStampSignedUrl } from "@/lib/expense/stamp-image";
-import type { LeaveApprover } from "@/lib/leave/types";
+import { EMPTY_LEAVE_BALANCE_ENTRY, type LeaveApprover, type LeaveBalance } from "@/lib/leave/types";
 import LeaveForm from "@/components/main/forms/leave-form";
 import { updateLeaveRequest } from "../../actions";
 
@@ -40,6 +40,10 @@ export default async function EditLeaveRequestPage({ params }: Props) {
   const approvers = report.approvers as unknown as LeaveApprover[];
   const approverByOrder = (order: number) => approvers.find((a) => a.order === order)?.userId ?? "";
 
+  const rawBalance = report.leave_balance as unknown as Partial<LeaveBalance> | null;
+  const balanceAnnual = rawBalance?.annual ?? EMPTY_LEAVE_BALANCE_ENTRY;
+  const balanceSubstitute = rawBalance?.substitute ?? EMPTY_LEAVE_BALANCE_ENTRY;
+
   return (
     <LeaveForm
       mode="edit"
@@ -57,6 +61,10 @@ export default async function EditLeaveRequestPage({ params }: Props) {
         days: String(report.days),
         leaveType: report.leave_type,
         reason: report.reason,
+        substituteJobTitle: report.substitute_job_title,
+        substituteName: report.substitute_name,
+        balanceAnnual,
+        balanceSubstitute,
         approver1: approverByOrder(1),
         approver2: approverByOrder(2),
         approver3: approverByOrder(3),

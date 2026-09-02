@@ -26,20 +26,20 @@ export default async function LeaveRequestListPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#211D14]">연차신청서</h1>
-          <p className="mt-1 text-base text-[#6B6455]">{isAdmin ? "전체 직원이 작성한 연차신청서 목록입니다." : "내가 작성한 연차신청서 목록입니다."}</p>
+          <h1 className="text-3xl font-bold text-[#211D14]">휴가신청서</h1>
+          <p className="mt-1 text-base text-[#6B6455]">{isAdmin ? "전체 직원이 작성한 휴가신청서 목록입니다." : "내가 작성한 휴가신청서 목록입니다."}</p>
         </div>
         <Link
           href="/forms/leave/new"
           className="flex items-center rounded-xl bg-[#0F5C56] px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-[#0C4A45]"
         >
-          + 새 연차신청서
+          + 새 휴가신청서
         </Link>
       </div>
 
       {rows.length === 0 ? (
         <div className="rounded-2xl border border-[#E7E2D2] bg-white p-10 text-center text-base text-[#6B6455]">
-          작성한 연차신청서가 없습니다.
+          작성한 휴가신청서가 없습니다.
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white">

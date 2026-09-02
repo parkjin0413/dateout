@@ -9,14 +9,28 @@ import { useAuth } from "@/contexts/auth-context";
 import { FieldTripIcon } from "@/components/common/icons";
 import logo from "@/public/logo2.png";
 
-const NAV_LINKS = [
-  { label: "대시보드", href: "/dashboard", icon: "dashboard" },
-  { label: "외근계획표", href: "/field-trip", icon: "trip" },
-  { label: "연간 일정", href: "/schedule", icon: "calendar" },
-  { label: "업무 보고", href: "/report", icon: "report" },
-  { label: "고객관리", href: "/customers", icon: "customers" },
-  { label: "직원명부", href: "/directory", icon: "directory" },
-  { label: "양식 문서 작성", href: "/forms", icon: "forms" },
+const TOP_LINKS = [{ label: "대시보드", href: "/dashboard", icon: "dashboard" }] as const;
+
+const NAV_GROUPS = [
+  {
+    label: "업무",
+    links: [
+      { label: "외근계획표", href: "/field-trip", icon: "trip" },
+      { label: "업무 보고", href: "/report", icon: "report" },
+      { label: "연간 일정", href: "/schedule", icon: "calendar" },
+    ],
+  },
+  {
+    label: "조직",
+    links: [
+      { label: "직원명부", href: "/directory", icon: "directory" },
+      { label: "양식 문서 작성", href: "/forms", icon: "forms" },
+    ],
+  },
+  {
+    label: "고객",
+    links: [{ label: "고객관리", href: "/customers", icon: "customers" }],
+  },
 ] as const;
 
 const ADMIN_LINKS = [
@@ -24,7 +38,10 @@ const ADMIN_LINKS = [
   { label: "직원 관리", href: "/admin/employees", icon: "staff" },
 ] as const;
 
-type IconKind = (typeof NAV_LINKS)[number]["icon"] | (typeof ADMIN_LINKS)[number]["icon"];
+type IconKind =
+  | (typeof TOP_LINKS)[number]["icon"]
+  | (typeof NAV_GROUPS)[number]["links"][number]["icon"]
+  | (typeof ADMIN_LINKS)[number]["icon"];
 
 const NavIcon = ({ kind }: { kind: IconKind }) => {
   const common = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.75, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -123,8 +140,19 @@ const NavLinks = ({ pathname, onNavigate }: { pathname: string | null; onNavigat
 
   return (
     <nav className="flex flex-col gap-1 px-3">
-      {NAV_LINKS.map((link) => (
+      {TOP_LINKS.map((link) => (
         <NavLinkItem key={link.href} link={link} active={pathname === link.href} onNavigate={onNavigate} />
+      ))}
+
+      {NAV_GROUPS.map((group) => (
+        <div key={group.label}>
+          <div className="mb-1 mt-4 px-4 text-xs font-semibold uppercase tracking-wide text-[#B9B29B]">
+            {group.label}
+          </div>
+          {group.links.map((link) => (
+            <NavLinkItem key={link.href} link={link} active={pathname === link.href} onNavigate={onNavigate} />
+          ))}
+        </div>
       ))}
 
       {isAdmin && (

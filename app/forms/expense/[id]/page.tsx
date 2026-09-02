@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getStampSignedUrl } from "@/lib/expense/stamp-image";
-import type { ExpenseApprover, ExpenseItem, PaymentMethod } from "@/lib/expense/types";
+import type { ExpenseApprover, ExpenseConsultation, ExpenseItem } from "@/lib/expense/types";
 import ExpenseDocument from "@/components/main/forms/expense-document";
 
 type Props = {
@@ -41,8 +41,8 @@ export default async function ExpenseReportViewPage({ params }: Props) {
         content: report.content,
         items: report.items as unknown as ExpenseItem[],
         total_amount: report.total_amount,
-        payment_method: report.payment_method as PaymentMethod,
-        vendor_basis: report.vendor_basis,
+        consultations: report.consultations as unknown as ExpenseConsultation[],
+        instructions: report.instructions,
         attachment_types: report.attachment_types as unknown as string[],
         attachment_other: report.attachment_other,
         approvers: report.approvers as unknown as ExpenseApprover[],

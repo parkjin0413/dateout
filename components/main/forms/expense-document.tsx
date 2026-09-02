@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTransition } from "react";
 
-import type { ExpenseApprover, ExpenseItem, PaymentMethod } from "@/lib/expense/types";
+import type { ExpenseApprover, ExpenseConsultation, ExpenseItem } from "@/lib/expense/types";
 import { deleteExpenseReport } from "@/app/forms/expense/actions";
 import ExpensePaper from "./expense-paper";
 
@@ -19,8 +19,8 @@ type ReportData = {
   content: string;
   items: ExpenseItem[];
   total_amount: number;
-  payment_method: PaymentMethod;
-  vendor_basis: string;
+  consultations: ExpenseConsultation[];
+  instructions: string;
   attachment_types: string[];
   attachment_other: string;
   approvers: ExpenseApprover[];
@@ -85,8 +85,8 @@ const ExpenseDocument = ({ report, stampUrl, canManage }: Props) => {
         content={report.content}
         items={report.items}
         totalAmount={report.total_amount}
-        paymentMethod={report.payment_method}
-        vendorBasis={report.vendor_basis}
+        consultations={report.consultations}
+        instructions={report.instructions}
         approvers={report.approvers.map((a) => ({ order: a.order, name: a.name, jobTitle: a.jobTitle }))}
         attachmentTypes={report.attachment_types}
         attachmentOther={report.attachment_other}

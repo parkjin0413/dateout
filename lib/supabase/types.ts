@@ -149,6 +149,7 @@ export type Database = {
           attachment_other: string
           attachment_types: Json
           attachments: Json
+          consultations: Json
           content: string
           created_at: string
           department: string
@@ -157,18 +158,18 @@ export type Database = {
           drafter_id: string
           drafter_name: string
           id: string
+          instructions: string
           items: Json
-          payment_method: string
           title: string
           total_amount: number
           updated_at: string
-          vendor_basis: string
         }
         Insert: {
           approvers?: Json
           attachment_other?: string
           attachment_types?: Json
           attachments?: Json
+          consultations?: Json
           content?: string
           created_at?: string
           department?: string
@@ -177,18 +178,18 @@ export type Database = {
           drafter_id: string
           drafter_name: string
           id?: string
+          instructions?: string
           items?: Json
-          payment_method: string
           title: string
           total_amount?: number
           updated_at?: string
-          vendor_basis?: string
         }
         Update: {
           approvers?: Json
           attachment_other?: string
           attachment_types?: Json
           attachments?: Json
+          consultations?: Json
           content?: string
           created_at?: string
           department?: string
@@ -197,12 +198,11 @@ export type Database = {
           drafter_id?: string
           drafter_name?: string
           id?: string
+          instructions?: string
           items?: Json
-          payment_method?: string
           title?: string
           total_amount?: number
           updated_at?: string
-          vendor_basis?: string
         }
         Relationships: []
       }
@@ -275,9 +275,12 @@ export type Database = {
           drafter_name: string
           end_date: string
           id: string
+          leave_balance: Json
           leave_type: string
           reason: string
           start_date: string
+          substitute_job_title: string
+          substitute_name: string
           updated_at: string
         }
         Insert: {
@@ -291,9 +294,12 @@ export type Database = {
           drafter_name: string
           end_date: string
           id?: string
+          leave_balance?: Json
           leave_type: string
           reason?: string
           start_date: string
+          substitute_job_title?: string
+          substitute_name?: string
           updated_at?: string
         }
         Update: {
@@ -307,9 +313,12 @@ export type Database = {
           drafter_name?: string
           end_date?: string
           id?: string
+          leave_balance?: Json
           leave_type?: string
           reason?: string
           start_date?: string
+          substitute_job_title?: string
+          substitute_name?: string
           updated_at?: string
         }
         Relationships: []

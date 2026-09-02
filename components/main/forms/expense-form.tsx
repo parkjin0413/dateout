@@ -4,16 +4,18 @@ import { useActionState, useMemo, useState } from "react";
 import Link from "next/link";
 
 import type { ExpenseFormState } from "@/app/forms/expense/actions";
-import { ATTACHMENT_TYPES, PAYMENT_METHODS } from "@/lib/expense/types";
+import { ATTACHMENT_TYPES } from "@/lib/expense/types";
 import ExpensePaper from "./expense-paper";
 import { ApproverSelect, type Employee } from "./approver-select";
 
 const inputCls =
   "w-full rounded-lg border border-[#E7E2D2] bg-white px-3 py-2.5 text-base text-[#211D14] outline-none transition-colors focus:border-[#0F5C56]";
 
-type Row = { date: string; description: string; vendor: string; amount: string };
+const MAX_CONSULTATIONS = 3;
 
-const emptyRow = (date: string): Row => ({ date, description: "", vendor: "", amount: "" });
+type Row = { description: string; vendor: string; amount: string };
+
+const emptyRow = (): Row => ({ description: "", vendor: "", amount: "" });
 
 const formatAmount = (value: string) => {
   if (!value) return "";
@@ -35,11 +37,12 @@ type Props = {
     title: string;
     content: string;
     items: Row[];
-    paymentMethod: string;
-    vendorBasis: string;
+    consultations: string[];
+    instructions: string;
     approver1: string;
     approver2: string;
     approver3: string;
+    approver4: string;
     attachmentTypes: string[];
     attachmentOther: string;
   };
@@ -62,27 +65,32 @@ const ExpenseForm = ({
   const [draftedAtValue, setDraftedAtValue] = useState(draftedAt);
   const [title, setTitle] = useState(initial?.title ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
-  const [rows, setRows] = useState<Row[]>(initial?.items ?? [emptyRow(draftedAt)]);
-  const [paymentMethod, setPaymentMethod] = useState(initial?.paymentMethod ?? "");
-  const [vendorBasis, setVendorBasis] = useState(initial?.vendorBasis ?? "");
+  const [rows, setRows] = useState<Row[]>(initial?.items ?? [emptyRow()]);
+  const [consultations, setConsultations] = useState<string[]>(initial?.consultations ?? [""]);
+  const [instructions, setInstructions] = useState(initial?.instructions ?? "");
   const [attachmentTypes, setAttachmentTypes] = useState<string[]>(initial?.attachmentTypes ?? []);
   const [attachmentOther, setAttachmentOther] = useState(initial?.attachmentOther ?? "");
   const [approver1, setApprover1] = useState(initial?.approver1 ?? "");
   const [approver2, setApprover2] = useState(initial?.approver2 ?? "");
   const [approver3, setApprover3] = useState(initial?.approver3 ?? "");
+  const [approver4, setApprover4] = useState(initial?.approver4 ?? "");
 
   const total = useMemo(() => rows.reduce((sum, r) => sum + (Number(r.amount) || 0), 0), [rows]);
 
   const previewApprovers = useMemo(() => {
-    const ids = [approver1, approver2, approver3].filter(Boolean);
+    const ids = [approver1, approver2, approver3, approver4].filter(Boolean);
     return ids.map((id, i) => {
       const emp = employees.find((e) => e.id === id);
       return { order: i + 1, name: emp?.name ?? "", jobTitle: emp?.job_title ?? "" };
     });
-  }, [approver1, approver2, approver3, employees]);
+  }, [approver1, approver2, approver3, approver4, employees]);
 
   const updateRow = (index: number, patch: Partial<Row>) => {
     setRows((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  };
+
+  const updateConsultation = (index: number, value: string) => {
+    setConsultations((prev) => prev.map((c, i) => (i === index ? value : c)));
   };
 
   const toggleAttachmentType = (type: string) => {
@@ -92,7 +100,7 @@ const ExpenseForm = ({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[#211D14]">{mode === "create" ? "지출결의서 작성" : "지출결의서 수정"}</h1>
+        <h1 className="text-3xl font-bold text-[#211D14]">{mode === "create" ? "품의서 작성" : "품의서 수정"}</h1>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
@@ -134,13 +142,17 @@ const ExpenseForm = ({
 
           <div>
             <label className="mb-1.5 block text-base font-medium text-[#4B4739]">내용</label>
+            <div className="mb-2 rounded-lg border border-dashed border-[#E7E2D2] bg-[#FAF8F0] px-3 py-2.5 text-center text-sm text-[#6B6455]">
+              <p>아래와 같이 (보고, 지급)하고자 하오니 재가하여 주시기 바랍니다.</p>
+              <p className="mt-1.5 font-semibold tracking-widest">◈ 아 래 ◈</p>
+            </div>
             <textarea
               name="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              rows={3}
+              rows={6}
               required
-              placeholder="이 지출결의서를 올리는 이유를 적어주세요."
+              placeholder="이 품의서의 세부 내용을 입력해주세요."
               className={inputCls}
             />
           </div>
@@ -150,7 +162,7 @@ const ExpenseForm = ({
               <label className="block text-base font-medium text-[#4B4739]">지출 항목</label>
               <button
                 type="button"
-                onClick={() => setRows((prev) => [...prev, emptyRow(draftedAtValue)])}
+                onClick={() => setRows((prev) => [...prev, emptyRow()])}
                 className="rounded-lg border border-[#E7E2D2] px-3 py-1.5 text-sm font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
               >
                 + 항목 추가
@@ -159,15 +171,7 @@ const ExpenseForm = ({
 
             <div className="space-y-3">
               {rows.map((row, i) => (
-                <div key={i} className="grid grid-cols-1 gap-2 rounded-xl border border-[#E7E2D2] p-3 sm:grid-cols-[140px_1fr_1fr_140px_auto]">
-                  <input
-                    type="date"
-                    name="item_date"
-                    value={row.date}
-                    onChange={(e) => updateRow(i, { date: e.target.value })}
-                    required
-                    className={inputCls}
-                  />
+                <div key={i} className="grid grid-cols-1 gap-2 rounded-xl border border-[#E7E2D2] p-3 sm:grid-cols-[1fr_1fr_140px_auto]">
                   <input
                     type="text"
                     name="item_description"
@@ -213,34 +217,50 @@ const ExpenseForm = ({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-base font-medium text-[#4B4739]">결제방법</label>
-            <select
-              name="payment_method"
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              required
-              className={inputCls}
-            >
-              <option value="" disabled>
-                선택
-              </option>
-              {PAYMENT_METHODS.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
+            <div className="mb-2 flex items-center justify-between">
+              <label className="block text-base font-medium text-[#4B4739]">협의처 (선택, 최대 {MAX_CONSULTATIONS}개)</label>
+              <button
+                type="button"
+                onClick={() => setConsultations((prev) => (prev.length < MAX_CONSULTATIONS ? [...prev, ""] : prev))}
+                disabled={consultations.length >= MAX_CONSULTATIONS}
+                className="rounded-lg border border-[#E7E2D2] px-3 py-1.5 text-sm font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                + 협의처 추가
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {consultations.map((c, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    name="consultation_department"
+                    value={c}
+                    onChange={(e) => updateConsultation(i, e.target.value)}
+                    placeholder="협의가 필요한 부서"
+                    className={inputCls}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setConsultations((prev) => (prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev))}
+                    disabled={consultations.length === 1}
+                    className="shrink-0 rounded-lg border border-[#E7E2D2] px-3 py-2.5 text-sm text-[#8A8270] transition-colors hover:bg-[#F5F3EA] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    삭제
+                  </button>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-base font-medium text-[#4B4739]">선정 기준</label>
+            <label className="mb-1.5 block text-base font-medium text-[#4B4739]">지시사항 (선택)</label>
             <textarea
-              name="vendor_basis"
-              value={vendorBasis}
-              onChange={(e) => setVendorBasis(e.target.value)}
-              rows={3}
-              required
-              placeholder="거래처/견적 선정 근거 (예: 최저가 3사 비교, 기존 거래처 등)"
+              name="instructions"
+              value={instructions}
+              onChange={(e) => setInstructions(e.target.value)}
+              rows={2}
+              placeholder="결재권자의 지시사항이 있다면 입력하세요."
               className={inputCls}
             />
           </div>
@@ -281,15 +301,17 @@ const ExpenseForm = ({
 
           <div>
             <label className="mb-2 block text-base font-medium text-[#4B4739]">결재선</label>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <ApproverSelect label="1차 결재자" employees={employees} value={approver1} onChange={setApprover1} required />
               <ApproverSelect label="2차 결재자 (선택)" employees={employees} value={approver2} onChange={setApprover2} />
               <ApproverSelect label="3차 결재자 (선택)" employees={employees} value={approver3} onChange={setApprover3} />
+              <ApproverSelect label="4차 결재자 (선택)" employees={employees} value={approver4} onChange={setApprover4} />
             </div>
             {/* select 태그가 name 없이 렌더링되므로 실제 제출용 hidden input을 별도로 둔다 */}
             <input type="hidden" name="approver_1" value={approver1} />
             <input type="hidden" name="approver_2" value={approver2} />
             <input type="hidden" name="approver_3" value={approver3} />
+            <input type="hidden" name="approver_4" value={approver4} />
           </div>
 
           {state?.error && <p className="text-base text-red-600">{state.error}</p>}
@@ -319,10 +341,10 @@ const ExpenseForm = ({
             content={content}
             items={rows
               .filter((r) => r.description || r.amount)
-              .map((r) => ({ date: r.date, description: r.description, vendor: r.vendor, amount: Number(r.amount) || 0 }))}
+              .map((r) => ({ description: r.description, vendor: r.vendor, amount: Number(r.amount) || 0 }))}
             totalAmount={total}
-            paymentMethod={paymentMethod}
-            vendorBasis={vendorBasis}
+            consultations={consultations.filter(Boolean).map((department) => ({ department }))}
+            instructions={instructions}
             approvers={previewApprovers}
             attachmentTypes={attachmentTypes}
             attachmentOther={attachmentOther}

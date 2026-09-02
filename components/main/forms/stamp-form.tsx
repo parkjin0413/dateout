@@ -17,7 +17,7 @@ const StampForm = ({ stampUrl }: Props) => {
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-[#211D14]">내 도장 등록</h1>
         <p className="mt-1 text-base text-[#6B6455]">
-          등록해두면 지출결의서를 인쇄할 때 기안자 결재란에 자동으로 도장이 들어갑니다.
+          등록해두면 품의서를 인쇄할 때 기안자 결재란에 자동으로 도장이 들어갑니다.
         </p>
       </div>
 

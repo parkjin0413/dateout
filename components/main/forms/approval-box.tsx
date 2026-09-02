@@ -24,4 +24,26 @@ export const ApprovalBox = ({
   </div>
 );
 
+// 품의서 결재란 전용: 하단 직급 줄 없이 상단에 직급/역할을 바로 표시하는 2단 구성
+export const ApprovalBoxTop = ({
+  label,
+  name,
+  stampUrl,
+}: {
+  label: string;
+  name: string;
+  stampUrl?: string | null;
+}) => (
+  <div className="flex w-20 flex-col text-center sm:w-24">
+    <div className="border border-[#211D14] bg-[#F5F3EA] py-1 text-[10px] font-medium text-[#4B4739] sm:text-xs">{label || " "}</div>
+    <div className="relative flex h-16 items-center justify-center border border-t-0 border-[#211D14] bg-white sm:h-20">
+      {stampUrl && (
+        // eslint-disable-next-line @next/next/no-img-element -- 비공개 버킷 서명 URL
+        <img src={stampUrl} alt="도장" className="absolute h-12 w-12 object-contain opacity-90 sm:h-14 sm:w-14" />
+      )}
+      <span className="relative text-xs font-normal text-[#211D14]/15 sm:text-sm">{name || " "}</span>
+    </div>
+  </div>
+);
+
 export default ApprovalBox;

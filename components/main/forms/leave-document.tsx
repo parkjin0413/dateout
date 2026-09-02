@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTransition } from "react";
 
-import type { LeaveApprover, LeaveType } from "@/lib/leave/types";
+import type { LeaveApprover, LeaveBalance, LeaveType } from "@/lib/leave/types";
 import { deleteLeaveRequest } from "@/app/forms/leave/actions";
 import LeavePaper from "./leave-paper";
 
@@ -20,6 +20,9 @@ type ReportData = {
   days: number;
   leave_type: LeaveType;
   reason: string;
+  substitute_job_title: string;
+  substitute_name: string;
+  leave_balance: LeaveBalance;
   approvers: LeaveApprover[];
 };
 
@@ -83,6 +86,9 @@ const LeaveDocument = ({ report, stampUrl, canManage }: Props) => {
         days={report.days}
         leaveType={report.leave_type}
         reason={report.reason}
+        substituteJobTitle={report.substitute_job_title}
+        substituteName={report.substitute_name}
+        leaveBalance={report.leave_balance}
         approvers={report.approvers.map((a) => ({ order: a.order, name: a.name, jobTitle: a.jobTitle }))}
         stampUrl={stampUrl}
       />

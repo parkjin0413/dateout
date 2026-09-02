@@ -6,8 +6,24 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isValidDate } from "@/lib/date-kst";
 import { generateDocNumber } from "@/lib/leave/doc-number";
-import { LEAVE_TYPES, type LeaveApprover } from "@/lib/leave/types";
+import { LEAVE_TYPES, type LeaveApprover, type LeaveBalance, type LeaveBalanceEntry } from "@/lib/leave/types";
 import { writeLog } from "@/lib/logs";
+
+function readBalanceEntry(formData: FormData, prefix: string): LeaveBalanceEntry {
+  return {
+    total: String(formData.get(`${prefix}_total`) ?? "").trim(),
+    priorUsed: String(formData.get(`${prefix}_prior`) ?? "").trim(),
+    used: String(formData.get(`${prefix}_used`) ?? "").trim(),
+    remaining: String(formData.get(`${prefix}_remaining`) ?? "").trim(),
+  };
+}
+
+function readLeaveBalance(formData: FormData): LeaveBalance {
+  return {
+    annual: readBalanceEntry(formData, "balance_annual"),
+    substitute: readBalanceEntry(formData, "balance_substitute"),
+  };
+}
 
 async function getViewer() {
   const supabase = await createClient();
@@ -65,6 +81,9 @@ type ParsedFields = {
   days: number;
   leaveType: string;
   reason: string;
+  substituteJobTitle: string;
+  substituteName: string;
+  leaveBalance: LeaveBalance;
 };
 
 function parseFields(formData: FormData): ParsedFields | { error: string } {
@@ -87,7 +106,11 @@ function parseFields(formData: FormData): ParsedFields | { error: string } {
   const reason = String(formData.get("reason") ?? "").trim();
   if (!reason) return { error: "휴가 사유를 입력해주세요." };
 
-  return { draftedAt, startDate, endDate, days, leaveType, reason };
+  const substituteJobTitle = String(formData.get("substitute_job_title") ?? "").trim();
+  const substituteName = String(formData.get("substitute_name") ?? "").trim();
+  const leaveBalance = readLeaveBalance(formData);
+
+  return { draftedAt, startDate, endDate, days, leaveType, reason, substituteJobTitle, substituteName, leaveBalance };
 }
 
 export async function createLeaveRequest(_prevState: LeaveFormState, formData: FormData): Promise<LeaveFormState> {
@@ -115,6 +138,9 @@ export async function createLeaveRequest(_prevState: LeaveFormState, formData: F
       days: parsed.days,
       leave_type: parsed.leaveType,
       reason: parsed.reason,
+      substitute_job_title: parsed.substituteJobTitle,
+      substitute_name: parsed.substituteName,
+      leave_balance: parsed.leaveBalance,
       approvers,
     })
     .select("id")
@@ -125,7 +151,7 @@ export async function createLeaveRequest(_prevState: LeaveFormState, formData: F
   await writeLog({
     level: "info",
     action: "CREATE_LEAVE_REQUEST",
-    message: `${actorName}님이 연차신청서를 작성했습니다: ${parsed.startDate} ~ ${parsed.endDate}`,
+    message: `${actorName}님이 휴가신청서를 작성했습니다: ${parsed.startDate} ~ ${parsed.endDate}`,
     actorId: userId,
     actorName,
   });
@@ -160,6 +186,9 @@ export async function updateLeaveRequest(
       days: parsed.days,
       leave_type: parsed.leaveType,
       reason: parsed.reason,
+      substitute_job_title: parsed.substituteJobTitle,
+      substitute_name: parsed.substituteName,
+      leave_balance: parsed.leaveBalance,
       approvers,
       updated_at: new Date().toISOString(),
     })
@@ -170,7 +199,7 @@ export async function updateLeaveRequest(
   await writeLog({
     level: "info",
     action: "UPDATE_LEAVE_REQUEST",
-    message: `${actorName}님이 연차신청서를 수정했습니다: ${parsed.startDate} ~ ${parsed.endDate}`,
+    message: `${actorName}님이 휴가신청서를 수정했습니다: ${parsed.startDate} ~ ${parsed.endDate}`,
     actorId: userId,
     actorName,
   });
@@ -191,7 +220,7 @@ export async function deleteLeaveRequest(id: string): Promise<void> {
     await writeLog({
       level: "info",
       action: "DELETE_LEAVE_REQUEST",
-      message: `${actorName}님이 연차신청서를 삭제했습니다: ${existing.start_date} ~ ${existing.end_date}`,
+      message: `${actorName}님이 휴가신청서를 삭제했습니다: ${existing.start_date} ~ ${existing.end_date}`,
       actorId: userId,
       actorName,
     });

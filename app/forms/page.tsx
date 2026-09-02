@@ -5,13 +5,13 @@ import { createClient } from "@/lib/supabase/server";
 
 const DOC_TYPES = [
   {
-    label: "지출결의서",
-    description: "지출 내역과 금액을 정리해 결재를 받는 문서",
+    label: "품의서",
+    description: "지출 내역과 안건을 정리해 결재를 받는 문서",
     href: "/forms/expense",
     available: true,
   },
   {
-    label: "연차신청서",
+    label: "휴가신청서",
     description: "휴가기간과 사유를 정리해 결재를 받는 문서",
     href: "/forms/leave",
     available: true,

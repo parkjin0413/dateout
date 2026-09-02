@@ -1,8 +1,11 @@
 export type ExpenseItem = {
-  date: string;
   description: string;
   vendor: string;
   amount: number;
+};
+
+export type ExpenseConsultation = {
+  department: string;
 };
 
 export type ExpenseApprover = {
@@ -11,9 +14,6 @@ export type ExpenseApprover = {
   name: string;
   jobTitle: string;
 };
-
-export const PAYMENT_METHODS = ["법인카드", "개인카드(후결제)", "계좌이체", "현금", "기타"] as const;
-export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 // 증빙 서류는 업로드하지 않고 인쇄물 뒤에 별도로 첨부하는 방식이라,
 // 실제 첨부할 서류 종류를 체크리스트로만 표시한다. 각 항목은 서로 독립적으로
@@ -40,8 +40,8 @@ export type ExpenseReport = {
   content: string;
   items: ExpenseItem[];
   total_amount: number;
-  payment_method: PaymentMethod;
-  vendor_basis: string;
+  consultations: ExpenseConsultation[];
+  instructions: string;
   attachment_types: AttachmentType[];
   attachment_other: string;
   approvers: ExpenseApprover[];

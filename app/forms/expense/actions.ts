@@ -6,7 +6,13 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isValidDate } from "@/lib/date-kst";
 import { generateDocNumber } from "@/lib/expense/doc-number";
-import { ATTACHMENT_TYPES, PAYMENT_METHODS, type AttachmentType, type ExpenseApprover, type ExpenseItem } from "@/lib/expense/types";
+import {
+  ATTACHMENT_TYPES,
+  type AttachmentType,
+  type ExpenseApprover,
+  type ExpenseConsultation,
+  type ExpenseItem,
+} from "@/lib/expense/types";
 import { writeLog } from "@/lib/logs";
 
 async function getViewer() {
@@ -18,7 +24,7 @@ async function getViewer() {
 
   const { data: profile } = await supabase
     .from("users")
-    .select("name, department, is_admin, phone")
+    .select("name, department, is_admin")
     .eq("id", user.id)
     .single();
 
@@ -28,22 +34,20 @@ async function getViewer() {
     actorName: profile?.name ?? user.email ?? "알 수 없음",
     department: profile?.department ?? "",
     isAdmin: profile?.is_admin ?? false,
-    phone: profile?.phone ?? null,
   };
 }
 
 function readItems(formData: FormData): ExpenseItem[] {
-  const dates = formData.getAll("item_date").map(String);
   const descriptions = formData.getAll("item_description").map(String);
   const vendors = formData.getAll("item_vendor").map(String);
   const amounts = formData.getAll("item_amount").map(String);
 
   const items: ExpenseItem[] = [];
-  for (let i = 0; i < dates.length; i++) {
+  for (let i = 0; i < descriptions.length; i++) {
     const description = descriptions[i]?.trim() ?? "";
     const amount = Number(amounts[i]?.replace(/,/g, ""));
-    if (!dates[i] || !description || !Number.isFinite(amount) || amount <= 0) continue;
-    items.push({ date: dates[i], description, vendor: vendors[i]?.trim() ?? "", amount });
+    if (!description || !Number.isFinite(amount) || amount <= 0) continue;
+    items.push({ description, vendor: vendors[i]?.trim() ?? "", amount });
   }
   return items;
 }
@@ -53,12 +57,21 @@ function readAttachmentTypes(formData: FormData): AttachmentType[] {
   return ATTACHMENT_TYPES.filter((t) => values.includes(t));
 }
 
+function readConsultations(formData: FormData): ExpenseConsultation[] {
+  const departments = formData.getAll("consultation_department").map(String);
+  return departments
+    .map((d) => d.trim())
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((department) => ({ department }));
+}
+
 async function readApprovers(
   supabase: Awaited<ReturnType<typeof getViewer>>["supabase"],
   formData: FormData,
   drafterId: string
 ): Promise<ExpenseApprover[] | { error: string }> {
-  const ids = [1, 2, 3]
+  const ids = [1, 2, 3, 4]
     .map((n) => String(formData.get(`approver_${n}`) ?? "").trim())
     .filter((id) => id.length > 0);
   if (ids.length === 0) return [];
@@ -84,9 +97,9 @@ type ParsedFields = {
   draftedAt: string;
   content: string;
   items: ExpenseItem[];
-  paymentMethod: string;
-  vendorBasis: string;
   totalAmount: number;
+  consultations: ExpenseConsultation[];
+  instructions: string;
   attachmentTypes: AttachmentType[];
   attachmentOther: string;
 };
@@ -104,23 +117,17 @@ function parseFields(formData: FormData): ParsedFields | { error: string } {
   const items = readItems(formData);
   if (items.length === 0) return { error: "지출 항목을 1건 이상 입력해주세요." };
 
-  const paymentMethod = String(formData.get("payment_method") ?? "");
-  if (!PAYMENT_METHODS.includes(paymentMethod as (typeof PAYMENT_METHODS)[number])) {
-    return { error: "결제방법을 선택해주세요." };
-  }
-
-  const vendorBasis = String(formData.get("vendor_basis") ?? "").trim();
-  if (!vendorBasis) return { error: "선정 기준을 입력해주세요." };
-
   const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
+  const consultations = readConsultations(formData);
+  const instructions = String(formData.get("instructions") ?? "").trim();
   const attachmentTypes = readAttachmentTypes(formData);
   const attachmentOther = String(formData.get("attachment_other") ?? "").trim();
 
-  return { title, draftedAt, content, items, paymentMethod, vendorBasis, totalAmount, attachmentTypes, attachmentOther };
+  return { title, draftedAt, content, items, totalAmount, consultations, instructions, attachmentTypes, attachmentOther };
 }
 
 export async function createExpenseReport(_prevState: ExpenseFormState, formData: FormData): Promise<ExpenseFormState> {
-  const { supabase, userId, actorName, department, phone } = await getViewer();
+  const { supabase, userId, actorName, department } = await getViewer();
 
   const parsed = parseFields(formData);
   if ("error" in parsed) return parsed;
@@ -129,7 +136,7 @@ export async function createExpenseReport(_prevState: ExpenseFormState, formData
   if ("error" in approvers) return approvers;
   if (approvers.length < 1) return { error: "결재자를 1명 이상 지정해주세요." };
 
-  const docNumber = await generateDocNumber(supabase, userId, phone);
+  const docNumber = await generateDocNumber(supabase, department, parsed.draftedAt);
 
   const { data: inserted, error } = await supabase
     .from("expense_reports")
@@ -143,8 +150,8 @@ export async function createExpenseReport(_prevState: ExpenseFormState, formData
       content: parsed.content,
       items: parsed.items,
       total_amount: parsed.totalAmount,
-      payment_method: parsed.paymentMethod,
-      vendor_basis: parsed.vendorBasis,
+      consultations: parsed.consultations,
+      instructions: parsed.instructions,
       attachment_types: parsed.attachmentTypes,
       attachment_other: parsed.attachmentOther,
       approvers,
@@ -157,7 +164,7 @@ export async function createExpenseReport(_prevState: ExpenseFormState, formData
   await writeLog({
     level: "info",
     action: "CREATE_EXPENSE_REPORT",
-    message: `${actorName}님이 지출결의서를 작성했습니다: ${parsed.title}`,
+    message: `${actorName}님이 품의서를 작성했습니다: ${parsed.title}`,
     actorId: userId,
     actorName,
   });
@@ -191,8 +198,8 @@ export async function updateExpenseReport(
       content: parsed.content,
       items: parsed.items,
       total_amount: parsed.totalAmount,
-      payment_method: parsed.paymentMethod,
-      vendor_basis: parsed.vendorBasis,
+      consultations: parsed.consultations,
+      instructions: parsed.instructions,
       attachment_types: parsed.attachmentTypes,
       attachment_other: parsed.attachmentOther,
       approvers,
@@ -205,7 +212,7 @@ export async function updateExpenseReport(
   await writeLog({
     level: "info",
     action: "UPDATE_EXPENSE_REPORT",
-    message: `${actorName}님이 지출결의서를 수정했습니다: ${parsed.title}`,
+    message: `${actorName}님이 품의서를 수정했습니다: ${parsed.title}`,
     actorId: userId,
     actorName,
   });
@@ -226,7 +233,7 @@ export async function deleteExpenseReport(id: string): Promise<void> {
     await writeLog({
       level: "info",
       action: "DELETE_EXPENSE_REPORT",
-      message: `${actorName}님이 지출결의서를 삭제했습니다: ${existing.title}`,
+      message: `${actorName}님이 품의서를 삭제했습니다: ${existing.title}`,
       actorId: userId,
       actorName,
     });

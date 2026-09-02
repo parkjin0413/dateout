@@ -15,7 +15,7 @@ export default async function ExpenseReportListPage() {
 
   let query = supabase
     .from("expense_reports")
-    .select("id, doc_number, title, drafted_at, total_amount, payment_method, drafter_name")
+    .select("id, doc_number, title, drafted_at, total_amount, drafter_name")
     .order("created_at", { ascending: false });
   if (!isAdmin) query = query.eq("drafter_id", user.id);
   const { data: reports } = await query;
@@ -26,20 +26,20 @@ export default async function ExpenseReportListPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#211D14]">지출결의서</h1>
-          <p className="mt-1 text-base text-[#6B6455]">{isAdmin ? "전체 직원이 작성한 지출결의서 목록입니다." : "내가 작성한 지출결의서 목록입니다."}</p>
+          <h1 className="text-3xl font-bold text-[#211D14]">품의서</h1>
+          <p className="mt-1 text-base text-[#6B6455]">{isAdmin ? "전체 직원이 작성한 품의서 목록입니다." : "내가 작성한 품의서 목록입니다."}</p>
         </div>
         <Link
           href="/forms/expense/new"
           className="flex items-center rounded-xl bg-[#0F5C56] px-5 py-3 text-base font-semibold text-white transition-colors hover:bg-[#0C4A45]"
         >
-          + 새 지출결의서
+          + 새 품의서
         </Link>
       </div>
 
       {rows.length === 0 ? (
         <div className="rounded-2xl border border-[#E7E2D2] bg-white p-10 text-center text-base text-[#6B6455]">
-          작성한 지출결의서가 없습니다.
+          작성한 품의서가 없습니다.
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white">
@@ -51,7 +51,6 @@ export default async function ExpenseReportListPage() {
                 <th className="px-5 py-3 font-medium">건명</th>
                 <th className="px-5 py-3 font-medium">기안일</th>
                 <th className="px-5 py-3 font-medium">금액</th>
-                <th className="px-5 py-3 font-medium">결제방법</th>
               </tr>
             </thead>
             <tbody>
@@ -66,7 +65,6 @@ export default async function ExpenseReportListPage() {
                   <td className="px-5 py-3 text-[#211D14]">{r.title}</td>
                   <td className="px-5 py-3 text-[#4B4739]">{r.drafted_at}</td>
                   <td className="px-5 py-3 text-[#211D14]">{r.total_amount.toLocaleString("ko-KR")}원</td>
-                  <td className="px-5 py-3 text-[#4B4739]">{r.payment_method}</td>
                 </tr>
               ))}
             </tbody>

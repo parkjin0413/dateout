@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getStampSignedUrl } from "@/lib/expense/stamp-image";
-import type { LeaveApprover, LeaveType } from "@/lib/leave/types";
+import { EMPTY_LEAVE_BALANCE_ENTRY, type LeaveApprover, type LeaveBalance, type LeaveType } from "@/lib/leave/types";
 import LeaveDocument from "@/components/main/forms/leave-document";
 
 type Props = {
@@ -27,6 +27,12 @@ export default async function LeaveRequestViewPage({ params }: Props) {
   const { data: drafter } = await supabase.from("users").select("job_title, stamp_path").eq("id", report.drafter_id).single();
   const stampUrl = await getStampSignedUrl(supabase, drafter?.stamp_path ?? null);
 
+  const rawBalance = report.leave_balance as unknown as Partial<LeaveBalance> | null;
+  const leaveBalance: LeaveBalance = {
+    annual: rawBalance?.annual ?? EMPTY_LEAVE_BALANCE_ENTRY,
+    substitute: rawBalance?.substitute ?? EMPTY_LEAVE_BALANCE_ENTRY,
+  };
+
   return (
     <LeaveDocument
       report={{
@@ -42,6 +48,9 @@ export default async function LeaveRequestViewPage({ params }: Props) {
         days: report.days,
         leave_type: report.leave_type as LeaveType,
         reason: report.reason,
+        substitute_job_title: report.substitute_job_title,
+        substitute_name: report.substitute_name,
+        leave_balance: leaveBalance,
         approvers: report.approvers as unknown as LeaveApprover[],
       }}
       stampUrl={stampUrl}

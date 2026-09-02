@@ -1,6 +1,8 @@
-import { ApprovalBox, type PaperApprover } from "./approval-box";
+import { ApprovalBoxTop, type PaperApprover } from "./approval-box";
 
 export type { PaperApprover };
+
+const MAX_CONSULTATIONS = 3;
 
 export type ExpensePaperProps = {
   docNumber?: string;
@@ -10,15 +12,27 @@ export type ExpensePaperProps = {
   draftedAt: string;
   title: string;
   content: string;
-  items: { date: string; description: string; vendor: string; amount: number }[];
+  items: { description: string; vendor: string; amount: number }[];
   totalAmount: number;
-  paymentMethod: string;
-  vendorBasis: string;
+  consultations: { department: string }[];
+  instructions: string;
   approvers: PaperApprover[];
   attachmentTypes: string[];
   attachmentOther: string;
   stampUrl?: string | null;
 };
+
+const th = "border border-[#211D14] bg-[#F5F3EA] px-3 py-2 text-center font-medium";
+const td = "border border-[#211D14] px-3 py-2 text-center";
+// 협의처 구역 시작을 알리는 얇은 이중 구분선(좌측 테두리)
+const consultationDivider = "border-l-4 [border-left-style:double]";
+
+const ApprovalLabel = () => (
+  <div className="flex w-6 flex-col items-center justify-center gap-1 border border-[#211D14] text-xs font-medium sm:w-7 sm:text-sm">
+    <span>결</span>
+    <span>재</span>
+  </div>
+);
 
 const ExpensePaper = ({
   docNumber,
@@ -30,105 +44,126 @@ const ExpensePaper = ({
   content,
   items,
   totalAmount,
-  paymentMethod,
-  vendorBasis,
+  consultations,
+  instructions,
   approvers,
   attachmentTypes,
   attachmentOther,
   stampUrl,
 }: ExpensePaperProps) => {
+  const consultationRows = Array.from({ length: MAX_CONSULTATIONS }, (_, i) => consultations[i]?.department ?? "");
+
   return (
     <div className="print-sheet mx-auto w-full max-w-3xl border border-[#E7E2D2] bg-white p-6 text-[#211D14] sm:p-10">
-      <div className="mb-6 flex items-start justify-between gap-3">
-        <div>
-          <div className="mb-2 flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element -- 인쇄 캡처 안정성을 위해 next/image 대신 일반 img 사용 */}
-            <img src="/logo2.png" alt="강산이엔지" className="h-7 w-7" />
-            <span className="text-sm font-bold tracking-tight">강산이엔지</span>
-          </div>
-          <h1 className="text-xl font-bold tracking-widest sm:text-2xl">지 출 결 의 서</h1>
-          {docNumber && <p className="mt-1 text-sm text-[#8A8270]">문서번호 {docNumber}</p>}
+      <div className="mb-6 flex items-center gap-3">
+        <div className="flex flex-1 justify-center overflow-hidden">
+          <h1 className="whitespace-nowrap text-3xl font-bold tracking-widest sm:text-4xl">품 의 서</h1>
         </div>
-        <div className="flex shrink-0">
-          <ApprovalBox label="담당" name={drafterName} jobTitle={drafterJobTitle ?? ""} stampUrl={stampUrl} />
-          {approvers.map((a, i) => {
-            const isFinal = i === approvers.length - 1;
-            return <ApprovalBox key={a.order} label={isFinal ? "최종 결재" : `${i + 1}차 결재`} name={a.name} jobTitle={a.jobTitle} />;
-          })}
+        <div className="flex shrink-0 items-stretch">
+          <ApprovalLabel />
+          <ApprovalBoxTop label="담당" name={drafterName} stampUrl={stampUrl} />
+          {approvers.map((a) => (
+            <ApprovalBoxTop key={a.order} label={a.jobTitle} name={a.name} />
+          ))}
         </div>
       </div>
 
+      {/* 문서정보 + 협의처/날인/협의·검토사항: 원본 양식과 동일하게 한 표 안에서 나란히 배치 */}
       <table className="mb-6 w-full border-collapse text-xs sm:text-sm">
         <tbody>
           <tr>
-            <th className="w-20 border border-[#211D14] bg-[#F5F3EA] px-3 py-2 text-left font-medium sm:w-24">기안자</th>
-            <td className="border border-[#211D14] px-3 py-2">{drafterName}</td>
-            <th className="w-20 border border-[#211D14] bg-[#F5F3EA] px-3 py-2 text-left font-medium sm:w-24">부서</th>
-            <td className="border border-[#211D14] px-3 py-2">{department || "-"}</td>
-          </tr>
-          <tr>
-            <th className="border border-[#211D14] bg-[#F5F3EA] px-3 py-2 text-left font-medium">기안일</th>
-            <td className="border border-[#211D14] px-3 py-2">{draftedAt}</td>
-            <th className="border border-[#211D14] bg-[#F5F3EA] px-3 py-2 text-left font-medium">결제방법</th>
-            <td className="border border-[#211D14] px-3 py-2">{paymentMethod || "-"}</td>
-          </tr>
-          <tr>
-            <th className="border border-[#211D14] bg-[#F5F3EA] px-3 py-2 text-left font-medium">제목</th>
-            <td colSpan={3} className="border border-[#211D14] px-3 py-2">
-              {title || "-"}
+            <th className={`w-20 sm:w-24 ${th}`}>문서번호</th>
+            <td colSpan={3} className={td}>
+              {docNumber ?? "-"}
             </td>
+            <th className={`w-24 sm:w-28 ${th} ${consultationDivider}`}>협의처</th>
+            <th className={`w-14 sm:w-16 ${th}`}>날인</th>
+            <th className={th}>협의/검토사항</th>
           </tr>
           <tr>
-            <th className="border border-[#211D14] bg-[#F5F3EA] px-3 py-2 text-left align-top font-medium">내용</th>
-            <td colSpan={3} className="whitespace-pre-wrap border border-[#211D14] px-3 py-2 align-top">
-              <div className="min-h-[120px]">{content || "-"}</div>
+            <th className={th}>기안일자</th>
+            <td colSpan={3} className={td}>
+              {draftedAt}
+            </td>
+            <td className={`${td} ${consultationDivider}`}>{consultationRows[0]}</td>
+            <td className={td}>&nbsp;</td>
+            <td className={td}>&nbsp;</td>
+          </tr>
+          <tr>
+            <th className={th}>기안부서</th>
+            <td className={td}>{department || "-"}</td>
+            <th className={`w-14 sm:w-16 ${th}`}>직급</th>
+            <td className={td}>{drafterJobTitle || "-"}</td>
+            <td className={`${td} ${consultationDivider}`}>{consultationRows[1]}</td>
+            <td className={td}>&nbsp;</td>
+            <td className={td}>&nbsp;</td>
+          </tr>
+          <tr>
+            <th className={th}>기 안 자</th>
+            <td colSpan={3} className={td}>
+              {drafterName}
+            </td>
+            <td className={`${td} ${consultationDivider}`}>{consultationRows[2]}</td>
+            <td className={td}>&nbsp;</td>
+            <td className={td}>&nbsp;</td>
+          </tr>
+          <tr>
+            <th className={th}>제 목</th>
+            <td colSpan={6} className={td}>
+              {title || "-"}
             </td>
           </tr>
         </tbody>
       </table>
 
-      <table className="mb-2 w-full border-collapse text-xs sm:text-sm">
+      <div className="mb-6 min-h-[160px] border border-[#211D14] px-4 py-5">
+        <p className="text-center text-xs sm:text-sm">아래와 같이 (보고, 지급)하고자 하오니 재가하여 주시기 바랍니다.</p>
+        <p className="mt-3 text-center text-sm font-semibold tracking-widest sm:text-base">◈ 아 래 ◈</p>
+        <div className="mt-4 whitespace-pre-wrap text-xs sm:text-sm">{content}</div>
+      </div>
+
+      <table className="mb-6 w-full border-collapse text-xs sm:text-sm">
         <thead>
-          <tr className="bg-[#F5F3EA]">
-            <th className="border border-[#211D14] px-3 py-2">일자</th>
-            <th className="border border-[#211D14] px-3 py-2">품목</th>
-            <th className="border border-[#211D14] px-3 py-2">거래처</th>
-            <th className="border border-[#211D14] px-3 py-2">금액</th>
+          <tr>
+            <th className={th}>품목</th>
+            <th className={th}>거래처</th>
+            <th className={th}>금액</th>
           </tr>
         </thead>
         <tbody>
           {items.length === 0 ? (
             <tr>
-              <td colSpan={4} className="border border-[#211D14] px-3 py-4 text-center text-[#8A8270]">
+              <td colSpan={3} className="border border-[#211D14] px-3 py-4 text-center text-[#8A8270]">
                 지출 항목을 입력해주세요.
               </td>
             </tr>
           ) : (
             items.map((item, i) => (
               <tr key={i}>
-                <td className="border border-[#211D14] px-3 py-2 text-center">{item.date}</td>
-                <td className="border border-[#211D14] px-3 py-2">{item.description}</td>
-                <td className="border border-[#211D14] px-3 py-2">{item.vendor || "-"}</td>
-                <td className="border border-[#211D14] px-3 py-2 text-right">{item.amount.toLocaleString("ko-KR")}</td>
+                <td className={td}>{item.description}</td>
+                <td className={td}>{item.vendor || "-"}</td>
+                <td className={td}>{item.amount.toLocaleString("ko-KR")}</td>
               </tr>
             ))
           )}
           <tr className="bg-[#F5F3EA] font-bold">
-            <td colSpan={3} className="border border-[#211D14] px-3 py-2 text-right">
+            <td colSpan={2} className={td}>
               합계
             </td>
-            <td className="border border-[#211D14] px-3 py-2 text-right">{totalAmount.toLocaleString("ko-KR")}원</td>
+            <td className={td}>{totalAmount.toLocaleString("ko-KR")}원</td>
           </tr>
         </tbody>
       </table>
 
-      <div className="mb-6 mt-8">
-        <div className="mb-1 text-xs font-medium text-[#4B4739] sm:text-sm">선정 기준</div>
-        <p className="whitespace-pre-wrap rounded-lg border border-[#E7E2D2] p-3 text-xs sm:text-sm">{vendorBasis || "-"}</p>
+      <div className="mb-6">
+        <div className="mb-1 text-xs font-medium text-[#4B4739] sm:text-sm">지시사항</div>
+        <p className="min-h-[60px] whitespace-pre-wrap rounded-lg border border-[#E7E2D2] p-3 text-xs sm:text-sm">
+          {instructions || " "}
+        </p>
       </div>
 
       {(attachmentTypes.length > 0 || attachmentOther) && (
-        <div>
+        <div className="mb-6">
           <div className="mb-1 text-xs font-medium text-[#4B4739] sm:text-sm">증빙 첨부 (인쇄 후 뒷면에 별도 첨부)</div>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5 rounded-lg border border-[#E7E2D2] p-3 text-xs sm:text-sm">
             {attachmentTypes.map((t) => (
@@ -140,6 +175,12 @@ const ExpensePaper = ({
           </div>
         </div>
       )}
+
+      <div className="flex items-center justify-center gap-2">
+        {/* eslint-disable-next-line @next/next/no-img-element -- 인쇄 캡처 안정성을 위해 next/image 대신 일반 img 사용 */}
+        <img src="/logo2.png" alt="강산이엔지" className="h-7 w-7 shrink-0" />
+        <span className="whitespace-nowrap text-sm font-bold tracking-tight">주식회사 강산이엔지</span>
+      </div>
     </div>
   );
 };

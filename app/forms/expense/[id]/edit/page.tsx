@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { getStampSignedUrl } from "@/lib/expense/stamp-image";
-import type { ExpenseApprover, ExpenseItem } from "@/lib/expense/types";
+import type { ExpenseApprover, ExpenseConsultation, ExpenseItem } from "@/lib/expense/types";
 import ExpenseForm from "@/components/main/forms/expense-form";
 import { updateExpenseReport } from "../../actions";
 
@@ -38,6 +38,7 @@ export default async function EditExpenseReportPage({ params }: Props) {
   const stampUrl = await getStampSignedUrl(supabase, profile?.stamp_path ?? null);
 
   const items = report.items as unknown as ExpenseItem[];
+  const consultations = report.consultations as unknown as ExpenseConsultation[];
   const approvers = report.approvers as unknown as ExpenseApprover[];
   const approverByOrder = (order: number) => approvers.find((a) => a.order === order)?.userId ?? "";
 
@@ -55,12 +56,13 @@ export default async function EditExpenseReportPage({ params }: Props) {
       initial={{
         title: report.title,
         content: report.content,
-        items: items.map((it) => ({ date: it.date, description: it.description, vendor: it.vendor, amount: String(it.amount) })),
-        paymentMethod: report.payment_method,
-        vendorBasis: report.vendor_basis,
+        items: items.map((it) => ({ description: it.description, vendor: it.vendor, amount: String(it.amount) })),
+        consultations: consultations.length > 0 ? consultations.map((c) => c.department) : [""],
+        instructions: report.instructions,
         approver1: approverByOrder(1),
         approver2: approverByOrder(2),
         approver3: approverByOrder(3),
+        approver4: approverByOrder(4),
         attachmentTypes: (report.attachment_types as unknown as string[]) ?? [],
         attachmentOther: report.attachment_other,
       }}
