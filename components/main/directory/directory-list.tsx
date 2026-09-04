@@ -18,55 +18,63 @@ const PhoneIcon = () => (
 const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: boolean }) => {
   const colors = DEPT_COLORS_LIGHT[getDeptClass(employee.department)];
 
-  return (
-    <div className="flex items-center gap-4 rounded-2xl border border-[#E7E2D2] bg-white p-5">
-      <div
-        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${colors.bg} ${colors.text}`}
+  const actions = isAdmin && (
+    <>
+      <Link
+        href={`/directory/${employee.id}/edit`}
+        className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-1.5 text-sm font-medium text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
       >
-        {employee.name.slice(0, 1)}
-      </div>
+        수정
+      </Link>
+      <DeleteEmployeeButton id={employee.id} name={employee.name} />
+    </>
+  );
 
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="truncate text-base font-semibold text-[#211D14]">{employee.name}</span>
-          <span className="text-sm text-[#6B6455]">{employee.job_title}</span>
-          {employee.company && <span className="text-xs text-[#8A8270]">· {employee.company}</span>}
-          {employee.work_location && <span className="text-xs text-[#8A8270]">· {employee.work_location}</span>}
+  return (
+    <div className="rounded-2xl border border-[#E7E2D2] bg-white p-5">
+      <div className="flex items-start gap-4">
+        <div
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${colors.bg} ${colors.text}`}
+        >
+          {employee.name.slice(0, 1)}
         </div>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
-          <span
-            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.text} ${colors.border}`}
-          >
-            {employee.department}
-          </span>
-          <a
-            href={`tel:${employee.phone}`}
-            className="inline-flex items-center gap-1 text-sm text-[#4B4739] transition-colors hover:text-[#211D14]"
-          >
-            <PhoneIcon />
-            {employee.phone}
-          </a>
-          {employee.direct_line && (
-            <a
-              href={`tel:${employee.direct_line}`}
-              className="inline-flex items-center gap-1 text-sm text-[#8A8270] transition-colors hover:text-[#211D14]"
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="truncate text-base font-semibold text-[#211D14]">{employee.name}</span>
+            <span className="text-sm text-[#6B6455]">{employee.job_title}</span>
+            {employee.company && <span className="text-xs text-[#8A8270]">· {employee.company}</span>}
+            {employee.work_location && <span className="text-xs text-[#8A8270]">· {employee.work_location}</span>}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${colors.bg} ${colors.text} ${colors.border}`}
             >
-              직통 {employee.direct_line}
+              {employee.department}
+            </span>
+            <a
+              href={`tel:${employee.phone}`}
+              className="inline-flex items-center gap-1 text-sm text-[#4B4739] transition-colors hover:text-[#211D14]"
+            >
+              <PhoneIcon />
+              {employee.phone}
             </a>
-          )}
+            {employee.direct_line && (
+              <a
+                href={`tel:${employee.direct_line}`}
+                className="inline-flex items-center gap-1 text-sm text-[#8A8270] transition-colors hover:text-[#211D14]"
+              >
+                직통 {employee.direct_line}
+              </a>
+            )}
+          </div>
         </div>
+
+        {isAdmin && <div className="hidden shrink-0 items-center gap-2 sm:flex">{actions}</div>}
       </div>
 
       {isAdmin && (
-        <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href={`/directory/${employee.id}/edit`}
-            className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-1.5 text-sm font-medium text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
-          >
-            수정
-          </Link>
-          <DeleteEmployeeButton id={employee.id} name={employee.name} />
-        </div>
+        <div className="mt-4 flex items-center justify-end gap-2 border-t border-[#F0ECDD] pt-3 sm:hidden">{actions}</div>
       )}
     </div>
   );
