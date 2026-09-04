@@ -77,7 +77,7 @@ export function getDeptRank(dept: string): number {
   return DEPT_RANK[d] ?? 99;
 }
 
-export const JOB_TITLES = ["전무", "이사", "실장", "부장", "차장", "과장", "대리", "주임", "사원"] as const;
+export const JOB_TITLES = ["전무", "이사", "부장", "실장", "차장", "과장", "대리", "주임", "사원"] as const;
 
 const JOB_TITLE_RANK: Record<string, number> = Object.fromEntries(JOB_TITLES.map((title, i) => [title, i]));
 
