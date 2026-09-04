@@ -21,12 +21,15 @@ export async function createEmployeeAccount(
   const adminName = adminProfileName ?? user.email ?? "관리자";
 
   const name = String(formData.get("name") ?? "").trim();
+  const company = String(formData.get("company") ?? "").trim();
+  const workLocation = String(formData.get("work_location") ?? "").trim();
   const department = String(formData.get("department") ?? "").trim();
   const jobTitle = String(formData.get("job_title") ?? "").trim();
   const phoneRaw = String(formData.get("phone") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
   if (!name) return { error: "이름을 입력해주세요." };
+  if (!workLocation) return { error: "근무지를 선택해주세요." };
   if (!department) return { error: "부서를 입력해주세요." };
   if (!jobTitle) return { error: "직급을 입력해주세요." };
   if (!phoneRaw) return { error: "전화번호를 입력해주세요." };
@@ -61,6 +64,8 @@ export async function createEmployeeAccount(
     id: created.user.id,
     email,
     name,
+    company,
+    work_location: workLocation,
     department,
     job_title: jobTitle,
     phone: formattedPhone,
@@ -77,6 +82,8 @@ export async function createEmployeeAccount(
   const { error: directoryError } = await admin.from("employees").upsert({
     id: created.user.id,
     name,
+    company,
+    work_location: workLocation,
     department,
     job_title: jobTitle,
     phone: formattedPhone,
@@ -90,6 +97,88 @@ export async function createEmployeeAccount(
     level: "info",
     action: "CREATE_EMPLOYEE",
     message: `${adminName}님이 ${name}(${email}) 계정을 생성했습니다.`,
+    actorId: adminId,
+    actorName: adminName,
+  });
+
+  revalidatePath("/admin/employees");
+  redirect("/admin/employees");
+}
+
+export async function updateEmployeeAccount(
+  id: string,
+  _prevState: EmployeeAccountFormState,
+  formData: FormData
+): Promise<EmployeeAccountFormState> {
+  const { user, name: adminProfileName } = await requireAdmin("/dashboard");
+  const adminId = user.id;
+  const adminName = adminProfileName ?? user.email ?? "관리자";
+
+  const name = String(formData.get("name") ?? "").trim();
+  const company = String(formData.get("company") ?? "").trim();
+  const workLocation = String(formData.get("work_location") ?? "").trim();
+  const department = String(formData.get("department") ?? "").trim();
+  const jobTitle = String(formData.get("job_title") ?? "").trim();
+  const phoneRaw = String(formData.get("phone") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+
+  if (!name) return { error: "이름을 입력해주세요." };
+  if (!workLocation) return { error: "근무지를 선택해주세요." };
+  if (!department) return { error: "부서를 입력해주세요." };
+  if (!jobTitle) return { error: "직급을 입력해주세요." };
+  if (!phoneRaw) return { error: "전화번호를 입력해주세요." };
+  if (password && password.length < 4) return { error: "비밀번호는 4자 이상 입력해주세요." };
+
+  const digits = phoneRaw.replace(/\D/g, "");
+  if (digits.length < 4) return { error: "전화번호를 정확히 입력해주세요." };
+  const email = `${digits.slice(-4)}@${EMAIL_DOMAIN}`;
+  const formattedPhone = formatPhoneNumber(phoneRaw);
+
+  const admin = createAdminClient();
+
+  const { data: existing } = await admin
+    .from("employees")
+    .select("id")
+    .eq("phone", formattedPhone)
+    .neq("id", id)
+    .maybeSingle();
+  if (existing) return { error: "이미 등록된 전화번호입니다. 주소록에서 기존 직원 정보를 확인해주세요." };
+
+  const { error: authError } = await admin.auth.admin.updateUserById(id, {
+    email,
+    email_confirm: true,
+    ...(password ? { password } : {}),
+  });
+
+  if (authError) {
+    const dup = authError.message?.toLowerCase().includes("already");
+    return {
+      error: dup
+        ? `이미 사용 중인 전화번호 뒷자리입니다 (${email}). 다른 번호를 확인해주세요.`
+        : "계정 정보 수정 중 오류가 발생했습니다.",
+    };
+  }
+
+  const { error: profileError } = await admin
+    .from("users")
+    .update({ email, name, company, work_location: workLocation, department, job_title: jobTitle, phone: formattedPhone })
+    .eq("id", id);
+
+  if (profileError) return { error: "직원 정보 저장 중 오류가 발생했습니다." };
+
+  const { error: directoryError } = await admin
+    .from("employees")
+    .update({ name, company, work_location: workLocation, department, job_title: jobTitle, phone: formattedPhone })
+    .eq("id", id);
+
+  if (directoryError) {
+    console.error("Failed to sync employee to directory:", directoryError);
+  }
+
+  await writeLog({
+    level: "info",
+    action: "UPDATE_EMPLOYEE",
+    message: `${adminName}님이 ${name}(${email}) 계정 정보를 수정했습니다.`,
     actorId: adminId,
     actorName: adminName,
   });

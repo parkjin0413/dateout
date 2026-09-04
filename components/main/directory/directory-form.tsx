@@ -4,8 +4,10 @@ import { useActionState, type ReactNode } from "react";
 import Link from "next/link";
 
 import type { DirectoryFormState } from "@/app/directory/actions";
+import { COMPANY_OPTIONS } from "@/lib/company";
 import { DEPARTMENT_OPTIONS } from "@/lib/directory/dept";
 import type { Employee } from "@/lib/directory/types";
+import { WORK_LOCATION_OPTIONS } from "@/lib/work-location";
 
 const inputCls =
   "w-full rounded-lg border border-[#E7E2D2] bg-white px-3 py-2.5 text-base text-[#211D14] outline-none transition-colors focus:border-[#0F5C56]";
@@ -34,23 +36,41 @@ const DirectoryForm = ({ mode, action, employee }: Props) => {
       </div>
 
       <form action={formAction} className="max-w-lg space-y-5 rounded-2xl border border-[#E7E2D2] bg-white p-6">
-        <Field label="부서">
-          <input
-            name="department"
-            list="department-options"
-            defaultValue={employee?.department ?? ""}
-            placeholder="예) 영업부, 경영진"
-            required
-            className={inputCls}
-          />
-          <datalist id="department-options">
-            {DEPARTMENT_OPTIONS.map((opt) => (
-              <option key={opt} value={opt} />
+        <Field label="소속">
+          <select name="company" defaultValue={employee?.company ?? ""} className={inputCls}>
+            {COMPANY_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
             ))}
-          </datalist>
-          <p className="mt-1 text-sm text-[#8A8270]">
-            목록에 없는 부서(예: 대표이사 등)는 직접 입력하세요.
-          </p>
+            <option value="">미선택</option>
+          </select>
+        </Field>
+
+        <Field label="근무지">
+          <select name="work_location" defaultValue={employee?.work_location ?? ""} required className={inputCls}>
+            <option value="" disabled>
+              선택하세요
+            </option>
+            {WORK_LOCATION_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field label="부서">
+          <select name="department" defaultValue={employee?.department ?? ""} required className={inputCls}>
+            <option value="" disabled>
+              선택하세요
+            </option>
+            {DEPARTMENT_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
         </Field>
 
         <Field label="직급">

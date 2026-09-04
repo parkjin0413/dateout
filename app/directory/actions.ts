@@ -11,6 +11,8 @@ export type DirectoryFormState = { error: string } | null;
 
 function readFields(formData: FormData) {
   return {
+    company: String(formData.get("company") ?? "").trim(),
+    workLocation: String(formData.get("work_location") ?? "").trim(),
     department: String(formData.get("department") ?? "").trim(),
     jobTitle: String(formData.get("job_title") ?? "").trim(),
     name: String(formData.get("name") ?? "").trim(),
@@ -25,7 +27,8 @@ export async function createEmployee(
 ): Promise<DirectoryFormState> {
   const { supabase } = await requireAdmin("/directory");
 
-  const { department, jobTitle, name, phone, directLine } = readFields(formData);
+  const { company, workLocation, department, jobTitle, name, phone, directLine } = readFields(formData);
+  if (!workLocation) return { error: "근무지를 선택해주세요." };
   if (!department) return { error: "부서를 입력해주세요." };
   if (!jobTitle) return { error: "직급을 입력해주세요." };
   if (!name) return { error: "이름을 입력해주세요." };
@@ -37,6 +40,8 @@ export async function createEmployee(
   if (existing) return { error: "이미 등록된 전화번호입니다. 기존 직원 정보를 수정해주세요." };
 
   const { error } = await supabase.from("employees").insert({
+    company,
+    work_location: workLocation,
     department,
     job_title: jobTitle,
     name,
@@ -57,7 +62,8 @@ export async function updateEmployee(
 ): Promise<DirectoryFormState> {
   const { supabase } = await requireAdmin("/directory");
 
-  const { department, jobTitle, name, phone, directLine } = readFields(formData);
+  const { company, workLocation, department, jobTitle, name, phone, directLine } = readFields(formData);
+  if (!workLocation) return { error: "근무지를 선택해주세요." };
   if (!department) return { error: "부서를 입력해주세요." };
   if (!jobTitle) return { error: "직급을 입력해주세요." };
   if (!name) return { error: "이름을 입력해주세요." };
@@ -66,6 +72,8 @@ export async function updateEmployee(
   const { error } = await supabase
     .from("employees")
     .update({
+      company,
+      work_location: workLocation,
       department,
       job_title: jobTitle,
       name,

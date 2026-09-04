@@ -43,7 +43,7 @@ export default async function AdminEmployeesPage() {
 
   const { data: employees } = await supabase
     .from("users")
-    .select("id, name, email, department, job_title, phone, is_admin, created_at")
+    .select("id, name, email, company, work_location, department, job_title, phone, is_admin, created_at")
     .order("created_at", { ascending: true });
 
   const rows = employees ?? [];
@@ -71,10 +71,12 @@ export default async function AdminEmployeesPage() {
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-[#E7E2D2] bg-white">
-        <table className="w-full min-w-[820px] text-base">
+        <table className="w-full min-w-[1020px] text-base">
           <thead>
             <tr className="border-b border-[#E7E2D2] text-left text-sm text-[#8A8270]">
               <th className="px-4 py-4 font-medium">이름</th>
+              <th className="px-4 py-4 font-medium">소속</th>
+              <th className="px-4 py-4 font-medium">근무지</th>
               <th className="px-4 py-4 font-medium">부서</th>
               <th className="px-4 py-4 font-medium">직급</th>
               <th className="px-4 py-4 font-medium">권한</th>
@@ -86,7 +88,7 @@ export default async function AdminEmployeesPage() {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-base text-[#8A8270]">
+                <td colSpan={9} className="px-4 py-12 text-center text-base text-[#8A8270]">
                   등록된 직원이 없습니다.
                 </td>
               </tr>
@@ -94,6 +96,8 @@ export default async function AdminEmployeesPage() {
               rows.map((row) => (
                 <tr key={row.id} className="border-b border-[#EDE7D3] text-[#4B4739]">
                   <td className="px-4 py-4 font-medium text-[#211D14]">{row.name || "-"}</td>
+                  <td className="px-4 py-4">{row.company || "-"}</td>
+                  <td className="px-4 py-4">{row.work_location || "-"}</td>
                   <td className="px-4 py-4">{row.department || "-"}</td>
                   <td className="px-4 py-4">{row.job_title || "-"}</td>
                   <td className="px-4 py-4">
@@ -109,7 +113,15 @@ export default async function AdminEmployeesPage() {
                   <td className="px-4 py-4 text-[#6B6455]">{row.email}</td>
                   <td className="px-4 py-4 text-[#6B6455]">{row.phone || "-"}</td>
                   <td className="px-4 py-4">
-                    {row.id !== user.id && <DeleteEmployeeAccountButton id={row.id} name={row.name || row.email} />}
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href={`/admin/employees/${row.id}/edit`}
+                        className="text-sm font-medium text-[#0F5C56] transition-colors hover:text-[#0C4A45]"
+                      >
+                        수정
+                      </Link>
+                      {row.id !== user.id && <DeleteEmployeeAccountButton id={row.id} name={row.name || row.email} />}
+                    </div>
                   </td>
                 </tr>
               ))

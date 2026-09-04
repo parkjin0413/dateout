@@ -21,7 +21,9 @@ export default async function DirectoryPage({ searchParams }: Props) {
   if (query) {
     const safeQuery = query.replace(/[,()]/g, " ").trim();
     if (safeQuery) {
-      request = request.or(`name.ilike.%${safeQuery}%,department.ilike.%${safeQuery}%,job_title.ilike.%${safeQuery}%`);
+      request = request.or(
+        `name.ilike.%${safeQuery}%,department.ilike.%${safeQuery}%,job_title.ilike.%${safeQuery}%,company.ilike.%${safeQuery}%,work_location.ilike.%${safeQuery}%`
+      );
     }
   }
   const { data: employees, error } = await request;
@@ -46,7 +48,7 @@ export default async function DirectoryPage({ searchParams }: Props) {
               type="text"
               name="q"
               defaultValue={query}
-              placeholder="이름, 부서, 직급 검색"
+              placeholder="이름, 소속, 부서, 직급 검색"
               className="rounded-lg border border-[#E7E2D2] bg-white px-3 py-2 text-base text-[#211D14] outline-none placeholder:text-[#8A8270]"
             />
             <button

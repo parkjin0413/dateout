@@ -30,6 +30,8 @@ const EmployeeCard = ({ employee, isAdmin }: { employee: Employee; isAdmin: bool
         <div className="flex flex-wrap items-center gap-2">
           <span className="truncate text-base font-semibold text-[#211D14]">{employee.name}</span>
           <span className="text-sm text-[#6B6455]">{employee.job_title}</span>
+          {employee.company && <span className="text-xs text-[#8A8270]">· {employee.company}</span>}
+          {employee.work_location && <span className="text-xs text-[#8A8270]">· {employee.work_location}</span>}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <span

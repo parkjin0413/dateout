@@ -112,6 +112,7 @@ export type Database = {
       }
       employees: {
         Row: {
+          company: string
           created_at: string
           department: string
           direct_line: string
@@ -120,8 +121,10 @@ export type Database = {
           name: string
           phone: string
           updated_at: string
+          work_location: string
         }
         Insert: {
+          company?: string
           created_at?: string
           department: string
           direct_line?: string
@@ -130,8 +133,10 @@ export type Database = {
           name: string
           phone?: string
           updated_at?: string
+          work_location?: string
         }
         Update: {
+          company?: string
           created_at?: string
           department?: string
           direct_line?: string
@@ -140,6 +145,7 @@ export type Database = {
           name?: string
           phone?: string
           updated_at?: string
+          work_location?: string
         }
         Relationships: []
       }
@@ -476,6 +482,7 @@ export type Database = {
       users: {
         Row: {
           avatar_url: string | null
+          company: string
           created_at: string
           department: string
           email: string
@@ -485,9 +492,11 @@ export type Database = {
           name: string | null
           phone: string
           stamp_path: string | null
+          work_location: string
         }
         Insert: {
           avatar_url?: string | null
+          company?: string
           created_at?: string
           department?: string
           email: string
@@ -497,9 +506,11 @@ export type Database = {
           name?: string | null
           phone?: string
           stamp_path?: string | null
+          work_location?: string
         }
         Update: {
           avatar_url?: string | null
+          company?: string
           created_at?: string
           department?: string
           email?: string
@@ -509,6 +520,7 @@ export type Database = {
           name?: string | null
           phone?: string
           stamp_path?: string | null
+          work_location?: string
         }
         Relationships: []
       }
