@@ -39,7 +39,9 @@ export default async function DirectoryPage({ searchParams }: Props) {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-[#211D14]">직원명부</h1>
-          <p className="mt-1 text-base text-[#6B6455]">부서·직급·연락처로 동료를 빠르게 찾아보세요.</p>
+          <p className="mt-1 text-base text-[#6B6455]">
+            부서·직급·연락처로 동료를 빠르게 찾아보세요. &lsquo;연락처 파일&rsquo;을 받아 휴대폰 주소록에 한 번에 저장할 수 있습니다.
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -58,6 +60,14 @@ export default async function DirectoryPage({ searchParams }: Props) {
               검색
             </button>
           </form>
+
+          <a
+            href={query ? `/directory/vcard?q=${encodeURIComponent(query)}` : "/directory/vcard"}
+            download
+            className="rounded-lg border border-[#E7E2D2] px-4 py-2 text-base font-semibold text-[#4B4739] transition-colors hover:bg-[#F5F3EA]"
+          >
+            연락처 파일
+          </a>
 
           {isAdmin && (
             <Link
