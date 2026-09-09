@@ -37,7 +37,7 @@ export const COMPANY_INFO: CompanyInfo[] = [
   {
     name: "더패스트",
     ceo: "장윤정",
-    address: "경기 양주시 천보산로 71번길 22-17 이동",
+    address: "경기 양주시 천보산로 71번길 22-17, 이동",
     bizNo: "501-87-02496",
     phone: "031-868-8878",
     email: "thefast21@daum.net",
