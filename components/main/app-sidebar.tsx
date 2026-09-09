@@ -9,7 +9,10 @@ import { useAuth } from "@/contexts/auth-context";
 import { FieldTripIcon } from "@/components/common/icons";
 import logo from "@/public/logo2.png";
 
-const TOP_LINKS = [{ label: "대시보드", href: "/dashboard", icon: "dashboard" }] as const;
+const TOP_LINKS = [
+  { label: "대시보드", href: "/dashboard", icon: "dashboard" },
+  { label: "회사정보", href: "/company", icon: "company" },
+] as const;
 
 const NAV_GROUPS = [
   {
@@ -53,6 +56,14 @@ const NavIcon = ({ kind }: { kind: IconKind }) => {
           <rect x="13" y="3.5" width="7.5" height="4.5" rx="1.5" />
           <rect x="13" y="10.5" width="7.5" height="10" rx="1.5" />
           <rect x="3.5" y="13.5" width="7.5" height="7" rx="1.5" />
+        </svg>
+      );
+    case "company":
+      return (
+        <svg {...common} className="h-5 w-5">
+          <rect x="4" y="3.5" width="11" height="17" rx="1.5" />
+          <path d="M15 8.5h4a1 1 0 0 1 1 1v9.5a1 1 0 0 1-1 1h-4" />
+          <path d="M7.5 7.5h4M7.5 11h4M7.5 14.5h4" />
         </svg>
       );
     case "trip":
