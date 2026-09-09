@@ -279,10 +279,10 @@ const AppSidebar = () => {
         style={{ opacity: mobileOpen ? 1 : 0, pointerEvents: mobileOpen ? "auto" : "none" }}
         aria-hidden={!mobileOpen}
       >
-        <div className="pt-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain pt-4">
           <NavLinks pathname={pathname} onNavigate={() => setMobileOpen(false)} />
         </div>
-        <div className="mt-auto">
+        <div className="shrink-0">
           <UserBlock onSignOut={signOut} />
         </div>
       </div>
